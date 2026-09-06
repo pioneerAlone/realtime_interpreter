@@ -1,20 +1,10 @@
 # Issue tracker: GitHub
 
-> **Setup-time status (2026-09-06):** This repo is configured for **GitHub Issues** as the long-term home for issues, specs, and wayfinder tickets. The chosen template is `issue-tracker-github.md` from the `setup-matt-pocock-skills` skill.
->
-> However, the run that wrote this file detected **three blocking conditions** that prevent `gh` from talking to GitHub today. They are recorded here so the next operator (human or agent) can finish the bring-up; **the configuration itself is correct — only the runtime environment is not yet ready**.
->
-> **Blockers observed at setup time**
-> 1. `git rev-parse --show-toplevel` → `fatal: not a git repository`. This repo has no `.git/`. GitHub Issues are addressed by `owner/repo`; without a git remote, `gh` cannot infer the target.
-> 2. `gh auth status` → `The token in default is invalid. (HTTP 401)`. The `pioneerAlone` account on `github.com` is logged in but the stored token is rejected. Until `gh auth login -h github.com` succeeds, every `gh issue …` call will 401.
-> 3. `curl https://github.com/…` and `gh auth login` both time out on TCP. `github.com` is not reachable from this machine right now (DNS / firewall / proxy issue). Even with a valid token, calls cannot reach the API.
->
-> **To finish the bring-up**, all three must be resolved in order:
-> - `git init && git remote add origin git@github.com:<owner>/realtime_interpreter.git` (replace `<owner>` with the intended GitHub owner, then push once so the repo exists on the server).
-> - `gh auth login -h github.com` (or paste a fresh token into `gh auth login --with-token`).
-> - Restore network egress to `github.com:443` (check proxy / VPN / DNS).
->
-> Until then, skills like `/triage`, `/to-tickets`, `/to-spec`, and `/wayfinder` should be considered **degraded** for this repo — the convention is right, the wire is down.
+Repository: **https://github.com/pioneerAlone/realtime_interpreter**
+GitHub user: `pioneerAlone` (via `gh` CLI, OAuth token with `repo` + `workflow` scopes).
+Local remote: `origin` → `https://github.com/pioneerAlone/realtime_interpreter.git` (HTTPS).
+
+> **Status (2026-09-06):** Live. Repo created via `gh repo create pioneerAlone/realtime_interpreter --public`. `main` branch pushed at commit `984c37f`. `gh issue list` and `gh label list` both round-trip successfully. Setup-time blockers recorded earlier are resolved.
 
 ---
 
