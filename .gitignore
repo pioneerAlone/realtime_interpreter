@@ -1,0 +1,50 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Build / dist
+build/
+dist/
+*.spec
+
+# Audio debug artefacts (produced by PoC scripts)
+debug_audio/
+*.wav
+*.pcm
+
+# ── Local-only references (NOT shipped, NOT pushed) ───────────────────
+# realtime_interpreter_Minimal_Implementation/ holds the A-channel PoC
+# (mac_ast2_s2s_v2.py + auth_test.py + ast_proto/ + ...). It is **local
+# reference material only**. It is published separately as
+# github.com/wangbo/realtime_interpreter-poc, never in this repo.
+realtime_interpreter_Minimal_Implementation/
+
+# Local scratch pads — wayfinder / research / triage working areas
+# (committed here because they're the source of truth while the
+# GitHub tracker is offline; remove this exemption once the
+# issue-tracker is reachable and these migrate to issues.)
+# .scratch/  ← intentionally NOT ignored for now; remove this line later
+
+# Secrets / local config
+.env
+.env.local
+config/config.py
