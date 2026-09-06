@@ -1,0 +1,162 @@
+[
+  {
+    "name": "LICENSE",
+    "path": "LICENSE",
+    "sha": "9b1dd49441cd594560125cc7d79e886d0816cd8f",
+    "size": 11343,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/LICENSE?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/LICENSE",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/9b1dd49441cd594560125cc7d79e886d0816cd8f",
+    "download_url": "https://raw.githubusercontent.com/QwenLM/Qwen2.5-Omni/main/LICENSE",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/LICENSE?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/9b1dd49441cd594560125cc7d79e886d0816cd8f",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/LICENSE"
+    }
+  },
+  {
+    "name": "README.md",
+    "path": "README.md",
+    "sha": "495ea7afd8e13c79e81ac96c8b4890847aaaecef",
+    "size": 59911,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/README.md?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/README.md",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/495ea7afd8e13c79e81ac96c8b4890847aaaecef",
+    "download_url": "https://raw.githubusercontent.com/QwenLM/Qwen2.5-Omni/main/README.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/README.md?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/495ea7afd8e13c79e81ac96c8b4890847aaaecef",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/README.md"
+    }
+  },
+  {
+    "name": "README_CN.md",
+    "path": "README_CN.md",
+    "sha": "385f6b072708c680d54e27f787c5bce4e6b9363f",
+    "size": 58257,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/README_CN.md?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/README_CN.md",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/385f6b072708c680d54e27f787c5bce4e6b9363f",
+    "download_url": "https://raw.githubusercontent.com/QwenLM/Qwen2.5-Omni/main/README_CN.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/README_CN.md?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/385f6b072708c680d54e27f787c5bce4e6b9363f",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/README_CN.md"
+    }
+  },
+  {
+    "name": "assets",
+    "path": "assets",
+    "sha": "6a64464e83ee66e29f2f31c16bf3fa7f9f2005dd",
+    "size": 0,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/assets?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/assets",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/6a64464e83ee66e29f2f31c16bf3fa7f9f2005dd",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/assets?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/6a64464e83ee66e29f2f31c16bf3fa7f9f2005dd",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/assets"
+    }
+  },
+  {
+    "name": "cookbooks",
+    "path": "cookbooks",
+    "sha": "2e0c78eb4d2501584e0520010f6b9bcd65a6bd5a",
+    "size": 0,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/cookbooks?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/cookbooks",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/2e0c78eb4d2501584e0520010f6b9bcd65a6bd5a",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/cookbooks?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/2e0c78eb4d2501584e0520010f6b9bcd65a6bd5a",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/cookbooks"
+    }
+  },
+  {
+    "name": "docker",
+    "path": "docker",
+    "sha": "b200bc612c616f61133583e120599f6cfda531ef",
+    "size": 0,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/docker?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/docker",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/b200bc612c616f61133583e120599f6cfda531ef",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/docker?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/b200bc612c616f61133583e120599f6cfda531ef",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/docker"
+    }
+  },
+  {
+    "name": "low-VRAM-mode",
+    "path": "low-VRAM-mode",
+    "sha": "c1de6da98d4aaf8069fa7545d849b2dc5cd3596c",
+    "size": 0,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/low-VRAM-mode?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/low-VRAM-mode",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/c1de6da98d4aaf8069fa7545d849b2dc5cd3596c",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/low-VRAM-mode?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/c1de6da98d4aaf8069fa7545d849b2dc5cd3596c",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/low-VRAM-mode"
+    }
+  },
+  {
+    "name": "qwen-omni-utils",
+    "path": "qwen-omni-utils",
+    "sha": "d42c4954c973bd1ee43a96fb4a692089e3514ea9",
+    "size": 0,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/qwen-omni-utils?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/qwen-omni-utils",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/d42c4954c973bd1ee43a96fb4a692089e3514ea9",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/qwen-omni-utils?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/trees/d42c4954c973bd1ee43a96fb4a692089e3514ea9",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/tree/main/qwen-omni-utils"
+    }
+  },
+  {
+    "name": "requirements_web_demo.txt",
+    "path": "requirements_web_demo.txt",
+    "sha": "f8a523085b38c01ce12ce5dd7f005e41877aa4a8",
+    "size": 309,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/requirements_web_demo.txt?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/requirements_web_demo.txt",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/f8a523085b38c01ce12ce5dd7f005e41877aa4a8",
+    "download_url": "https://raw.githubusercontent.com/QwenLM/Qwen2.5-Omni/main/requirements_web_demo.txt",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/requirements_web_demo.txt?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/f8a523085b38c01ce12ce5dd7f005e41877aa4a8",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/requirements_web_demo.txt"
+    }
+  },
+  {
+    "name": "web_demo.py",
+    "path": "web_demo.py",
+    "sha": "3fdb00b9c99ac4c54da9fadb89abdd67dcda8929",
+    "size": 18163,
+    "url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/web_demo.py?ref=main",
+    "html_url": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/web_demo.py",
+    "git_url": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/3fdb00b9c99ac4c54da9fadb89abdd67dcda8929",
+    "download_url": "https://raw.githubusercontent.com/QwenLM/Qwen2.5-Omni/main/web_demo.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/contents/web_demo.py?ref=main",
+      "git": "https://api.github.com/repos/QwenLM/Qwen2.5-Omni/git/blobs/3fdb00b9c99ac4c54da9fadb89abdd67dcda8929",
+      "html": "https://github.com/QwenLM/Qwen2.5-Omni/blob/main/web_demo.py"
+    }
+  }
+]

@@ -1,0 +1,22 @@
+# 实时同传系统 - Python 依赖
+# Python 版本要求: 3.9 ~ 3.12 (不支持 3.13+, sounddevice 无预编译 wheel)
+
+# ── 核心依赖 (验证阶段必需) ──
+sounddevice>=0.4.6        # 音频采集与播放 (PortAudio 绑定, RawOutputStream 低延迟)
+numpy>=1.24.0              # 数值计算
+websockets>=12.0           # WebSocket 客户端 (异步)
+protobuf>=4.25.0           # Protocol Buffers (AST 2.0 协议)
+
+# ── Opus 解码 (二选一) ──
+# 验证阶段: soundfile (pip直接安装, 无需原生依赖, 但音质一般)
+soundfile>=0.12.1          # 音频文件读写 (ogg_opus 解码, 验证阶段用)
+
+# 生产阶段推荐: pyogg (libogg+libopus 原生解码, 音质好延迟低)
+# macOS 安装: brew install libogg opus && pip install pyogg
+# Windows 安装: 需预编译 libogg.dll + opus.dll, 或用 pyogg 的 wheel
+# pyogg>=0.6.14a1          # OGG+Opus 原生解码 (生产阶段推荐, 需原生库)
+
+# ── 可选依赖 ──
+# soxr>=0.3.7              # 高质量重采样 (未安装时用线性插值兜底)
+# onnxruntime>=1.16.0      # DeepFilterNet 本地降噪 (需下载 dfnet.onnx 模型)
+# deepfilternet>=0.5.6     # 本地实时 AI 降噪 (生产阶段推荐)

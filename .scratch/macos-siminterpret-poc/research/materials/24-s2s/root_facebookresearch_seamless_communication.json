@@ -1,0 +1,338 @@
+[
+  {
+    "name": ".gitignore",
+    "path": ".gitignore",
+    "sha": "8e2ef3cec7bb3c1dd53478b89daec0a2f559a18e",
+    "size": 1861,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/.gitignore?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/.gitignore",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/8e2ef3cec7bb3c1dd53478b89daec0a2f559a18e",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/.gitignore",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/.gitignore?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/8e2ef3cec7bb3c1dd53478b89daec0a2f559a18e",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/.gitignore"
+    }
+  },
+  {
+    "name": ".gitmodules",
+    "path": ".gitmodules",
+    "sha": "fb8b097361f2dbee7be8bbfdd52ee9ff4c48edaa",
+    "size": 84,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/.gitmodules?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/.gitmodules",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/fb8b097361f2dbee7be8bbfdd52ee9ff4c48edaa",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/.gitmodules",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/.gitmodules?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/fb8b097361f2dbee7be8bbfdd52ee9ff4c48edaa",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/.gitmodules"
+    }
+  },
+  {
+    "name": ".pre-commit-config.yaml",
+    "path": ".pre-commit-config.yaml",
+    "sha": "142ed1022e4becc9b8545192df9030683c3f4ac1",
+    "size": 360,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/.pre-commit-config.yaml?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/.pre-commit-config.yaml",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/142ed1022e4becc9b8545192df9030683c3f4ac1",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/.pre-commit-config.yaml",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/.pre-commit-config.yaml?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/142ed1022e4becc9b8545192df9030683c3f4ac1",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/.pre-commit-config.yaml"
+    }
+  },
+  {
+    "name": "23-11_SEAMLESS_BlogHero_11.17.jpg",
+    "path": "23-11_SEAMLESS_BlogHero_11.17.jpg",
+    "sha": "7da427e2f520a7cf3bd42f60c278382d037eb4f6",
+    "size": 294843,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/23-11_SEAMLESS_BlogHero_11.17.jpg?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/23-11_SEAMLESS_BlogHero_11.17.jpg",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/7da427e2f520a7cf3bd42f60c278382d037eb4f6",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/23-11_SEAMLESS_BlogHero_11.17.jpg",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/23-11_SEAMLESS_BlogHero_11.17.jpg?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/7da427e2f520a7cf3bd42f60c278382d037eb4f6",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/23-11_SEAMLESS_BlogHero_11.17.jpg"
+    }
+  },
+  {
+    "name": "ACCEPTABLE_USE_POLICY",
+    "path": "ACCEPTABLE_USE_POLICY",
+    "sha": "e314209c765e479cdccb37a6eb806326f4ea514c",
+    "size": 4959,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/ACCEPTABLE_USE_POLICY?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/ACCEPTABLE_USE_POLICY",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/e314209c765e479cdccb37a6eb806326f4ea514c",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/ACCEPTABLE_USE_POLICY",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/ACCEPTABLE_USE_POLICY?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/e314209c765e479cdccb37a6eb806326f4ea514c",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/ACCEPTABLE_USE_POLICY"
+    }
+  },
+  {
+    "name": "CODE_OF_CONDUCT.md",
+    "path": "CODE_OF_CONDUCT.md",
+    "sha": "83f431e8feeb7e80d571f39c9f6c1b96857b5f85",
+    "size": 3535,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/CODE_OF_CONDUCT.md?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/CODE_OF_CONDUCT.md",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/83f431e8feeb7e80d571f39c9f6c1b96857b5f85",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/CODE_OF_CONDUCT.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/CODE_OF_CONDUCT.md?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/83f431e8feeb7e80d571f39c9f6c1b96857b5f85",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/CODE_OF_CONDUCT.md"
+    }
+  },
+  {
+    "name": "CONTRIBUTING.md",
+    "path": "CONTRIBUTING.md",
+    "sha": "b317b088128fd7bd1c4463032ecd8e7d030583c8",
+    "size": 1526,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/CONTRIBUTING.md?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/CONTRIBUTING.md",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/b317b088128fd7bd1c4463032ecd8e7d030583c8",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/CONTRIBUTING.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/CONTRIBUTING.md?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/b317b088128fd7bd1c4463032ecd8e7d030583c8",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/CONTRIBUTING.md"
+    }
+  },
+  {
+    "name": "LICENSE",
+    "path": "LICENSE",
+    "sha": "d1bbe803440ca7f70248f7d0f9361abe91e0eddf",
+    "size": 19333,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/LICENSE?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/LICENSE",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/d1bbe803440ca7f70248f7d0f9361abe91e0eddf",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/LICENSE",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/LICENSE?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/d1bbe803440ca7f70248f7d0f9361abe91e0eddf",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/LICENSE"
+    }
+  },
+  {
+    "name": "MIT_LICENSE",
+    "path": "MIT_LICENSE",
+    "sha": "b93be90515ccd0b9daedaa589e42bf5929693f1f",
+    "size": 1088,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/MIT_LICENSE?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/MIT_LICENSE",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/b93be90515ccd0b9daedaa589e42bf5929693f1f",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/MIT_LICENSE",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/MIT_LICENSE?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/b93be90515ccd0b9daedaa589e42bf5929693f1f",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/MIT_LICENSE"
+    }
+  },
+  {
+    "name": "README.md",
+    "path": "README.md",
+    "sha": "55450580bf143764a188104ad4ef21792fffabee",
+    "size": 23402,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/README.md?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/README.md",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/55450580bf143764a188104ad4ef21792fffabee",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/README.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/README.md?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/55450580bf143764a188104ad4ef21792fffabee",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/README.md"
+    }
+  },
+  {
+    "name": "SEAMLESS_LICENSE",
+    "path": "SEAMLESS_LICENSE",
+    "sha": "0fd24abc6bd6dad1742e3d370a80f1cf5deff105",
+    "size": 10034,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/SEAMLESS_LICENSE?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/SEAMLESS_LICENSE",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/0fd24abc6bd6dad1742e3d370a80f1cf5deff105",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/SEAMLESS_LICENSE",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/SEAMLESS_LICENSE?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/0fd24abc6bd6dad1742e3d370a80f1cf5deff105",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/SEAMLESS_LICENSE"
+    }
+  },
+  {
+    "name": "Seamless_Tutorial.ipynb",
+    "path": "Seamless_Tutorial.ipynb",
+    "sha": "e1dfb140c785d490cd72c1f25dfcf1d92d90cda2",
+    "size": 8885634,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/Seamless_Tutorial.ipynb?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/Seamless_Tutorial.ipynb",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/e1dfb140c785d490cd72c1f25dfcf1d92d90cda2",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/Seamless_Tutorial.ipynb",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/Seamless_Tutorial.ipynb?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/e1dfb140c785d490cd72c1f25dfcf1d92d90cda2",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/Seamless_Tutorial.ipynb"
+    }
+  },
+  {
+    "name": "demo",
+    "path": "demo",
+    "sha": "c507da81bd7ae82a2c3c624a483b4b4fad9c5b00",
+    "size": 0,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/demo?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/tree/main/demo",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/c507da81bd7ae82a2c3c624a483b4b4fad9c5b00",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/demo?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/c507da81bd7ae82a2c3c624a483b4b4fad9c5b00",
+      "html": "https://github.com/facebookresearch/seamless_communication/tree/main/demo"
+    }
+  },
+  {
+    "name": "dev_requirements.txt",
+    "path": "dev_requirements.txt",
+    "sha": "b5d8c83bb0c5542ae8c501490ba2b70b606a9fc5",
+    "size": 53,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/dev_requirements.txt?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/dev_requirements.txt",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/b5d8c83bb0c5542ae8c501490ba2b70b606a9fc5",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/dev_requirements.txt",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/dev_requirements.txt?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/b5d8c83bb0c5542ae8c501490ba2b70b606a9fc5",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/dev_requirements.txt"
+    }
+  },
+  {
+    "name": "docs",
+    "path": "docs",
+    "sha": "a6e2478158ceeb6bbe04c17c9155660de7746f99",
+    "size": 0,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/docs?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/tree/main/docs",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/a6e2478158ceeb6bbe04c17c9155660de7746f99",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/docs?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/a6e2478158ceeb6bbe04c17c9155660de7746f99",
+      "html": "https://github.com/facebookresearch/seamless_communication/tree/main/docs"
+    }
+  },
+  {
+    "name": "ggml",
+    "path": "ggml",
+    "sha": "dfa3b757f4929fa0c2e8bf322497416d8f7c74bb",
+    "size": 0,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/ggml?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/tree/main/ggml",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/dfa3b757f4929fa0c2e8bf322497416d8f7c74bb",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/ggml?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/dfa3b757f4929fa0c2e8bf322497416d8f7c74bb",
+      "html": "https://github.com/facebookresearch/seamless_communication/tree/main/ggml"
+    }
+  },
+  {
+    "name": "pyproject.toml",
+    "path": "pyproject.toml",
+    "sha": "fd789e433fb65f5c11cbc22152704185eb527bd7",
+    "size": 982,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/pyproject.toml?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/pyproject.toml",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/fd789e433fb65f5c11cbc22152704185eb527bd7",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/pyproject.toml",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/pyproject.toml?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/fd789e433fb65f5c11cbc22152704185eb527bd7",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/pyproject.toml"
+    }
+  },
+  {
+    "name": "seamlessM4T.png",
+    "path": "seamlessM4T.png",
+    "sha": "cd33a9e134d1b6ec85694e3a1967423bc689b16b",
+    "size": 198534,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/seamlessM4T.png?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/seamlessM4T.png",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/cd33a9e134d1b6ec85694e3a1967423bc689b16b",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/seamlessM4T.png",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/seamlessM4T.png?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/cd33a9e134d1b6ec85694e3a1967423bc689b16b",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/seamlessM4T.png"
+    }
+  },
+  {
+    "name": "setup.py",
+    "path": "setup.py",
+    "sha": "11abbe7e928429c9d1085934a54da390aab327cc",
+    "size": 1945,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/setup.py?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/blob/main/setup.py",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/11abbe7e928429c9d1085934a54da390aab327cc",
+    "download_url": "https://raw.githubusercontent.com/facebookresearch/seamless_communication/main/setup.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/setup.py?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/blobs/11abbe7e928429c9d1085934a54da390aab327cc",
+      "html": "https://github.com/facebookresearch/seamless_communication/blob/main/setup.py"
+    }
+  },
+  {
+    "name": "src",
+    "path": "src",
+    "sha": "8a6ee25559701119868ad804229f2dc731976db5",
+    "size": 0,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/src?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/tree/main/src",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/8a6ee25559701119868ad804229f2dc731976db5",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/src?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/8a6ee25559701119868ad804229f2dc731976db5",
+      "html": "https://github.com/facebookresearch/seamless_communication/tree/main/src"
+    }
+  },
+  {
+    "name": "tests",
+    "path": "tests",
+    "sha": "13d93d245d040373d84adb403756a1cb7434b994",
+    "size": 0,
+    "url": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/tests?ref=main",
+    "html_url": "https://github.com/facebookresearch/seamless_communication/tree/main/tests",
+    "git_url": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/13d93d245d040373d84adb403756a1cb7434b994",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/facebookresearch/seamless_communication/contents/tests?ref=main",
+      "git": "https://api.github.com/repos/facebookresearch/seamless_communication/git/trees/13d93d245d040373d84adb403756a1cb7434b994",
+      "html": "https://github.com/facebookresearch/seamless_communication/tree/main/tests"
+    }
+  }
+]

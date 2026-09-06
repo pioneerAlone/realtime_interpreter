@@ -1,0 +1,290 @@
+[
+  {
+    "name": ".gitignore",
+    "path": ".gitignore",
+    "sha": "0098dbae7137427a72ca723f92f4caebf76843ae",
+    "size": 115,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/.gitignore?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/.gitignore",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/0098dbae7137427a72ca723f92f4caebf76843ae",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/.gitignore",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/.gitignore?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/0098dbae7137427a72ca723f92f4caebf76843ae",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/.gitignore"
+    }
+  },
+  {
+    "name": "Dockerfile",
+    "path": "Dockerfile",
+    "sha": "52ecb3467f422138f0e0626a35128e3f304ccec5",
+    "size": 261,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/Dockerfile?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/Dockerfile",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/52ecb3467f422138f0e0626a35128e3f304ccec5",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/Dockerfile",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/Dockerfile?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/52ecb3467f422138f0e0626a35128e3f304ccec5",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/Dockerfile"
+    }
+  },
+  {
+    "name": "LICENSE",
+    "path": "LICENSE",
+    "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+    "size": 11357,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/LICENSE?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/LICENSE",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/LICENSE",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/LICENSE?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/LICENSE"
+    }
+  },
+  {
+    "name": "README.md",
+    "path": "README.md",
+    "sha": "3ec3ddabbdac14f65776a6553b2cbeb1aff69fcc",
+    "size": 36591,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/README.md?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/README.md",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/3ec3ddabbdac14f65776a6553b2cbeb1aff69fcc",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/README.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/README.md?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/3ec3ddabbdac14f65776a6553b2cbeb1aff69fcc",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/README.md"
+    }
+  },
+  {
+    "name": "assets",
+    "path": "assets",
+    "sha": "ea8bd69c92a4b5d0b932049f8c9272f152cc39da",
+    "size": 0,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/assets?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/tree/main/assets",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/trees/ea8bd69c92a4b5d0b932049f8c9272f152cc39da",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/assets?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/trees/ea8bd69c92a4b5d0b932049f8c9272f152cc39da",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/tree/main/assets"
+    }
+  },
+  {
+    "name": "cosyvoice2",
+    "path": "cosyvoice2",
+    "sha": "baf469aad07576087464578e518b9fcb346c43de",
+    "size": 0,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/cosyvoice2?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/tree/main/cosyvoice2",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/trees/baf469aad07576087464578e518b9fcb346c43de",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/cosyvoice2?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/trees/baf469aad07576087464578e518b9fcb346c43de",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/tree/main/cosyvoice2"
+    }
+  },
+  {
+    "name": "examples-base.py",
+    "path": "examples-base.py",
+    "sha": "8bc5769bcf84e6211a71206291c08bed87127672",
+    "size": 5231,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples-base.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples-base.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/8bc5769bcf84e6211a71206291c08bed87127672",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/examples-base.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples-base.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/8bc5769bcf84e6211a71206291c08bed87127672",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples-base.py"
+    }
+  },
+  {
+    "name": "examples-think.py",
+    "path": "examples-think.py",
+    "sha": "e5883472a2ac8548d2a491bbcc7370a7b78f53f3",
+    "size": 4148,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples-think.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples-think.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/e5883472a2ac8548d2a491bbcc7370a7b78f53f3",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/examples-think.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples-think.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/e5883472a2ac8548d2a491bbcc7370a7b78f53f3",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples-think.py"
+    }
+  },
+  {
+    "name": "examples-vllm-stream.py",
+    "path": "examples-vllm-stream.py",
+    "sha": "866fb451cd0ea6551a488b64b36efed51627705f",
+    "size": 4902,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples-vllm-stream.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples-vllm-stream.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/866fb451cd0ea6551a488b64b36efed51627705f",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/examples-vllm-stream.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples-vllm-stream.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/866fb451cd0ea6551a488b64b36efed51627705f",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples-vllm-stream.py"
+    }
+  },
+  {
+    "name": "examples-vllm.py",
+    "path": "examples-vllm.py",
+    "sha": "791d6f5085c14ba2449649f76cccda0e1473898a",
+    "size": 9525,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples-vllm.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples-vllm.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/791d6f5085c14ba2449649f76cccda0e1473898a",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/examples-vllm.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples-vllm.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/791d6f5085c14ba2449649f76cccda0e1473898a",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples-vllm.py"
+    }
+  },
+  {
+    "name": "examples.py",
+    "path": "examples.py",
+    "sha": "fabb06d4720008feb707fe04fc83853c53088fcc",
+    "size": 10082,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/fabb06d4720008feb707fe04fc83853c53088fcc",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/examples.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/examples.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/fabb06d4720008feb707fe04fc83853c53088fcc",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/examples.py"
+    }
+  },
+  {
+    "name": "flashcosyvoice",
+    "path": "flashcosyvoice",
+    "sha": "9570f8396bff00a30dac3b9c8f44fdc785dc9e76",
+    "size": 0,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/flashcosyvoice?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/tree/main/flashcosyvoice",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/trees/9570f8396bff00a30dac3b9c8f44fdc785dc9e76",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/flashcosyvoice?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/trees/9570f8396bff00a30dac3b9c8f44fdc785dc9e76",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/tree/main/flashcosyvoice"
+    }
+  },
+  {
+    "name": "stepaudio2.py",
+    "path": "stepaudio2.py",
+    "sha": "1598da2a37e177aa4de093943969460f46359bb7",
+    "size": 9243,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/stepaudio2.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/stepaudio2.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/1598da2a37e177aa4de093943969460f46359bb7",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/stepaudio2.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/stepaudio2.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/1598da2a37e177aa4de093943969460f46359bb7",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/stepaudio2.py"
+    }
+  },
+  {
+    "name": "stepaudio2vllm.py",
+    "path": "stepaudio2vllm.py",
+    "sha": "1c73efd0e9f019d36f306afeeb217e811f14fc79",
+    "size": 6880,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/stepaudio2vllm.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/stepaudio2vllm.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/1c73efd0e9f019d36f306afeeb217e811f14fc79",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/stepaudio2vllm.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/stepaudio2vllm.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/1c73efd0e9f019d36f306afeeb217e811f14fc79",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/stepaudio2vllm.py"
+    }
+  },
+  {
+    "name": "token2wav.py",
+    "path": "token2wav.py",
+    "sha": "ad4163edc2318778a4ad604d5a30009c5d959e99",
+    "size": 8779,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/token2wav.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/token2wav.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/ad4163edc2318778a4ad604d5a30009c5d959e99",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/token2wav.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/token2wav.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/ad4163edc2318778a4ad604d5a30009c5d959e99",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/token2wav.py"
+    }
+  },
+  {
+    "name": "utils.py",
+    "path": "utils.py",
+    "sha": "7533f0b2c79abbe9aeaaa695266e1cb955b19b26",
+    "size": 3384,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/utils.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/utils.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/7533f0b2c79abbe9aeaaa695266e1cb955b19b26",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/utils.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/utils.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/7533f0b2c79abbe9aeaaa695266e1cb955b19b26",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/utils.py"
+    }
+  },
+  {
+    "name": "web_demo.py",
+    "path": "web_demo.py",
+    "sha": "204573ab524c97b2202c83ff58a063454cfa0a44",
+    "size": 5647,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/web_demo.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/web_demo.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/204573ab524c97b2202c83ff58a063454cfa0a44",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/web_demo.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/web_demo.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/204573ab524c97b2202c83ff58a063454cfa0a44",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/web_demo.py"
+    }
+  },
+  {
+    "name": "web_demo_vllm.py",
+    "path": "web_demo_vllm.py",
+    "sha": "39ec295beb47782843be5060252263d3f384a581",
+    "size": 6044,
+    "url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/web_demo_vllm.py?ref=main",
+    "html_url": "https://github.com/stepfun-ai/Step-Audio2/blob/main/web_demo_vllm.py",
+    "git_url": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/39ec295beb47782843be5060252263d3f384a581",
+    "download_url": "https://raw.githubusercontent.com/stepfun-ai/Step-Audio2/main/web_demo_vllm.py",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/stepfun-ai/Step-Audio2/contents/web_demo_vllm.py?ref=main",
+      "git": "https://api.github.com/repos/stepfun-ai/Step-Audio2/git/blobs/39ec295beb47782843be5060252263d3f384a581",
+      "html": "https://github.com/stepfun-ai/Step-Audio2/blob/main/web_demo_vllm.py"
+    }
+  }
+]

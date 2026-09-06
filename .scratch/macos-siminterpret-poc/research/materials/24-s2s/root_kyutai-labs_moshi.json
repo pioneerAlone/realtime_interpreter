@@ -1,0 +1,354 @@
+[
+  {
+    "name": ".dockerignore",
+    "path": ".dockerignore",
+    "sha": "5ca2c871e9f76a664bad60a034c403294e914591",
+    "size": 13,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/.dockerignore?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/.dockerignore",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/5ca2c871e9f76a664bad60a034c403294e914591",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/.dockerignore",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/.dockerignore?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/5ca2c871e9f76a664bad60a034c403294e914591",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/.dockerignore"
+    }
+  },
+  {
+    "name": ".github",
+    "path": ".github",
+    "sha": "612bed846d1ad7b7b3b9083732c1f9e3a5389201",
+    "size": 0,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/.github?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/tree/main/.github",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/612bed846d1ad7b7b3b9083732c1f9e3a5389201",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/.github?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/612bed846d1ad7b7b3b9083732c1f9e3a5389201",
+      "html": "https://github.com/kyutai-labs/moshi/tree/main/.github"
+    }
+  },
+  {
+    "name": ".gitignore",
+    "path": ".gitignore",
+    "sha": "9b4493fee051513031b961c7ae26daf69e1c7ee7",
+    "size": 3356,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/.gitignore?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/.gitignore",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/9b4493fee051513031b961c7ae26daf69e1c7ee7",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/.gitignore",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/.gitignore?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/9b4493fee051513031b961c7ae26daf69e1c7ee7",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/.gitignore"
+    }
+  },
+  {
+    "name": ".pre-commit-config.yaml",
+    "path": ".pre-commit-config.yaml",
+    "sha": "2ca1109a6f8a034e777070fe0596ea90090f6e34",
+    "size": 1052,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/.pre-commit-config.yaml?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/.pre-commit-config.yaml",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/2ca1109a6f8a034e777070fe0596ea90090f6e34",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/.pre-commit-config.yaml",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/.pre-commit-config.yaml?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/2ca1109a6f8a034e777070fe0596ea90090f6e34",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/.pre-commit-config.yaml"
+    }
+  },
+  {
+    "name": "CONTRIBUTING.md",
+    "path": "CONTRIBUTING.md",
+    "sha": "26211763fe4152837722356f4cf781694743f98e",
+    "size": 3171,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/CONTRIBUTING.md?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/CONTRIBUTING.md",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/26211763fe4152837722356f4cf781694743f98e",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/CONTRIBUTING.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/CONTRIBUTING.md?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/26211763fe4152837722356f4cf781694743f98e",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/CONTRIBUTING.md"
+    }
+  },
+  {
+    "name": "FAQ.md",
+    "path": "FAQ.md",
+    "sha": "053db426174dd43cf40e43f4200a6b395ca5a286",
+    "size": 2585,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/FAQ.md?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/FAQ.md",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/053db426174dd43cf40e43f4200a6b395ca5a286",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/FAQ.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/FAQ.md?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/053db426174dd43cf40e43f4200a6b395ca5a286",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/FAQ.md"
+    }
+  },
+  {
+    "name": "LICENSE-APACHE",
+    "path": "LICENSE-APACHE",
+    "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+    "size": 11357,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/LICENSE-APACHE?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/LICENSE-APACHE",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/LICENSE-APACHE",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/LICENSE-APACHE?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/LICENSE-APACHE"
+    }
+  },
+  {
+    "name": "LICENSE-MIT",
+    "path": "LICENSE-MIT",
+    "sha": "31aa79387f27e730e33d871925e152e35e428031",
+    "size": 1023,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/LICENSE-MIT?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/LICENSE-MIT",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/31aa79387f27e730e33d871925e152e35e428031",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/LICENSE-MIT",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/LICENSE-MIT?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/31aa79387f27e730e33d871925e152e35e428031",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/LICENSE-MIT"
+    }
+  },
+  {
+    "name": "README.md",
+    "path": "README.md",
+    "sha": "36ec8a5f46c18bf048a4ba225a30430eeffe110a",
+    "size": 14420,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/README.md?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/README.md",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/36ec8a5f46c18bf048a4ba225a30430eeffe110a",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/README.md",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/README.md?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/36ec8a5f46c18bf048a4ba225a30430eeffe110a",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/README.md"
+    }
+  },
+  {
+    "name": "client",
+    "path": "client",
+    "sha": "a2d8e8735d22d9a8b6c2e638e06046bb92a9d463",
+    "size": 0,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/client?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/tree/main/client",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/a2d8e8735d22d9a8b6c2e638e06046bb92a9d463",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/client?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/a2d8e8735d22d9a8b6c2e638e06046bb92a9d463",
+      "html": "https://github.com/kyutai-labs/moshi/tree/main/client"
+    }
+  },
+  {
+    "name": "configs",
+    "path": "configs",
+    "sha": "ea981fea7a4550163ea51e8fc0240e0886f32529",
+    "size": 0,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/configs?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/tree/main/configs",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/ea981fea7a4550163ea51e8fc0240e0886f32529",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/configs?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/ea981fea7a4550163ea51e8fc0240e0886f32529",
+      "html": "https://github.com/kyutai-labs/moshi/tree/main/configs"
+    }
+  },
+  {
+    "name": "data",
+    "path": "data",
+    "sha": "0eb73404181323329819fd2ebdbadf655a934c06",
+    "size": 0,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/data?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/tree/main/data",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/0eb73404181323329819fd2ebdbadf655a934c06",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/data?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/0eb73404181323329819fd2ebdbadf655a934c06",
+      "html": "https://github.com/kyutai-labs/moshi/tree/main/data"
+    }
+  },
+  {
+    "name": "deploy.sh",
+    "path": "deploy.sh",
+    "sha": "a056d46c05ed9307104fffb13183d8547f294288",
+    "size": 210,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/deploy.sh?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/deploy.sh",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/a056d46c05ed9307104fffb13183d8547f294288",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/deploy.sh",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/deploy.sh?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/a056d46c05ed9307104fffb13183d8547f294288",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/deploy.sh"
+    }
+  },
+  {
+    "name": "docker-compose.yml",
+    "path": "docker-compose.yml",
+    "sha": "d9e00bd021f9fa4c0bb4efb5803aeff4db82ae43",
+    "size": 769,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/docker-compose.yml?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/docker-compose.yml",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/d9e00bd021f9fa4c0bb4efb5803aeff4db82ae43",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/docker-compose.yml",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/docker-compose.yml?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/d9e00bd021f9fa4c0bb4efb5803aeff4db82ae43",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/docker-compose.yml"
+    }
+  },
+  {
+    "name": "mimi.png",
+    "path": "mimi.png",
+    "sha": "7082e1f363b34e36eea1a0cb5c3171203c79addb",
+    "size": 579855,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/mimi.png?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/mimi.png",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/7082e1f363b34e36eea1a0cb5c3171203c79addb",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/mimi.png",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/mimi.png?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/7082e1f363b34e36eea1a0cb5c3171203c79addb",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/mimi.png"
+    }
+  },
+  {
+    "name": "moshi.png",
+    "path": "moshi.png",
+    "sha": "e2dfdfe5b1d6393d49705cade5168f32add056ff",
+    "size": 524198,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/moshi.png?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/moshi.png",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/e2dfdfe5b1d6393d49705cade5168f32add056ff",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/moshi.png",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/moshi.png?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/e2dfdfe5b1d6393d49705cade5168f32add056ff",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/moshi.png"
+    }
+  },
+  {
+    "name": "moshi",
+    "path": "moshi",
+    "sha": "00fb4661bdd134a294a9798703e24cd8b84ec316",
+    "size": 0,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/moshi?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/tree/main/moshi",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/00fb4661bdd134a294a9798703e24cd8b84ec316",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/moshi?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/00fb4661bdd134a294a9798703e24cd8b84ec316",
+      "html": "https://github.com/kyutai-labs/moshi/tree/main/moshi"
+    }
+  },
+  {
+    "name": "moshi_mlx",
+    "path": "moshi_mlx",
+    "sha": "49672f29ffcc3d0c6f60aa334b23f6a5f668ae56",
+    "size": 0,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/moshi_mlx?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/tree/main/moshi_mlx",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/49672f29ffcc3d0c6f60aa334b23f6a5f668ae56",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/moshi_mlx?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/49672f29ffcc3d0c6f60aa334b23f6a5f668ae56",
+      "html": "https://github.com/kyutai-labs/moshi/tree/main/moshi_mlx"
+    }
+  },
+  {
+    "name": "requirements-dev.txt",
+    "path": "requirements-dev.txt",
+    "sha": "6f5acfb983542f9d2f4c1c48d23432e87d81c226",
+    "size": 41,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/requirements-dev.txt?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/requirements-dev.txt",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/6f5acfb983542f9d2f4c1c48d23432e87d81c226",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/requirements-dev.txt",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/requirements-dev.txt?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/6f5acfb983542f9d2f4c1c48d23432e87d81c226",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/requirements-dev.txt"
+    }
+  },
+  {
+    "name": "rust",
+    "path": "rust",
+    "sha": "651cee91ea52494d81defd82599c577eb7e24978",
+    "size": 0,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/rust?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/tree/main/rust",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/651cee91ea52494d81defd82599c577eb7e24978",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/rust?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/651cee91ea52494d81defd82599c577eb7e24978",
+      "html": "https://github.com/kyutai-labs/moshi/tree/main/rust"
+    }
+  },
+  {
+    "name": "scripts",
+    "path": "scripts",
+    "sha": "fc655429aa269d10a1c94c6a9845635252b901b0",
+    "size": 0,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/scripts?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/tree/main/scripts",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/fc655429aa269d10a1c94c6a9845635252b901b0",
+    "download_url": null,
+    "type": "dir",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/scripts?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/trees/fc655429aa269d10a1c94c6a9845635252b901b0",
+      "html": "https://github.com/kyutai-labs/moshi/tree/main/scripts"
+    }
+  },
+  {
+    "name": "swarm-config.yml",
+    "path": "swarm-config.yml",
+    "sha": "2a9d99bbbd65baecaf35eca12b2f8385c82a00ee",
+    "size": 3474,
+    "url": "https://api.github.com/repos/kyutai-labs/moshi/contents/swarm-config.yml?ref=main",
+    "html_url": "https://github.com/kyutai-labs/moshi/blob/main/swarm-config.yml",
+    "git_url": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/2a9d99bbbd65baecaf35eca12b2f8385c82a00ee",
+    "download_url": "https://raw.githubusercontent.com/kyutai-labs/moshi/main/swarm-config.yml",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/kyutai-labs/moshi/contents/swarm-config.yml?ref=main",
+      "git": "https://api.github.com/repos/kyutai-labs/moshi/git/blobs/2a9d99bbbd65baecaf35eca12b2f8385c82a00ee",
+      "html": "https://github.com/kyutai-labs/moshi/blob/main/swarm-config.yml"
+    }
+  }
+]
