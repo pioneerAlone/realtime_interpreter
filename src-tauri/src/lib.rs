@@ -10,6 +10,7 @@ mod ipc;
 mod platform;
 mod state;
 
+use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::Arc;
 
 use tauri::{
@@ -82,21 +83,35 @@ pub fn run() {
             for (shortcut, event) in shortcuts {
                 let event_name: &'static str = Box::leak(event.to_string().into_boxed_str());
                 let app_for_handler = app_handle.clone();
-                if let Err(e) = gs.on_shortcut(shortcut, move |_app, _shortcut, ev| {
-                    if ev.state() == ShortcutState::Pressed {
-                        handle_global_hotkey(&app_for_handler, event_name);
-                    }
-                }) {
-                    tracing::warn!(error = %e, "failed to register global shortcut");
+                // Catch panics from Carbon's `RegisterEventHotKey` — on first run
+                // macOS may not have granted Accessibility/Input Monitoring
+                // permission, and tauri-plugin-global-shortcut does not return
+                // Result for permission errors, it can panic deep in Carbon.
+                let register_result = catch_unwind(AssertUnwindSafe(|| {
+                    gs.on_shortcut(shortcut, move |_app, _shortcut, ev| {
+                        if ev.state() == ShortcutState::Pressed {
+                            handle_global_hotkey(&app_for_handler, event_name);
+                        }
+                    })
+                }));
+                if let Err(e) = register_result {
+                    tracing::warn!(error = ?e, "global shortcut register panicked (likely macOS permission denied); will retry after user grants Accessibility");
                 }
             }
 
             // Convert the subtitle webview window into a non-activating
             // NSPanel once it has been built. This is a no-op on
-            // non-macOS platforms.
+            // non-macOS platforms. Wrapped in catch_unwind because
+            // tauri-nspanel v2's RawNSPanel::from_window can panic
+            // when the webview is not fully constructed yet.
             if let Some(sub_window) = app.get_webview_window("subtitle") {
-                if let Err(e) = platform::macos::convert_capsule_to_nspanel(app.handle(), &sub_window) {
-                    tracing::warn!(error = %e, "NSPanel conversion failed (non-fatal)");
+                let convert_result = catch_unwind(AssertUnwindSafe(|| {
+                    platform::macos::convert_capsule_to_nspanel(app.handle(), &sub_window)
+                }));
+                match convert_result {
+                    Ok(Ok(())) => {}
+                    Ok(Err(e)) => tracing::warn!(error = %e, "NSPanel conversion returned error (non-fatal)"),
+                    Err(panic) => tracing::warn!(?panic, "NSPanel conversion panicked (non-fatal); capsule stays as default webview"),
                 }
             }
 
