@@ -157,12 +157,12 @@ The ScreenCaptureKit path (TransEcho's choice per `.scratch/macos-siminterpret-p
 
 ### 4.2 Two sub-options for the B-channel capture
 
-**[REVIEW]** (also surfaced in `03-b-channel-subtitle.md` §7 [REVIEW] #1):
+~~**[REVIEW]** (also surfaced in `03-b-channel-subtitle.md` §7 [REVIEW] #1):~~ **Locked (per decisions/round-2-confirmations.md D25)**: **BlackHole 16ch + Aggregate Device** for v0. Concretely:
 
-- **Option A (recommended for v0)**: Single BlackHole 16ch as the **meeting software's output device** + Multi-Output Device sends the same audio to both (a) the cpal loopback capture for R4 and (b) the headphones for 原声直出. The meeting software sees BlackHole 16ch as its speaker; the user hears audio in headphones; R4 captures from BlackHole 16ch.
-- **Option B**: Dedicated per-session virtual device (created/removed on session start/end). Cleaner isolation but the user must reconfigure the meeting software each session.
+- **Option A (locked for v0)**: User installs BlackHole 16ch via `brew install blackhole-16ch`, then creates an **Aggregate Device** in Audio MIDI Setup that combines BlackHole 16ch with the system output (headphones). An Aggregate Device is a macOS Audio MIDI Setup construct that bundles multiple physical/virtual audio devices into one logical device the OS sees as a single endpoint — meeting software then sees a single "speaker" that is in fact the combined stream. The meeting software sees BlackHole 16ch (via the Aggregate Device) as its speaker; the user hears audio in headphones; R4 captures from BlackHole 16ch.
+- ~~**Option B**: Dedicated per-session virtual device (created/removed on session start/end). Cleaner isolation but the user must reconfigure the meeting software each session.~~ Deferred to v1+.
 
-Option A is the PoC pattern (`poc-docs-take.md` §2 row "Virtual-audio-card strategy" mentions Multi-Output Device).
+Option A is the PoC pattern (`poc-docs-take.md` §2 row "Virtual-audio-card strategy" mentions Multi-Output Device). The user's spirit per D25 is "BlackHole + Aggregate"; 16ch is the operational choice over 2ch for future-proof routing (the 2ch variant has only 2 channels which constrains future use cases).
 
 ---
 
@@ -188,10 +188,10 @@ All three surfaces update the same Zustand `bypass` boolean; Rust listens via Ta
 
 | State | B-channel audio |
 |---|---|
-| OFF → ON | Rust stops sending `TaskRequest` frames to the Doubao S2T WS; closes the WS cleanly; routes BlackHole 16ch → headphones via Multi-Output Device (already configured) |
-| ON → OFF | Rust opens a fresh Doubao S2T WS, resumes sending `TaskRequest` frames; Multi-Output Device routing unchanged |
+| OFF → ON | Rust stops sending `TaskRequest` frames to the Doubao S2T WS; closes the WS cleanly; routes BlackHole 16ch → Aggregate Device → headphones only (S2T pipeline idle) |
+| ON → OFF | Rust opens a fresh Doubao S2T WS, resumes sending `TaskRequest` frames; **parallel route from BlackHole 16ch → Aggregate Device → headphones is already active** so the user continues hearing the original English without delay (per D24 parallel-route safety design) |
 
-**[REVIEW]** Default state: **default OFF** (safer for first-time users; they always see translation working and learn what the app does). Alternative: default ON per `03_性能与成本分析.md` L241 cost strategy. See `02-audio-pipeline.md` §8.3 [REVIEW] for the trade-off.
+**Default state (locked per decisions/round-2-confirmations.md D24)**: **OFF**. The parallel route to headphones is the v0 default routing — when bypass is OFF, the user always hears the original English via the parallel route (BlackHole 16ch → Aggregate Device → headphones) and the subtitle window shows the Chinese translation. The S2T pipeline runs concurrently but does NOT gate the audio to headphones. This design satisfies the user's safety requirement: "至少不要影响听到客户的声音".
 
 ---
 
@@ -213,11 +213,11 @@ Voiceprint enrollment would let v1 distinguish `[Speaker A]` vs `[Speaker B]` in
 
 ## 7. [REVIEW] decisions for this section
 
-1. **B-channel audio capture method**: Option A (single BlackHole 16ch + Multi-Output, recommended for v0, simpler, matches PoC pattern) vs Option B (per-session virtual device, cleaner isolation, more setup friction). See §4.2.
-2. **原声直出 default on/off**: Default OFF (recommended for first-time users) vs default ON (recommended by `03_性能与成本分析.md` L241 cost strategy). See §5.3.
+1. ~~**B-channel audio capture method**: Option A (single BlackHole 16ch + Multi-Output, recommended for v0, simpler, matches PoC pattern) vs Option B (per-session virtual device, cleaner isolation, more setup friction).~~ **Locked (per decisions/round-2-confirmations.md D25)**: BlackHole 16ch + Aggregate Device for v0. Per-session virtual device deferred to v1+. The user-selected spirit per D25 is "BlackHole + Aggregate"; 16ch is the operational choice over 2ch (more flexible, future-proof). See §4.2.
+2. ~~**原声直出 default on/off**: Default OFF (recommended for first-time users) vs default ON (recommended by `03_性能与成本分析.md` L241 cost strategy).~~ **Locked (per decisions/round-2-confirmations.md D24)**: **default OFF** at v0 first-run. Subtitle window visible by default; B-channel audio routes through S2T translation pipeline. **Parallel-route safety design**: even when bypass is OFF, headphones always receive the original English via BlackHole 16ch → Aggregate Device → headphones (not blocked by S2T pipeline). Subtitle window shows the Chinese translation. See §5.3.
 3. **Subtitle window default position**: Center of primary display (recommended) vs last-saved position (could be off-screen if external monitor disconnected) vs under the menu bar (macOS convention). Snap-to-default on out-of-bounds is the recommended compromise.
 4. **Subtitle auto-fade vs persistent scroll**: Auto-fade after N seconds (cleaner UI, but loses context) vs persistent scroll (PoC's `01_技术可行性报告.md` L390 "静音时持续输出上一句 — 加静音检测, 静音2秒后自动清空字幕" suggests auto-fade + clear-on-silence is the proven pattern). **Recommendation**: 3-line rolling buffer + clear-on-2s-silence.
-5. **`tauri-nspanel` git dep**: Accept git dependency (Open-Less pattern) vs vendor nspanel glue into our own crate. See §2.2 caveat.
+5. ~~**`tauri-nspanel` git dep**: Accept git dependency (Open-Less pattern) vs vendor nspanel glue into our own crate.~~ **Locked (per decisions/round-2-confirmations.md D20)**: **`tauri-nspanel` git-branch dependency (branch `v2`) is acceptable for v0**. `Cargo.toml` adds `tauri-nspanel = { git = "…", branch = "v2" }` (matching Open-Less usage in `openless-take.md` §5 #1). Vendor a fork if upstream stays unstable, but no v0 work to fork preemptively. See §2.2 caveat.
 6. **Subtitle language pair lock**: v0 is hardcoded `source=en, target=zh` for B-channel (per `00-overview.md` §1 + map.md "destination 只锁中英"). v1+ might allow swap. No UI to change language in v0.
 
 ---

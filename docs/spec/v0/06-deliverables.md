@@ -14,11 +14,11 @@
 - **Build**: Tauri 2 build pipeline (`openless-take.md` §1 "Distribution channel" + `openless-take.md` §4 cross-platform table).
 - **Targets**: `aarch64-apple-darwin` (M1+) + `x86_64-apple-darwin` (Intel).
 - **Bundle ID**: `com.pioneeralone.realtime-interpreter` (placeholder; confirm before shipping).
-- **Notarization**: depends on Apple Developer Program availability — see [REVIEW] §6 #1.
+- **Signing (locked per decisions/round-2-confirmations.md D22)**: **ad-hoc self-sign** via `codesign --force --deep --sign - realtime_interpreter.app` (no Apple Developer Program at v0). The `.app` is **unsigned + un-notarized** at v0; users follow the two-step first-open instructions in §2.1 README.
 
 ### 1.2 DMG installer
 
-- **Signed + notarized** if Apple Developer Program available; otherwise **unsigned DMG with first-launch instructions**.
+- **Unsigned DMG** with first-launch instructions (per D22 — no Apple Developer Program at v0).
 - **Distribution**: GitHub Releases (`openless-take.md` §1 mentions GitHub Releases with `v*-tauri` tag scheme — parent follows the same).
 
 ### 1.3 Source tarball + GitHub release
@@ -33,6 +33,7 @@
 
 ### 2.1 README.md (user-facing)
 
+- **First-open (two-step, per D22)**: because the `.app` is unsigned + un-notarized at v0, the user must either (a) run `xattr -dr com.apple.quarantine /Applications/realtime_interpreter.app` after copying to `/Applications/`, or (b) right-click the `.app` → Open → click "Open" in the Gatekeeper dialog the first time. Subsequent opens are unrestricted.
 - Install BlackHole 2ch + BlackHole 16ch (brew + restart CoreAudio daemon).
 - Configure 4-device wiring (matching the user Q10 screenshot model: mic + BlackHole 2ch + BlackHole 16ch + headphones).
 - Set Doubao API key from 语音控制台 (NOT 方舟控制台) — per `poc-docs-take.md` §3 "Auth scheme" row + `01_技术可行性报告.md` L405–406.
@@ -142,7 +143,7 @@ Per `00-overview.md` §2.2 + `.scratch/macos-siminterpret-poc/map.md` Out of sco
 - **术语库** (`corpus.boosting_table_id`, `corpus.regex_correct_table_id`) — `poc-docs-take.md` §7 row "术语库". Per `.scratch/macos-siminterpret-poc/issues/22-jinxi-customer-tutorial-product-map.md` this is 金喜's core differentiation; v0 ships without it.
 - **多会议软件适配** — explicit per-software UI for Zoom/Teams/腾讯会议/钉钉/飞书/Meet/OBS. v0 supports "any meeting software that uses BlackHole 2ch as the mic input device" — no per-software config. `poc-docs-take.md` §7 row "会议软件配置图文引导".
 - **自动更新** — `electron-updater` → `tauri-updater`. `poc-docs-take.md` §7 row "electron-updater 自动更新 + DMG/NSIS 打包". Defer to v0.1.
-- **代码签名 / 公证** — needs Apple Developer Program enrollment. See [REVIEW] §6 #1.
+- **代码签名 / 公证** — Real Developer-ID signing + Apple notarization deferred to a v0.x release that budgets the enrollment fee. v0 ships ad-hoc self-sign + two-step first-open instructions (locked per D22).
 - **DeepFilterNet 本地降噪** — `poc-docs-take.md` §4.1 stage 3: 100 ms cost not justified for `denoise=false` server-side. v0 uses AGC only (per `latency-budget-v0.md` §3 stage 3).
 - **Subtitle injection into meeting software** (e.g., Zoom built-in caption API) — `map.md` Out of scope "实时字幕的会议软件层注入".
 - **Voiceprint-based speaker identification** — `02_项目架构与技术栈.md` L241; deferred to v1+ per `poc-docs-take.md` §7 row.
@@ -152,7 +153,7 @@ Per `00-overview.md` §2.2 + `.scratch/macos-siminterpret-poc/map.md` Out of sco
 
 ## 6. [REVIEW] decisions for this section
 
-1. **Apple Developer Program availability for code signing**: if available, v0 ships signed + notarized (no first-launch gate). If not, v0 ships unsigned with explicit first-launch instructions (用户 must right-click → Open to bypass Gatekeeper). Recommend: confirm availability before starting the release build pipeline.
+1. ~~**Apple Developer Program availability for code signing**: if available, v0 ships signed + notarized (no first-launch gate). If not, v0 ships unsigned with explicit first-launch instructions (用户 must right-click → Open to bypass Gatekeeper).~~ **Locked (per decisions/round-2-confirmations.md D22)**: **no Apple Developer Program at v0**. v0 ships an unsigned `.app` + unsigned DMG with a two-step first-open flow (either `xattr -dr com.apple.quarantine /Applications/realtime_interpreter.app` or right-click → Open → "Open" in the dialog). Build pipeline (`scripts/build.sh`) adds `codesign --force --deep --sign - realtime_interpreter.app` for ad-hoc self-sign so users don't see "unidentified developer". Real signing + notarization is deferred to a v0.x release that budgets the Developer Program enrollment fee.
 2. **DMG distribution vs brew tap**: v0 ships via GitHub Releases + DMG. A `homebrew-realtime-interpreter` tap is **deferred to v0.1** unless the user wants it at v0 (more setup; not blocking). Recommend: DMG only at v0.
 3. **GitHub release cadence**: per `openless-take.md` §1, Open-Less uses `v*-tauri` tag scheme. Parent uses `v0.X.Y` semver + `v0.X.Y-tauri` artifact tag (matches Open-Less pattern). Pre-releases (`v0.0.1-rc.1`) for any public beta. **[REVIEW]**: confirm cadence (e.g., is v0.0.1 the minimum first ship, or do we wait for v0.1.0 with all 8 acceptance criteria met?).
 4. **Acceptance criteria gating**: do we ship v0 if some of AC1–AC8 fail (e.g., AC3 降噪 is N/A, AC2 音色相似度 requires user-judgement)? Recommend: ship v0.0.1 with all "must-pass" (AC4–AC8) and document "soft" criteria (AC1, AC2) as known limitations in the release notes.

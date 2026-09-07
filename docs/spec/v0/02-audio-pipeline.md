@@ -127,7 +127,7 @@ When 原声直出 is on (§8 below), the ring is **bypassed entirely**: B-channe
 
 ## 5. Opus stream decode design
 
-PoC's `opus_decoder.py` uses `soundfile` (`libsndfile`) and **accumulates `TTSResponse(352)` chunks until `TTSSentenceEnd(351)`, then whole-sentence decodes** — adds 200–500 ms (per `poc-docs-take.md` §4.1 + `01_技术可行性报告.md` L407 row "Opus解码 | soundfile (libsndfile)"). **v0 must not do this.** v0 uses `opus` crate + custom OGG demuxer for **per-chunk decode** (~0.06 ms per 20 ms packet per `16-streaming-first-sound-optimization.md` L61).
+PoC's `opus_decoder.py` uses `soundfile` (`libsndfile`) and **accumulates `TTSResponse(352)` chunks until `TTSSentenceEnd(351)`, then whole-sentence decodes** — adds 200–500 ms (per `poc-docs-take.md` §4.1 + `01_技术可行性报告.md` L407 row "Opus解码 | soundfile (libsndfile)"). **v0 must not do this.** v0 uses `opus` crate + custom OGG demuxer for **per-chunk decode** (~0.06 ms per 20 ms packet per `16-streaming-first-sound-optimization.md` L61). **Locked (per decisions/round-2-confirmations.md D21)**: **inline OGG demuxer** (~50 LoC, ~1 dev-week) ships at v0, no `soundfile` fallback as the canonical path.
 
 ### 5.1 Why a custom OGG demuxer is required
 
@@ -207,23 +207,22 @@ Auto-recovery would require guessing which virtual device the user re-plugged, a
 
 ### 8.2 Routing
 
+**Critical safety requirement (per user: "至少不要影响听到客户的声音")**: when bypass is OFF, the B-channel audio must reach the user's headphones via a **parallel route** (not blocked by the S2T pipeline). The user always hears the original English without delay; the subtitle window shows the Chinese translation. The routing is therefore **two destinations from one source**, not a single pipeline that gates the audio.
+
 | Mode | Audio path | Latency to headphones | API cost |
 |---|---|---|---|
-| **原声直出 ON** | BlackHole 16ch → `cpal` loopback capture → `cpal` direct pass-through output → headphones (bypasses ring buffer entirely) | ~20 ms (BlackHole + CoreAudio HAL) | **0** (no Doubao S2T) |
-| **原声直出 OFF (default)** | BlackHole 16ch → `cpal` loopback → WS → Doubao S2T → subtitle window (no audio to headphones unless R4 TTS is enabled, which v0 does NOT — see `02_项目架构与技术栈.md` L105 `enableTts` default false) | ~1.3–1.5 s for subtitle; no audio | ~50% of B-channel baseline |
+| **原声直出 ON** | BlackHole 16ch → Aggregate Device → headphones only; S2T pipeline idle | ~20 ms (BlackHole + CoreAudio HAL) | **0** (no Doubao S2T) |
+| **原声直出 OFF (default — parallel-route safety)** | BlackHole 16ch → Aggregate Device → split into (a) **directly to headphones** (no S2T delay) and (b) S2T pipeline → subtitle window (Chinese translation shown on screen). Mute path (a) only if S2T pipeline output is > 300 ms ahead of the original to avoid double-audio echo. | ~20 ms to headphones; ~1.3–1.5 s for subtitle | ~50% of B-channel baseline (S2T still called) |
+
+The parallel route is the v0 default per D24 — the user's requirement is that the **original English is never blocked or delayed by the S2T pipeline**. v0 does NOT use a "delayed-bypass" mode (headphones get S2T audio delayed 1.5–2 s); the parallel-route is the only design that satisfies "不要影响听到客户的声音".
 
 ### 8.3 UI affordance
 
-- Tray menu toggle: "原声直出 (Bypass)" with keyboard shortcut `Ctrl+Alt+P` (placeholder; see [REVIEW] below).
+- Tray menu toggle: "原声直出 (Bypass)" with keyboard shortcut `Ctrl+Alt+P` (default OFF; locked per D24).
 - Floating subtitle window: button in the corner.
 - The subtitle window must show a visible "原声直出" banner so the user knows they're hearing the un-translated audio.
 
-**[REVIEW]** Default-on vs default-off trade-off:
-
-- **Default OFF** (safer for first-time users; they always see translation working).
-- **Default ON** (recommended by `03_性能与成本分析.md` L241 cost strategy; saves API cost on first run; user must opt-in to translation).
-
-See `docs/spec/v0/03-b-channel-subtitle.md` §5 [REVIEW].
+**Default state: OFF** (locked per decisions/round-2-confirmations.md D24). Subtitle window visible by default; B-channel audio routes through S2T translation pipeline (with parallel route to headphones per §8.2). Users can toggle 原声直出 ON via tray menu / `Ctrl+Alt+P` hotkey.
 
 ---
 
@@ -233,8 +232,8 @@ See `docs/spec/v0/03-b-channel-subtitle.md` §5 [REVIEW].
 2. **Opus decode frame matching**: confirm Doubao S2S `TTSResponse(352)` chunks arrive at 20 ms cadence in integration testing. If they arrive at variable sizes, the demuxer needs resync logic (additional dev time).
 3. **Ring buffer size**: 40 ms initial (recommended) vs 60 ms (safer for wifi). The right answer depends on which market we ship to first (home wifi vs office wired) per `latency-budget-v0.md` Appendix E decision 3.
 4. **Hot-plug recovery policy**: hard fail + manual restart (recommended, §6.2 Option A) vs auto-pause with reconnect dialog (Option B) vs auto-reconnect to same-name device (Option C, rejected).
-5. **OGG demuxer inline (~50 LoC) vs separate `opus-ogg-demux` crate** (per `latency-budget-v0.md` Appendix E decision 2). Cost of inline: ~2 dev days.
-6. **原声直出 default-on vs default-off** (per §8.3 [REVIEW]).
+5. ~~**OGG demuxer inline (~50 LoC) vs separate `opus-ogg-demux` crate** (per `latency-budget-v0.md` Appendix E decision 2). Cost of inline: ~2 dev days.~~ **Locked (per decisions/round-2-confirmations.md D21)**: inline demuxer (~50 LoC) ships at v0; no `soundfile` fallback.
+6. ~~**原声直出 default-on vs default-off** (per §8.3 [REVIEW]).~~ **Locked (per decisions/round-2-confirmations.md D24)**: **default OFF** at v0 first-run. Subtitle window visible by default, B-channel audio routed through S2T translation pipeline. Users can toggle 原声直出 ON via tray menu / `Ctrl+Alt+P` hotkey.
 
 ---
 

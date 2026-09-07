@@ -71,7 +71,7 @@ The 12 features below constitute v0's contract. Anything not on this list is v1+
 | F9 | System tray + multi-window (settings, floating subtitle, level meter) | `openless-take.md` §2 "How the GUI + native split is structured" (Tauri 2 tray + capsule pattern) |
 | F10 | IPC barrel pattern (`lib/ipc/<domain>.ts` + `index.ts`) | `openless-take.md` §3 + §6 pattern #3 (per-domain file + single index.ts re-export, with `invokeOrMock` 2.0 contract handshake) |
 | F11 | Auto-reconnect with voice re-clone (`format=pcm` is **not** available; we use `ogg_opus`) | `latency-budget-v0.md` §4 R1; `poc-docs-take.md` §3 row "Auth scheme" + "Audio output spec"; `02_项目架构与技术栈.md` L131 |
-| F12 | v1 cascade interface seam (capture frame chunk / subtitle stream / TTS command) | `map.md` Notes "代码里预留 v1 cascade 接口"; `latency-budget-v0.md` §5 |
+| F12 | v1 cascade interface seam (capture frame chunk / subtitle stream / TTS command) | `map.md` Notes "代码里预留 v1 cascade 接口"; `latency-budget-v0.md` §5. **Locked (per decisions/round-2-confirmations.md D19)**: seam is a v1 ticket, not a v0 implementation deliverable. v0 ships as cloud-only Doubao S2S + S2T. |
 
 ### 2.2 Out of scope (deferred to v1+)
 
@@ -102,7 +102,7 @@ Deferred items are **not** to be partially implemented. Either v0 ships the feat
 
 Each criterion is testable on M2 Air (the user's sole hardware per `map.md` Notes "用户上下文"). Test protocol follows `latency-budget-v0.md` Appendix D. Numbering is stable for cross-referencing in GitHub issues (each AC becomes a `gh issue create --label acceptance-criteria` per `docs/agents/issue-tracker.md`).
 
-- **AC1 — A-channel first-sound latency ≤ 3000 ms**: median of 5 runs, wired cn-north network, M2 Air, `denoise=false`, `ogg_opus` path. Per `latency-budget-v0.md` §1.1 + Appendix D test #7. **[REVIEW]** if measured > 3000 ms, recovery options per `latency-budget-v0.md` Appendix B.
+- **AC1 — A-channel first-sound latency ≤ 3000 ms** (soft at v0, hard at v0.5): median of 5 runs, wired cn-north network, M2 Air, `denoise=false`, `ogg_opus` path. Per `latency-budget-v0.md` §1.1 + Appendix D test #7. **Locked (per decisions/round-2-confirmations.md D18)**: v0 ships even if measured > 3 s; recovery options per `latency-budget-v0.md` Appendix B. Optimization continues post-launch; the structural fix (v1 cascade) is tracked as a v1 ticket.
 - **AC2 — B-channel first-subtitle latency ≤ 2500 ms**: median of 5 runs on M2 Air, `mode=s2t`, exclude TTS — per `poc-docs-take.md` §4.2 "~1.5s end-to-end" claim, but budget ≥ 1 s headroom for system audio loopback + 字幕 rendering. Test uses a 30 s pre-recorded English file as input.
 - **AC3 — A-channel zero-sample voice cloning works without pre-enrollment**: speak 30 s of Chinese into the mic, ask the meeting (human-judgement pass) "did the English voice sound like you?". Test protocol per `poc-docs-take.md` §4.5 row "Whether `speaker_id` ever be set to a non-empty value" (PoC verified `speaker_id=""` works at L379).
 - **AC4 — 4-device wiring detected correctly via pre-flight topology check**: at app start, validate (a) real mic ≠ BlackHole input, (b) BlackHole 2ch = 翻译输出, (c) BlackHole 16ch = 对方声音输入, (d) real headphones = 对方翻译输出. Per `map.md` Not-yet-specified "3 个必检误区" (T21) and `poc-docs-take.md` §7 row "3-误区 self-check". Reject start if any check fails; surface actionable error.
@@ -229,23 +229,23 @@ R1 and R5 are the only H-impact items; R5 is conditional on developer discipline
 
 These are the items where the spec defers to the user. Each maps to a future `gh issue create` (per `docs/agents/issue-tracker.md`) with label `needs-human-decision` once v0 lock is attempted.
 
-1. **[REVIEW]** **Acceptable v0 first-sound latency if measured > 3 s** in CI/production. Recovery options per `latency-budget-v0.md` Appendix B. Recommend: ship v0 at 3.0 s, accept 3.2 s in worst case with `soundfile` fallback enabled, file v0.1 patch for OGG demuxer fix.
-2. **[REVIEW]** **Latency-margin policy** — 430–730 ms margin (per `latency-budget-v0.md` §2.1) is enough headroom for v0, or invest in cascade interface seam (F12 in §2.1) immediately to make v1 ≤ 2 s reachable in a single release cycle. Recommend: keep F12 as a seam (no v0 implementation), but document the cascade contract in section 03.
+1. ~~**[REVIEW]** **Acceptable v0 first-sound latency if measured > 3 s** in CI/production.~~ **Locked (per decisions/round-2-confirmations.md D18)**: v0 accepts a measured first-sound latency above 3 s as shippable; optimization continues post-launch. AC1 is **soft at v0**, **hard at v0.5**. Recovery options per `latency-budget-v0.md` Appendix B remain in scope but are ship-blocking if AC1 misses by > 500 ms.
+2. ~~**[REVIEW]** **Latency-margin policy** — 430–730 ms margin (per `latency-budget-v0.md` §2.1) is enough headroom for v0, or invest in cascade interface seam (F12 in §2.1) immediately to make v1 ≤ 2 s reachable in a single release cycle.~~ **Locked (per decisions/round-2-confirmations.md D19)**: cascade seam goes in **after v0 launches**; not blocking for v0. v0 ships as cloud-only Doubao S2S + S2T (no local ASR/MT/TTS fallback). The v1 cascade contract (local ASR + Doubao S2T + CosyVoice 3) becomes a v1 ticket.
 3. **[REVIEW]** **"原声直出" toggle** (per `poc-docs-take.md` §7 row "原声直出开关 (绕过同传)" and `02_项目架构与技术栈.md` L66) — should v0 ship with a UI switch to bypass B-channel translation when meeting software already translates? Affects cost (per `03_性能与成本分析.md` L241 "100%" bypass saving) and test matrix.
-4. **[REVIEW]** **Multi-language scope at v0** — zh↔en only (per `map.md` Out of scope) or include ja/ko on R3 only as a free win? Doubao 同传 2.0 supports 9 languages per `map.md` Decisions #4. Recommend: zh↔en only at v0; lock the language-code handling to the `source_language` / `target_language` Protobuf fields so adding more is a config flip.
+4. ~~**[REVIEW]** **Multi-language scope at v0** — zh↔en only (per `map.md` Out of scope) or include ja/ko on R3 only as a free win?~~ **Locked (per decisions/round-2-confirmations.md D23)**: **zh↔en only at v0**. Doubao 同传 2.0 supports 9 languages per `map.md` Decisions #4 but the Protobuf `source_language` / `target_language` fields are hard-coded `zh` / `en` in v0; language picker UI is deferred to v1+. Adding more languages later is a config flip, not a rebuild.
 5. **[REVIEW]** **Distribution model** — DMG download from GitHub Releases (per `poc-docs-take.md` §7 row "electron-updater 自动更新 + DMG/NSIS 打包" and `map.md` Out of scope "macOS DMG 打包"), or also `brew install --cask`? Affects CI matrix (per `docs/agents/issue-tracker.md` conventions, this becomes a `gh issue create --label distribution`).
 6. **[REVIEW]** **Capture sample-rate choice** — 48 kHz native (recommended by `latency-budget-v0.md` §3 stage 1, saves a resample step but sends `rate=16000` to server) vs 16 kHz direct (matches PoC). Affects Opus encoder choice on the server side and the Protobuf `source_audio.rate` field.
-7. **[REVIEW]** **Tauri-NSPanel dependency posture** — Open-Less uses a git branch of `tauri-nspanel` (`openless-take.md` §5 #1, also cited `openless-take.md` §7 Q1 "parent willing to depend on an unreleased git branch of a third-party crate") for macOS full-Space windowing. Acceptable to depend on an unreleased git branch, or vendor/fork? The floating subtitle window (F9 in §2.1) needs this — without NSPanel the subtitle won't show above full-screen Spaces.
+7. ~~**[REVIEW]** **Tauri-NSPanel dependency posture** — Open-Less uses a git branch of `tauri-nspanel` (`openless-take.md` §5 #1, also cited `openless-take.md` §7 Q1 "parent willing to depend on an unreleased git branch of a third-party crate") for macOS full-Space windowing. Acceptable to depend on an unreleased git branch, or vendor/fork?~~ **Locked (per decisions/round-2-confirmations.md D20)**: `tauri-nspanel` git-branch dependency (branch `v2`) is **acceptable for v0**; `Cargo.toml` adds `tauri-nspanel = { git = "…", branch = "v2" }` (matching Open-Less usage in `openless-take.md` §5 #1). Vendor a fork if upstream stays unstable, but no v0 work to fork preemptively. The floating subtitle window (F9 in §2.1) needs this — without NSPanel the subtitle won't show above full-screen Spaces.
 
 ### 7.1 Decision-priority ordering
 
 If user time is limited, address decisions in this order (highest blast-radius first):
 
-1. **#2 (latency-margin policy / cascade seam)** — defines whether v0 ships with cascade interface code or pure cloud S2S. Affects architecture in §5.
-2. **#1 (acceptable latency if > 3 s)** — defines the v0 ship-or-don't threshold. Affects AC1 measurement.
-3. **#4 (multi-language scope)** — affects source_language / target_language field handling in the Protobuf binding (section 03 to-be-written).
+1. **#2 (latency-margin policy / cascade seam)** — **locked D19**; cascade is a v1 ticket, not a v0 implementation seam.
+2. **#1 (acceptable latency if > 3 s)** — **locked D18**; AC1 is soft at v0, hard at v0.5.
+3. **#4 (multi-language scope)** — **locked D23**; zh↔en only at v0.
 4. **#5 (distribution model)** — affects CI matrix in section 06.
-5. **#3 (原声直出 toggle)**, **#6 (capture sample rate)**, **#7 (NSPanel posture)** — UX / implementation details, can default to recommended answer if user is silent.
+5. **#3 (原声直出 toggle)**, **#6 (capture sample rate)** — UX / implementation details, can default to recommended answer if user is silent. **#7 (NSPanel posture) — locked D20**; git-branch dep is acceptable.
 
 ---
 

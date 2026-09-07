@@ -13,6 +13,8 @@
 
 This is **tighter** than the original `.scratch/macos-siminterpret-poc/map.md` L16 "v0 PoC ≤ 4 秒首音" because the user explicitly tightened it after the round-2 review. It is **looser** than the v1 ≤2 s target (`map.md` L17) and the v2 ≤1.3 s target (`map.md` L18) — both deferred.
 
+**Soft at v0, hard at v0.5 (locked per decisions/round-2-confirmations.md D18)**: v0 ships even if the measured first-sound latency exceeds 3000 ms; the AC1 ≤ 3000 ms criterion is a **soft** acceptance criterion at v0, **hard** at v0.5. Recovery actions per §5 remain in scope but are ship-blocking only if AC1 misses by > 500 ms (the 4-device BlackHole misconfig is a more likely root cause than the latency budget itself). Optimization continues post-launch.
+
 ### 1.1 Why ≤3s for v0 (rationale)
 
 Per `latency-budget-v0.md` §1.1: 金喜同声传译双通道版 (the closed-source competitor) reports ~1.3 s user-visible first-sound on the same 字节跳动 Seed LiveInterpret 2.0 / Doubao 同传 2.0 S2S backend (see `.scratch/macos-siminterpret-poc/research/15-jinxi-architecture-reverse.md` §1; `15-jinxi-architecture-reverse.md` L70 cites "官方 2.21s 首字延迟 + ~1s 本地栈差量"). A 3.0–3.7 s v0 (the PoC's measurable baseline per `poc-docs-take.md` §4.1) is **non-competitive if shipped**, so the user tightened v0 to ≤3s to keep the door open for v1 to chase ≤2s (`latency-budget-v0.md` §1.1).
@@ -112,7 +114,7 @@ Verbatim from `latency-budget-v0.md` §5. The ≤3s v0 budget is built on the as
 - **Doubao AST 2.0 S2T** (R4 mode, ~1200 ms FLAL vs S2S's ~2200 ms — per `15-jinxi-architecture-reverse.md` L59) translates text-to-text, returning bilingual subtitles incrementally.
 - **Local TTS** — CosyVoice 3 0.5B "150ms bi-streaming 首音" (per `16-streaming-first-sound-optimization.md` L56) speaks the translation to the meeting. No network round-trip for TTS output.
 
-The cascade's first-sound = local ASR partial (~300 ms) + S2T inference (~1200 ms) + local TTS first-frame (~150 ms) ≈ **1650 ms worst case**, well under 2s. v0 must leave a **v1 cascade interface seam** in the architecture (capture frame chunk, subtitle stream, TTS command) per `.scratch/macos-siminterpret-poc/map.md` L24 ("代码里预留 v1 cascade 接口"). Detail deferred — this budget is v0 only.
+The cascade's first-sound = local ASR partial (~300 ms) + S2T inference (~1200 ms) + local TTS first-frame (~150 ms) ≈ **1650 ms worst case**, well under 2s. **Locked (per decisions/round-2-confirmations.md D19)**: the cascade is a **v1 ticket, not a v0 implementation seam**. v0 ships as cloud-only Doubao S2S + S2T (no local ASR/MT/TTS fallback at v0). The "v1 cascade interface seam" mentioned in `.scratch/macos-siminterpret-poc/map.md` L24 is deferred — v0 does not need to leave capture-frame-chunk / subtitle-stream / TTS-command interfaces specifically designed for cascade swap-in. The structural fix to break the S2S 2200 ms ceiling is v1's work.
 
 ---
 

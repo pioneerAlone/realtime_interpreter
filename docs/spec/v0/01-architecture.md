@@ -454,18 +454,31 @@ Architecture and pattern-level adoption only — no code copied from
 Open choices surfaced by the architecture that need user confirmation before
 §03-implementation begins.
 
-- **[REVIEW] B-channel audio capture**: BlackHole 16ch + Aggregate Device (PoC
+- ~~**[REVIEW] B-channel audio capture**: BlackHole 16ch + Aggregate Device (PoC
   pattern per `02_项目架构与技术栈.md` L497–524) vs dedicated virtual device per
-  session (cleaner routing, more setup). *Recommendation: BlackHole 16ch +
-  Aggregate Device for v0; per-session device deferred to v1+.*
+  session (cleaner routing, more setup).~~ **Locked (per
+  decisions/round-2-confirmations.md D25)**: **BlackHole 16ch + Aggregate
+  Device** for v0. User installs BlackHole 16ch via
+  `brew install blackhole-16ch`, then creates an **Aggregate Device** in
+  Audio MIDI Setup that combines BlackHole 16ch with the system output
+  (so the user can hear sound in headphones and 原声直出 can route
+  loopback audio through it). An Aggregate Device is a macOS Audio MIDI
+  Setup construct that bundles multiple physical/virtual audio devices
+  into one logical device the OS sees as a single endpoint — meeting
+  software then sees a single "speaker" that is in fact the combined
+  stream. realtime_interpreter UI references the Aggregate Device by
+  name. Per-session virtual device deferred to v1+.
 
-- **[REVIEW] Floating subtitle window**: `tauri-nspanel` (Open-Less pattern at
+- ~~**[REVIEW] Floating subtitle window**: `tauri-nspanel` (Open-Less pattern at
   `openless-take.md` L36 + `lib.rs:614`) vs SwiftUI `NSPanel` via Tauri plugin
   vs plain webview with `always_on_top` (simpler but fails on macOS full-screen
   Spaces). `tauri-nspanel` is a git dep on branch `v2` (unreleased per
-  `openless-take.md` §7 Q1) but the only known-working full-Space path.
-  *Recommendation: `tauri-nspanel` for v0; vendor a fork if upstream stays
-  unstable.*
+  `openless-take.md` §7 Q1) but the only known-working full-Space path.~~
+  **Locked (per decisions/round-2-confirmations.md D20)**: `tauri-nspanel`
+  git-branch dependency (branch `v2`) is **acceptable for v0**; `Cargo.toml`
+  adds `tauri-nspanel = { git = "…", branch = "v2" }` (matching Open-Less
+  usage in `openless-take.md` §5 #1). Vendor a fork if upstream stays
+  unstable, but no v0 work to fork preemptively.
 
 - **[REVIEW] IPC count**: 20 commands (~lean, Round-2) vs ~50 (~Open-Less
   granularity, finer type safety). 20 covers session × 2 + device × 4 +
