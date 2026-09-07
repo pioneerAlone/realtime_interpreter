@@ -48,3 +48,10 @@ realtime_interpreter_Minimal_Implementation/
 .env
 .env.local
 config/config.py
+
+# Node / Tauri / Vite
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/Cargo.lock
+.DS_Store
