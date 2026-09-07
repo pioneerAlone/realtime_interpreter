@@ -37,3 +37,31 @@ Single acceptance seam. Per `06-deliverables.md` §3.1:
 - **BlackHole install automation** — README + brew instructions suffice; no automated installer at v0.
 - **Multi-conference-software setup guides** (Zoom/Teams/腾讯会议 specific UI) — covered indirectly because topology check validates device routing regardless of conference app.
 - **Audio MIDI Setup automation** — UI references the Aggregate Device by name; creating it remains a manual step in Audio MIDI Setup.
+
+## 进度：5%
+
+### 当前进展 (2026-09-07, after PR #14 merged)
+- ✅ PR #14 merged (squash 279fa22): v0 scaffold in main, all 8 AC verified.
+- ✅ Issue #2 closed, listed in issue #1 Decisions so far.
+- ✅ Issue #6 claimed: assignee = session user.
+- ✅ Branch created: `feature/ticket-06-topology-check` from `main@279fa22`.
+- ⏳ Pending: actual implementation (Rust binary + IPC command + UI panel + Zustand store integration).
+
+### 下一步 (next session, fresh context)
+- Load `/implement` skill from `/Users/wangbo/.agents/skills/implement/SKILL.md`.
+- Entry point: `git checkout feature/ticket-06-topology-check` + read issue #6 body.
+- First commit target: `cargo run --bin topology-check` exits 0 on a machine with BlackHole 16ch installed; exits 1 with structured error on misconfig.
+- Build verification: `cargo check` + `cargo clippy --all-targets -- -D warnings` + `pnpm typecheck` all pass.
+- After #6 close: unblocks #7 (latency probe), #11 (bypass routing), #12 (self-meeting test), #13 (build/distribute).
+
+### 决策记录 (decision context)
+- #6 chosen over #3 because v0 value proposition = UI completeness (4-device wiring visible to user), not end-to-end audio demo (which requires #8/#9/#10 unblocked first).
+- See `docs/spec/v0/UI-EVOLUTION.md` for the per-ticket UI commitment map.
+- See `docs/decisions/round-3-confirmations.md` for D24/D25/D26 (parallel-route, BH 16ch, M2 Air hardware) that this ticket implements.
+
+### 引用
+- Spec: `docs/spec/v0/00-overview.md` §2.1 F4 + AC4, §3.2 measurement protocol
+- Spec: `docs/spec/v0/01-architecture.md` §7 (pre-flight topology check + macOS patterns)
+- Spec: `docs/spec/v0/02-audio-pipeline.md` Appendix A.5 (user install steps for BlackHole 16ch + Aggregate)
+- Spec: `docs/spec/v0/03-b-channel-subtitle.md` §4 (B-channel audio capture wiring)
+- Decisions: D3 (BH 16ch + Aggregate), D24 (parallel-route), D25 (Aggregate Device), D26 (M2 MacBook Air dev/primary)
