@@ -165,7 +165,7 @@
       "type": "cloud",
       "label": "BlackHole 2ch",
       "sublabel": "R3 翻译输出",
-      "tag": "48 kHz native (macOS 主流 + 匹配 BH native rate, 避免 SRC 引入 5-20ms 抖动; 会议软件自动降采样到 16/24 kHz)",
+      "tag": "48 kHz native (macOS 主流)",
       "pos": [
         620,
         280
@@ -225,7 +225,7 @@
       "type": "external",
       "label": "物理耳机",
       "sublabel": "原声直出端 (可配)",
-      "tag": "parallel-route D24; UI 弹出 cpal 枚举的输出设备下拉菜单, 默认 = 当前系统默认输出",
+      "tag": "parallel-route D24; UI 可选输出设备",
       "pos": [
         1060,
         380
