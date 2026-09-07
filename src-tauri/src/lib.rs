@@ -151,6 +151,8 @@ pub fn run() {
             ipc::topology::check_topology,
             ipc::topology::topology_status,
             ipc::topology::fix_topology_hint,
+            ipc::topology::get_topology_prefs,
+            ipc::topology::set_topology_prefs,
             ipc::config::get_config,
             ipc::config::set_config,
             ipc::config::get_api_key_status,

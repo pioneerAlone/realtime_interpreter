@@ -20,8 +20,24 @@
 //! devices + run the checks. The audio module is gated on macOS; on
 //! other platforms the binary still runs but the report verdict is
 //! `Fail` with the platform-unsupported check.
+//!
+//! Prefs handling: this binary runs **standalone** (no Tauri
+//! app handle), so it cannot reach `tauri-plugin-store`. CLI
+//! overrides let a CI script pick specific devices for the
+//! topology check without going through the UI store:
+//!
+//! - `--mic <name>`        : override `TopologyPrefs.mic_name`
+//! - `--r3-out <name>`     : override `TopologyPrefs.r3_out_vac_name`
+//! - `--r4-in <name>`      : override `TopologyPrefs.r4_in_vac_name`
+//! - `--r4-out <name>`     : override `TopologyPrefs.r4_out_device_name`
+//!
+//! When no override is given, the binary falls back to heuristic
+//! device search so the CLI smoke test still works on a fresh
+//! install (matches the UI's first-launch behavior).
 
-use realtime_interpreter_lib::audio::topology::{self, TopologyReport, Verdict};
+use realtime_interpreter_lib::audio::topology::{
+    self, TopologyPrefs, TopologyReport, Verdict,
+};
 
 use std::process::ExitCode;
 
@@ -29,7 +45,8 @@ fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
     let json_mode = args.iter().any(|a| a == "--json");
 
-    let report = topology::run_check();
+    let prefs = parse_prefs_from_args(&args);
+    let report = topology::run_check(&prefs);
 
     if json_mode {
         match serde_json::to_string_pretty(&report) {
@@ -91,4 +108,34 @@ fn print_panel(report: &TopologyReport) {
     println!();
 
     println!("Summary: {}", report.fix_summary);
+}
+
+/// Parse `--mic NAME / --r3-out NAME / --r4-in NAME / --r4-out NAME`
+/// from argv into a `TopologyPrefs`. Anything missing stays `None`,
+/// letting the topology layer fall back to heuristic search.
+fn parse_prefs_from_args(args: &[String]) -> TopologyPrefs {
+    let mut prefs = TopologyPrefs::default();
+    let mut i = 0;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--mic" if i + 1 < args.len() => {
+                prefs.mic_name = Some(args[i + 1].clone());
+                i += 2;
+            }
+            "--r3-out" if i + 1 < args.len() => {
+                prefs.r3_out_vac_name = Some(args[i + 1].clone());
+                i += 2;
+            }
+            "--r4-in" if i + 1 < args.len() => {
+                prefs.r4_in_vac_name = Some(args[i + 1].clone());
+                i += 2;
+            }
+            "--r4-out" if i + 1 < args.len() => {
+                prefs.r4_out_device_name = Some(args[i + 1].clone());
+                i += 2;
+            }
+            _ => i += 1,
+        }
+    }
+    prefs
 }

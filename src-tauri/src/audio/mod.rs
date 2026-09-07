@@ -36,3 +36,5 @@ pub use devices_macos::enumerate_devices;
 pub use devices_stub::enumerate_devices;
 
 pub mod topology;
+
+pub use topology::TopologyPrefs;

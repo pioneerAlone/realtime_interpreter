@@ -366,3 +366,190 @@ button.secondary:hover:not(:disabled) {
 .topology-panel__devices li {
   padding: 2px 0;
 }
+
+/* ------------------------------------------------------------------ *
+ * Topology picker rows (extension of #06 to add device selection).
+ * Spec: docs/spec/v0/01-architecture.md §7 pre-flight topology check.
+ * Visual reference: Open-Less SelectLite (openless-all/app/src/
+ * components/ui/SelectLite.tsx + tokens.css). We don't import the
+ * OL tokens.css directly — we mirror the same palette inside our
+ * system-aware theme so dark/light mode follows `prefers-color-scheme`.
+ * ------------------------------------------------------------------ */
+.topology-panel__pickers {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.topology-picker {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.2fr);
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-primary, white);
+  border: 0.5px solid var(--divider, rgba(0, 0, 0, 0.08));
+}
+.topology-picker__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary, #111);
+}
+.topology-picker__observed {
+  grid-column: 2;
+  font-size: 11px;
+  color: var(--text-secondary, #6b7280);
+  margin-top: 4px;
+}
+.topology-picker__observed code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+}
+
+/* ------------------------------------------------------------------ *
+ * SelectLite — custom dropdown (mirrors Open-Less palette tokens).
+ * The popover is rendered into a portal at document.body so it is not
+ * clipped by `overflow: hidden` ancestors; position: fixed + left/top
+ * are computed in the component (see SelectLite.tsx::positionPopover).
+ * ------------------------------------------------------------------ */
+.select-lite__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  height: 32px;
+  font-size: 12.5px;
+  font-family: inherit;
+  border-radius: 8px;
+  border: 0.5px solid var(--select-lite-border, rgba(0, 0, 0, 0.18));
+  background: var(--select-lite-bg, rgba(127, 127, 127, 0.06));
+  color: var(--text-primary, #111);
+  cursor: default;
+  outline: none;
+  text-align: left;
+  min-width: 180px;
+  width: 100%;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.select-lite__trigger:hover:not(:disabled) {
+  border-color: var(--select-lite-border-hover, rgba(0, 0, 0, 0.32));
+}
+.select-lite__trigger:focus-visible {
+  border-color: var(--accent-blue, #2563eb);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+.select-lite__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select-lite__chevron {
+  font-size: 10px;
+  color: var(--text-secondary, #6b7280);
+  flex-shrink: 0;
+}
+.select-lite__popover {
+  position: fixed;
+  z-index: 1000;
+  max-height: 280px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 0.5px solid var(--select-lite-border, rgba(0, 0, 0, 0.18));
+  background: var(--select-lite-popover-bg, var(--bg-primary, white));
+  color: var(--text-primary, #111);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 4px;
+  animation: select-lite-pop 0.14s ease-out both;
+}
+.select-lite__popover--leaving {
+  animation: select-lite-pop-out 0.14s ease-in both;
+}
+@keyframes select-lite-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes select-lite-pop-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.select-lite__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: inherit;
+  cursor: default;
+  text-align: left;
+  font-family: inherit;
+}
+.select-lite__option--highlight {
+  background: var(--select-lite-option-hover-bg, rgba(37, 99, 235, 0.08));
+}
+.select-lite__option--selected {
+  color: var(--accent-blue, #2563eb);
+  font-weight: 500;
+}
+.select-lite__option:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.select-lite__option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select-lite__option-trailing {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+.select-lite__option-check {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--accent-blue, #2563eb);
+}
+.select-lite__empty {
+  padding: 12px 10px;
+  font-size: 12px;
+  color: var(--text-secondary, #6b7280);
+  text-align: center;
+}
+
+/* Dark-mode overrides — same tokens, dark palette. */
+@media (prefers-color-scheme: dark) {
+  .select-lite__trigger {
+    --select-lite-bg: rgba(255, 255, 255, 0.06);
+    --select-lite-border: rgba(255, 255, 255, 0.16);
+    --select-lite-border-hover: rgba(255, 255, 255, 0.28);
+    --select-lite-popover-bg: #1f1f23;
+    --select-lite-option-hover-bg: rgba(96, 165, 250, 0.16);
+  }
+  .topology-picker {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}

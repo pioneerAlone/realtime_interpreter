@@ -38,9 +38,15 @@ Single acceptance seam. Per `06-deliverables.md` §3.1:
 - **Multi-conference-software setup guides** (Zoom/Teams/腾讯会议 specific UI) — covered indirectly because topology check validates device routing regardless of conference app.
 - **Audio MIDI Setup automation** — UI references the Aggregate Device by name; creating it remains a manual step in Audio MIDI Setup.
 
-## 进度：100%
+## 进度：100% (extension — device pickers landed)
 
-### 当前进展 (2026-09-07, session after PR #14 scaffold landed)
+### 当前进展 (2026-09-07, PR #15 extension round)
+
+- ✅ **Device pickers** (extension on user feedback "UI 太简陋"): 4 picker rows in `TopologyCheckPanel` (mic / R3-out VAC / R4-in VAC / headphones) backed by `SelectLite` — custom dropdown (portal popover, keyboard nav, exit animation, dark-mode aware). Mirrors Open-Less `SelectLite` visual contract (architecture only; no code copy).
+- ✅ **Persistence**: `TopologyPrefs` (4-slot struct) round-trips through `tauri-plugin-store` (`topology-prefs.bin` in app data dir). `get_topology_prefs` / `set_topology_prefs` IPC commands. Restart-persistent.
+- ✅ **Recheck on pick**: `set_topology_prefs` returns the fresh `TopologyReport` so the UI re-renders verdict + per-row severity without a second round-trip.
+- ✅ **Stale-pick visibility**: if the user has a saved pick that no longer matches a discovered device (BlackHole unplugged → replugged), the picker still surfaces the saved name as "(not currently visible)" so the recheck can recover it.
+- ✅ **Standalone CLI parity**: `cargo run --bin topology-check -- --mic X --r3-out Y --r4-in Z --r4-out W` for CI smoke tests that don't go through the UI store.
 
 - ✅ CoreAudio FFI enumeration via `coreaudio-sys` 0.2 (no cpal/objc2 stack).
 - ✅ 4-device wiring check (mic + BH 2ch + BH 16ch + headphones) returns per-check verdict.
@@ -59,15 +65,25 @@ verdict: WARN   (误区 2 — user must confirm meeting app mic = BlackHole 2ch 
 exit=0
 ```
 
+```
+$ cd src-tauri && cargo run --bin topology-check -- \
+    --mic 'MacBook Air麦克风' --r3-out 'BlackHole 2ch' \
+    --r4-in 'BlackHole 16ch' --r4-out 'MacBook Air扬声器'
+verdict: WARN   (still 误区 2 — meeting-app mic soft check)
+
+exit=0
+```
+
 | Check | Result |
 |---|---|
 | `cargo check --all-targets` | clean |
 | `cargo clippy --all-targets -- -D warnings` | clean |
-| `cargo test --lib` | 1 passed (`cache_round_trip`) |
+| `cargo test --lib` | 2 passed (`cache_round_trip`, `empty_prefs_check_runs`) |
 | `pnpm typecheck` | clean |
-| `pnpm build` | 157 kB JS + 5.7 kB CSS bundle |
+| `pnpm build` | 165 kB JS + 9 kB CSS bundle (SelectLite + picker rows) |
 | `cargo run --bin topology-check` (live) | 7 devices enumerated; verdict WARN exit 0 |
 | `cargo run --bin topology-check --json` (live) | valid JSON, parsed by Python `json.load` |
+| `cargo run --bin topology-check -- --mic ... --r3-out ...` (live) | explicit override mode works |
 
 ### 下一步
 

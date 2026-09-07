@@ -37,6 +37,32 @@ export interface TopologyReport {
   fix_summary: string;
 }
 
+/// User-picked device names for the 4 topology slots.
+///
+/// Mirrors `audio::TopologyPrefs` in Rust. `null` = not picked yet
+/// (use OS default or heuristic fallback); `""` = explicitly "system
+/// default"; a non-empty string = a specific CoreAudio device name.
+export interface TopologyPrefs {
+  mic_name: string | null;
+  r3_out_vac_name: string | null;
+  r4_in_vac_name: string | null;
+  r4_out_device_name: string | null;
+}
+
+export const EMPTY_TOPOLOGY_PREFS: TopologyPrefs = {
+  mic_name: null,
+  r3_out_vac_name: null,
+  r4_in_vac_name: null,
+  r4_out_device_name: null,
+};
+
+export const MOCK_TOPOLOGY_PREFS: TopologyPrefs = {
+  mic_name: "MacBook Air Microphone",
+  r3_out_vac_name: "BlackHole 2ch",
+  r4_in_vac_name: "BlackHole 16ch",
+  r4_out_device_name: "MacBook Air Speakers",
+};
+
 export const MOCK_TOPOLOGY_REPORT: TopologyReport = {
   verdict: "pass",
   devices: [
@@ -74,5 +100,19 @@ export async function topologyStatus(): Promise<TopologyReport | null> {
 export async function fixTopologyHint(): Promise<string> {
   return invokeOrMock<string>("fix_topology_hint", undefined, {
     mock: () => "Browser preview: install BlackHole 2ch + BlackHole 16ch via brew; wire meeting app to BlackHole 2ch; route BlackHole 16ch to headphones.",
+  });
+}
+
+export async function getTopologyPrefs(): Promise<TopologyPrefs> {
+  return invokeOrMock<TopologyPrefs>("get_topology_prefs", undefined, {
+    mock: () => MOCK_TOPOLOGY_PREFS,
+  });
+}
+
+export async function setTopologyPrefs(
+  prefs: TopologyPrefs,
+): Promise<TopologyReport> {
+  return invokeOrMock<TopologyReport>("set_topology_prefs", { ...prefs }, {
+    mock: () => MOCK_TOPOLOGY_REPORT,
   });
 }

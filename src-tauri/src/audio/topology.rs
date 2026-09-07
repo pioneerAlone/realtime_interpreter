@@ -34,9 +34,35 @@
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::devices_macos::AudioDevice;
+
+/// User-selected topology wiring, persisted via tauri-plugin-store.
+///
+/// `Option<String>` (not `String`):
+/// - `None`     = user has not picked yet (default → OS default).
+/// - `Some("")` = user explicitly picked "system default".
+/// - `Some("BlackHole 2ch")` = user picked a specific named device.
+///
+/// `Deserialize` is for IPC incoming payload (UI → Rust).
+/// `Serialize` lets `TopologyPrefs` ride along in `TopologyReport` if
+/// we ever want to round-trip it to the UI (we currently only send it
+/// back via `get_topology_prefs` so the round-trip is not strictly
+/// needed, but cheap and forward-compatible).
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct TopologyPrefs {
+    /// Real microphone (R3 source). Should be a non-VAC input.
+    pub mic_name: Option<String>,
+    /// VAC that R3 翻译输出 writes to (R3 sink / meeting-app mic input).
+    pub r3_out_vac_name: Option<String>,
+    /// VAC that R4 对方声音 input reads from (R4 source / meeting-app
+    /// speaker loopback). BlackHole 16ch is the canonical pick.
+    pub r4_in_vac_name: Option<String>,
+    /// Real output device (R4 sink / 对方翻译输出 + 原声直出).
+    /// `None` or `Some("")` = system default.
+    pub r4_out_device_name: Option<String>,
+}
 
 /// Verdict of the overall topology check.
 ///
@@ -100,12 +126,20 @@ pub struct TopologyReport {
     pub fix_summary: String,
 }
 
-/// Run the pre-flight topology check + 3-misconception self-check.
+/// Run the pre-flight topology check + 3-misconception self-check
+/// against the user-selected `TopologyPrefs`.
+///
+/// Per the v0 extension of ticket #06: the first 4 checks (mic,
+/// R3-out VAC, R4-in VAC, real output) check the user's **selected**
+/// devices rather than guessing by hardcoded name. If the user has
+/// not picked a slot yet (`None`), we fall back to the legacy
+/// name-based search so the panel still renders meaningfully on first
+/// launch.
 ///
 /// On non-macOS this returns `verdict = Fail` with a structured
 /// "platform unsupported" check (ticket #06 is macOS-first per
 /// `docs/spec/v0/00-overview.md`).
-pub fn run_check() -> TopologyReport {
+pub fn run_check(prefs: &TopologyPrefs) -> TopologyReport {
     #[cfg(not(target_os = "macos"))]
     {
         return TopologyReport {
@@ -125,39 +159,63 @@ pub fn run_check() -> TopologyReport {
 
     #[cfg(target_os = "macos")]
     {
-        run_check_macos()
+        run_check_macos(prefs)
     }
 }
 
 #[cfg(target_os = "macos")]
-fn run_check_macos() -> TopologyReport {
+fn run_check_macos(prefs: &TopologyPrefs) -> TopologyReport {
     use super::devices_macos::enumerate_devices;
 
     let devices = enumerate_devices();
     let mut checks: Vec<CheckResult> = Vec::new();
 
-    // (A name -> device lookup is not needed at v0 -- the binary
-    // and UI both work directly from the `devices` Vec. Reserved
-    // for v1+ when the UI needs to map an unknown device name
-    // back to its row.)
-    let _by_name: HashMap<&str, &AudioDevice> =
+    // Lookup helpers: try user-picked name first, fall back to a
+    // heuristic search. The UI panels render the picker with the
+    // resolved `observed` value.
+    let by_name: HashMap<&str, &AudioDevice> =
         devices.iter().map(|d| (d.name.as_str(), d)).collect();
 
+    fn lookup(
+        by_name: &HashMap<&str, &AudioDevice>,
+        picked: &Option<String>,
+        fallback_substr: &str,
+    ) -> Option<AudioDevice> {
+        // 1) User-picked exact name (Some(name) where name != ""):
+        if let Some(name) = picked.as_deref().filter(|n| !n.is_empty()) {
+            if let Some(d) = by_name.get(name) {
+                return Some((*d).clone());
+            }
+        }
+        // 2) Heuristic: substring + transport/channel hint. v0 uses
+        //    the canonical "BlackHole 2ch" / "BlackHole 16ch" names,
+        //    so substring match is precise. v1+ may need fuzzy match
+        //    for renamed VACs (e.g. "Soundflower 2ch").
+        by_name
+            .values()
+            .find(|d| d.name.contains(fallback_substr))
+            .map(|d| (*d).clone())
+    }
+
     // ---- Check 1: a real microphone input exists (R3 source) ----
-    // Prefer a non-Virtual mic (built-in / USB) since the R3 source
-    // must be the user speaking into a real microphone. A VAC with
-    // input channels is technically a mic to CoreAudio but is the
-    // *wrong* mic for R3.
-    let real_mic = devices
-        .iter()
-        .find(|d| d.channel_count_in > 0 && d.transport != "Virtual");
+    // The user picks one explicitly; if not picked, fall back to
+    // the first non-Virtual device with input channels. The picker
+    // dropdown only lists devices with input channels, so a user
+    // choice is always valid by construction.
+    let real_mic = lookup(&by_name, &prefs.mic_name, "").or_else(|| {
+        devices
+            .iter()
+            .find(|d| d.channel_count_in > 0 && d.transport != "Virtual")
+            .cloned()
+    });
     let any_mic = devices.iter().find(|d| d.channel_count_in > 0);
     let mic_present = real_mic.is_some();
     checks.push(CheckResult {
         id: "mic_present".to_string(),
-        label: "Microphone (R3 input, real built-in/USB preferred over Virtual)".to_string(),
+        label: "Microphone (R3 input)".to_string(),
         severity: if mic_present { Severity::Ok } else { Severity::Fail },
         observed: real_mic
+            .as_ref()
             .map(|d| format!("{} ({})", d.name, d.transport))
             .or_else(|| any_mic.map(|d| format!("{} ({})", d.name, d.transport))),
         action: if mic_present {
@@ -167,69 +225,71 @@ fn run_check_macos() -> TopologyReport {
         },
     });
 
-    // ---- Check 2: BlackHole 2ch exists with 2 output channels (R3 output) ----
-    let bh2 = find_by_name_and_channels(&devices, "BlackHole 2ch", 0, 2);
+    // ---- Check 2: R3 output VAC exists (R3 sink / meeting mic input) ----
+    let bh2 = lookup(&by_name, &prefs.r3_out_vac_name, "BlackHole 2ch");
     let bh2_severity = match &bh2 {
-        Some(_) => Severity::Ok,
+        Some(d) if d.channel_count_out >= 2 => Severity::Ok,
+        Some(_) => Severity::Warn,
         None => Severity::Fail,
     };
     checks.push(CheckResult {
         id: "bh_2ch_present".to_string(),
-        label: "BlackHole 2ch (R3 output, meeting mic input)".to_string(),
+        label: "R3 输出 VAC (meeting mic input)".to_string(),
         severity: bh2_severity,
         observed: bh2.as_ref().map(|d| format!("{} ({})", d.name, d.transport)),
-        action: if bh2.is_some() {
-            String::new()
-        } else {
-            "BlackHole 2ch not found. Install via: brew install blackhole-2ch; then restart CoreAudio with `sudo launchctl kickstart -kp system/com.apple.audio.coreaudiod`.".to_string()
+        action: match bh2_severity {
+            Severity::Ok => String::new(),
+            Severity::Warn => "Selected R3 output VAC has fewer than 2 output channels; meeting software may refuse to route audio through it.".to_string(),
+            Severity::Fail => "No VAC picked for R3 output. Install BlackHole 2ch (brew install blackhole-2ch) and pick it above. After install: sudo launchctl kickstart -kp system/com.apple.audio.coreaudiod.".to_string(),
         },
     });
 
-    // ---- Check 3: BlackHole 16ch exists with >= 16 output channels (R4 input) ----
-    // Some installs of BlackHole 16ch show 16 input + 16 output; we
-    // accept either direction at >= 16 channels total to be flexible.
-    let bh16 = devices.iter().find(|d| {
-        d.name.starts_with("BlackHole 16ch")
-            && (d.channel_count_in >= 16 || d.channel_count_out >= 16)
-    });
+    // ---- Check 3: R4 input VAC exists (R4 source / meeting-app speaker loopback) ----
+    let bh16 = lookup(&by_name, &prefs.r4_in_vac_name, "BlackHole 16ch");
     let bh16_severity = match &bh16 {
-        Some(_) => Severity::Ok,
+        Some(d) if d.channel_count_in >= 16 || d.channel_count_out >= 16 => Severity::Ok,
+        Some(_) => Severity::Warn,
         None => Severity::Fail,
     };
     checks.push(CheckResult {
         id: "bh_16ch_present".to_string(),
-        label: "BlackHole 16ch (R4 input, meeting app output loopback)".to_string(),
+        label: "R4 输入 VAC (meeting app speaker loopback)".to_string(),
         severity: bh16_severity,
         observed: bh16.as_ref().map(|d| format!("{} ({})", d.name, d.transport)),
-        action: if bh16.is_some() {
-            String::new()
-        } else {
-            "BlackHole 16ch not found. Install via: brew install blackhole-16ch; then restart CoreAudio.".to_string()
+        action: match bh16_severity {
+            Severity::Ok => String::new(),
+            Severity::Warn => "Selected R4 input VAC has fewer than 16 channels; meeting-app multi-channel loopback may not be picked up correctly.".to_string(),
+            Severity::Fail => "No VAC picked for R4 input. Install BlackHole 16ch (brew install blackhole-16ch) and pick it above.".to_string(),
         },
     });
 
     // ---- Check 4: a real output device (headphones/speaker) exists ----
-    let real_output = devices
-        .iter()
-        .find(|d| d.channel_count_out > 0 && d.transport != "Virtual");
+    let real_output = lookup(&by_name, &prefs.r4_out_device_name, "").or_else(|| {
+        devices
+            .iter()
+            .find(|d| d.channel_count_out > 0 && d.transport != "Virtual")
+            .cloned()
+    });
+    let real_output_severity = match &real_output {
+        Some(d) if d.transport == "Aggregate" => Severity::Warn,
+        Some(_) => Severity::Ok,
+        None => Severity::Fail,
+    };
     checks.push(CheckResult {
         id: "real_output_present".to_string(),
         label: "Headphones or speakers (R4 output / local monitor)".to_string(),
-        severity: if real_output.is_some() {
-            Severity::Ok
-        } else {
-            Severity::Fail
-        },
-        observed: real_output.map(|d| format!("{} ({})", d.name, d.transport)),
-        action: if real_output.is_some() {
-            String::new()
-        } else {
-            "No real output device detected. Plug in headphones or speakers; Bluetooth counts as real output as long as macOS shows it as the active device.".to_string()
+        severity: real_output_severity,
+        observed: real_output.as_ref().map(|d| format!("{} ({})", d.name, d.transport)),
+        action: match real_output_severity {
+            Severity::Ok => String::new(),
+            Severity::Warn => "Output is an Aggregate Device. Verify in Audio MIDI Setup that the Aggregate combines a real output (your headphones) with the BlackHole 16ch loopback. If only VACs are aggregated, the meeting will loop.".to_string(),
+            Severity::Fail => "No real output device detected. Plug in headphones or speakers; Bluetooth counts as real output as long as macOS shows it as the active device.".to_string(),
         },
     });
 
     // ---- 3-misconception self-check (T21 wiki) ----
-    // 误区 1: R3 output VAC != R4 input VAC
+    // 误区 1: R3 output VAC != R4 input VAC. We compare by AudioObjectID
+    // so a user-picked but duplicate-named device still trips the check.
     let mis1_severity = match (&bh2, &bh16) {
         (Some(a), Some(b)) if a.id == b.id => Severity::Fail,
         (Some(_), Some(_)) => Severity::Ok,
@@ -237,7 +297,7 @@ fn run_check_macos() -> TopologyReport {
     };
     checks.push(CheckResult {
         id: "r3_out_vac_differs_from_r4_in_vac".to_string(),
-        label: "误区 1: R3 输出 VAC != R4 输入 VAC".to_string(),
+        label: "误区 1: R3 输出 VAC ≠ R4 输入 VAC".to_string(),
         severity: mis1_severity,
         observed: match (&bh2, &bh16) {
             (Some(a), Some(b)) if a.id == b.id => Some("same VAC for both".to_string()),
@@ -250,35 +310,26 @@ fn run_check_macos() -> TopologyReport {
         },
     });
 
-    // 误区 2: meeting app mic input must = R3 output VAC
-    // We cannot introspect meeting-app routing from CoreAudio; we
-    // surface a WARN row instructing the user to verify in the
-    // meeting app.
+    // 误区 2: meeting app mic input must = R3 output VAC. We cannot
+    // introspect meeting-app routing from CoreAudio; we surface a
+    // WARN row instructing the user to verify in the meeting app.
     let mis2_severity = if bh2.is_some() { Severity::Warn } else { Severity::Fail };
     checks.push(CheckResult {
         id: "meeting_app_mic_is_r3_vac".to_string(),
-        label: "误区 2: 会议软件麦克风输入 = R3 输出对应的虚拟声卡 (non-VAC => 传原文)".to_string(),
+        label: "误区 2: 会议软件麦克风 = R3 输出对应的虚拟声卡".to_string(),
         severity: mis2_severity,
         observed: bh2.as_ref().map(|d| format!("candidate: {}", d.name)),
-        action: "Open your meeting app (Zoom / Teams / Tencent Meeting / ...) Audio Settings, and select BlackHole 2ch as the microphone input. If you select the real mic, the meeting hears your untranslated voice.".to_string(),
+        action: "Open your meeting app (Zoom / Teams / Tencent Meeting / ...) Audio Settings, and select the R3 output VAC above as the microphone input. If you select the real mic, the meeting hears your untranslated voice.".to_string(),
     });
 
-    // 误区 3: 对方翻译输出 -> real headphones only
-    // Validated by ensuring that the system default output is not a
-    // pure-VAC. Aggregate Devices combine a VAC with real output
-    // (used by the PoC per `map.md` Decision #1); those are flagged
-    // as Warn (not Fail) so the user can confirm the Aggregate
-    // Device is wired correctly.
-    let mis3_severity = match &real_output {
-        Some(d) if d.transport == "Aggregate" => Severity::Warn,
-        Some(_) => Severity::Ok,
-        None => Severity::Fail,
-    };
+    // 误区 3: 对方翻译输出 -> real headphones only. Already encoded
+    // in Check 4 (Aggregate = Warn, real = Ok, none = Fail).
+    let mis3_severity = real_output_severity;
     checks.push(CheckResult {
         id: "peer_audio_to_real_output_only".to_string(),
         label: "误区 3: 对方翻译输出走真实耳机 (not virtual)".to_string(),
         severity: mis3_severity,
-        observed: real_output.map(|d| format!("{} ({})", d.name, d.transport)),
+        observed: real_output.as_ref().map(|d| format!("{} ({})", d.name, d.transport)),
         action: match mis3_severity {
             Severity::Ok => String::new(),
             Severity::Warn => "Output is an Aggregate Device. Verify in Audio MIDI Setup that the Aggregate combines a real output (your headphones) with the BlackHole 16ch loopback. If only VACs are aggregated, the meeting will loop.".to_string(),
@@ -308,21 +359,6 @@ fn run_check_macos() -> TopologyReport {
         checked_at_ms: now_ms(),
         fix_summary,
     }
-}
-
-/// Helper: case-insensitive substring match + required channel shape.
-fn find_by_name_and_channels(
-    devices: &[AudioDevice],
-    name_substr: &str,
-    min_in: u32,
-    min_out: u32,
-) -> Option<AudioDevice> {
-    devices
-        .iter()
-        .find(|d| {
-            d.name.contains(name_substr) && d.channel_count_in >= min_in && d.channel_count_out >= min_out
-        })
-        .cloned()
 }
 
 fn now_ms() -> u64 {
