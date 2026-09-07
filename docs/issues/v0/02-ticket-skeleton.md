@@ -80,3 +80,29 @@ Single acceptance seam — no ticket-specific tests in this ticket. Verified by:
 - Decisions: D4 (Tauri 2) / D5 (Zustand) / D6 (Open-Less patterns only) / D7 (Rust-heavy) / D20 (tauri-nspanel v2 branch) / D22 (ad-hoc self-sign)
 - Open-Less reference (architecture only): `/tmp/openless-research/openless-all/`
 
+
+## 进度：100%
+
+### 实现完成 (2026-09-07, branch feature/ticket-02-skeleton, commit c9cd956)
+
+- ✅ AC1 cargo check 0 errors
+- ✅ AC2 cargo clippy --all-targets -- -D warnings 0 errors
+- ✅ AC3 pnpm tauri build --debug → realtime_interpreter.app + realtime_interpreter_0.0.1_aarch64.dmg
+- ✅ AC4 topology-check binary placeholder exits 0
+- ✅ AC5 latency-probe binary placeholder exits 0 (with --iterations flag)
+- ✅ AC6 pnpm typecheck 0 errors
+- ✅ AC7 pnpm build (Vite) 38 modules, 147KB JS bundle
+- ✅ AC8 CSP strict (frame-ancestors 'none', connect-src 'self' ipc: ws://localhost:1420)
+
+### 下一步
+- 等用户在 GUI session 手动 smoke：pnpm tauri dev 启动 → 看 tray icon 出现 → 右键看菜单 → 按 Right Option 看 subtitle 切换 → 测 NSPanel 浮在 fullscreen Space 上
+- 合入 main：gh pr create --base main --head feature/ticket-02-skeleton
+- #3-#13 ticket 现在可以开干
+
+### 关键文件位置
+- src-tauri/Cargo.toml — 依赖 + version pinning
+- src-tauri/tauri.conf.json — 多窗口 + CSP + tray config
+- src-tauri/src/lib.rs — Tauri builder + tray + hotkey + NSPanel convert
+- src-tauri/src/ipc/ — 6 模块 × ~3 stubs = 18 IPC stubs (issue #1 spec said ~20)
+- src/lib/ipc/{shared,index}.ts — isTauri + requireBackendReady + invokeOrMock
+- src/store/ — 5 Zustand slices (空 stub, ticket #03+ 填)
