@@ -124,6 +124,13 @@ device config, ring config (40 ms initial, 20–40 ms adaptive), and a cost
 meter. R4 → webview subtitle events flow via `app.emit("subtitle:append", …)`
 — same pattern as Open-Less's `microphone:level` (`openless-take.md` L138).
 
+- **Reconnect manager** (per D30-Q3, locked 2026-09-07,
+  `docs/decisions/round-3-confirmations.md` D30-Q3): tokio task tracking
+  exponential backoff state (1s/2s/4s, max 3 retries, reset on
+  `SessionStarted(150)`). Coordinates with the 10s replay ring (Strategy A,
+  crossbeam SPSC) for voice-identity preservation on reconnect — see
+  `docs/research/voice-clone-strategies.md` §8.6.
+
 ---
 
 ## 3. Module layout (proposed)

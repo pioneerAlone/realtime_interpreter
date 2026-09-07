@@ -1,13 +1,13 @@
-# Round 3 Confirmations — D26–D29 + partial D30
+# Round 3 Confirmations — D26–D29 + D30 (FINAL)
 
 > User-confirmed decisions from `/ask-matt` review of the v0
 > architecture diagram (`docs/architecture/v0-architecture.html`)
-> on 2026-09-07. Updated 2026-09-07 with partial D30 lock.
+> on 2026-09-07. All decisions now LOCKED.
 
 ## D26 — Architecture region label correction (LOCKED)
 
-**Problem**: arch JSON said "Mac Studio M5 Max"; spec drafts said M2
-MacBook Air. User-confirmed label: "MacBook Air M2 (dev/primary)".
+**Problem**: arch JSON said "Mac Studio M5 Max"; spec drafts said
+M2 MacBook Air. User-confirmed label: "MacBook Air M2 (dev/primary)".
 
 - All AC1–AC8 remain measured on M2 Air per existing spec text.
 - **Edits applied**: `docs/architecture/v0-architecture.json` +
@@ -32,63 +32,63 @@ cpal output devices including "Mute". New paragraph in
 `02-audio-pipeline.md` §8.3 + 4th bullet in `03-b-channel-subtitle.md`
 §5.1 (commit `741f1d8`).
 
-## D30 — Voice-clone management (PARTIAL LOCK)
+## D30 — Voice-clone management (LOCKED)
 
-**Status on 2026-09-07**: research complete at
-`docs/research/voice-clone-strategies.md` (3097 words, 4 strategies
-taxonomy, 10+ primary sources). 4 sub-questions.
+### D30-Q1: Strategy 1 only (zero-sample per-session)
 
-### D30-Q1: Strategy 1 only vs Strategy 1 + 3 CLI flag
+**Confirmed**: v0 ships **Strategy 1 only**. `speaker_id=""` per
+session, Doubao zero-sample clone from last 10s audio. No preset
+flag, no user enrollment, no persistent voice_id.
 
-**Not yet locked** — user asked: "我看有的方案支持音色卡槽，可以提前录制一段自己的音频呢，到底哪个方案好呢"
+- Rationale: matches industry de-facto (Doppelvoice MIT, sokuji AGPL,
+  金喜 standard tier). 0 new lines vs PoC code path. Cross-session
+  voice drift accepted as known issue (Doppelvoice CHANGELOG v0.2.2
+  documents it). User voice identity in single sessions stable.
+- **Edits**: spec already consistent (PoC design + ADR-0003).
 
-**Research needed**: detailed comparison of:
-- Strategy 3 (preset `speaker_id` like `zh_female_vv_uranus_bigtts`)
-- Strategy 4 (user-enrolled preset voice via 5-30s recording)
-- Doubao AST 2.0 API capability for custom voice enrollment
-- Industry products that ship Strategy 4 vs Strategy 1
-- Cost / time / UX trade-offs
+### D30-Q2: denoise=false, no UI toggle (LOCKED — no spec edits)
 
-`/research` agent dispatched: see `docs/research/voice-clone-strategies.md`
-for Strategy 1 vs 3 framing; pending extension covers Strategy 4.
+**Confirmed**: v0 always sends `denoise=false` server-side. No UI
+toggle. Zero-sample cloning quality > ambient noise reduction.
 
-### D30-Q2: denoise UI toggle — **LOCKED as default=false, UI not exposed**
+### D30-Q3: Reconnect strategy A + F (10s replay ring + exponential backoff)
 
-**Confirmed**: v0 always sends `denoise=false` server-side; no UI
-toggle. Reasoning: zero-sample cloning quality > ambient noise
-reduction. Per `poc-docs-take.md` §3 row "Audio input spec" + ADR-0003.
+**Confirmed**: ship **Strategy A + Strategy F together**.
 
-- **Edits**: none required; this matches the existing spec.
+- **Strategy A** (10s replay ring): crossbeam SPSC ring buffer holds
+  last 10s of user audio; on reconnect, replay to API so it can
+  re-extract voice profile from continuous audio. ~80-120 LoC Rust.
+- **Strategy F** (exponential-backoff WS reconnect): 1s/2s/4s, max
+  3 retries, reset counter on SessionStarted (avoids Doppelvoice
+  30s lockout bug per CHANGELOG v0.2.2).
+- **Acceptance criterion** (slots into `04-latency-budget.md`
+  Appendix D test 7 network-drop variant): reconnect completes
+  within ≤7s, next TTSResponse cosine voice-embedding similarity
+  ≥0.85 to chunk emitted 5s before drop, no audio frames between
+  drop and first post-reconnect chunk.
+- **Strategy C (persistent voice_id cache)** verification: ≤1
+  dev-day probe to grep `SessionStarted(150)` response for stable
+  UUID; if present, C strictly beats A and should be promoted to
+  v0.1.
+- **Strategy D (parallel WS handoff)** and **E (full enrollment)**
+  deferred to v1+.
+- **Edits**: `04-latency-budget.md` Appendix D test 7 + issue #7
+  test plan + issue #9 (#7 is latency-probe; #12 is self-meeting
+  test which runs the AC7 reconnect variant).
 
-### D30-Q3: Reconnect strategy — **PENDING RESEARCH**
-
-**Not yet locked** — user asked: "有没有更好的方案"
-
-**Research needed**: detailed comparison of:
-- 10s replay ring buffer (per `poc-docs-take.md` §4.4 + §4.5)
-- accept silence + re-sample (Doppelvoice current)
-- partial-result continuation (server-side)
-- seamless reconnect via parallel WS
-- voiceprint caching strategies
-
-`/research` agent dispatched to extend
-`docs/research/voice-clone-strategies.md` with reconnect strategies
-section.
-
-### D30-Q4: Privacy disclosure — **LOCKED: full disclosure + "what data leaves your machine"**
+### D30-Q4: README full privacy disclosure (LOCKED)
 
 **Confirmed**: README has explicit "What data leaves your machine"
-section explaining that:
+section:
 - Your voice (R3 input audio) → Volcengine AST 2.0 servers, real-time
 - 对方 voice (R4 input audio via BlackHole 16ch loopback) → same
 - API key is the only credential sent (no device IDs, no analytics)
 - No audio is stored to disk by realtime_interpreter (per issue #30)
-- Per `.scratch/macos-siminterpret-poc/issues/30-audio-privacy-defaults.md`
 
-- **Edits**: `README.md` "What data leaves your machine" section
-  (issue #30 / issue #22 task list).
+- **Edits**: README to add the section (issue #30 / issue #22 task
+  list).
 
-## Edit batch summary (5 confirmed, 2 pending research)
+## Edit batch summary (8 confirmed, 0 pending)
 
 | Decision | Status | Edits |
 |---|---|---|
@@ -96,7 +96,16 @@ section explaining that:
 | D27 BH 16ch | ✅ no edit needed | already in spec |
 | D28 48 kHz | ✅ applied | 02-audio-pipeline.md §7 |
 | D29 bypass picker | ✅ applied | 02-audio-pipeline.md §8.3 + 03-b-channel-subtitle.md §5.1 |
-| D30-Q2 denoise | ✅ no edit needed | already default=false |
-| D30-Q4 privacy | ✅ applied (next pass) | README "What data leaves your machine" |
-| D30-Q1 Strategy choice | ⏳ research | extension to voice-clone-strategies.md |
-| D30-Q3 reconnect | ⏳ research | extension to voice-clone-strategies.md |
+| D30-Q1 strategy | ✅ locked | spec already consistent |
+| D30-Q2 denoise | ✅ locked | spec already consistent |
+| D30-Q3 reconnect A+F | ✅ locked | 04-latency-budget.md Appendix D test 7 update |
+| D30-Q4 privacy | ✅ locked | README "What data leaves your machine" |
+
+## Lock state summary
+
+**Round 1 (early):** none
+**Round 2 (initial grill):** D1–D17 (17 product/tech decisions)
+**Round 2 confirmations:** D18–D25 (8 follow-ups)
+**Round 3 (architecture review):** D26–D30 (5 decisions, all locked)
+
+**Total: 30 decisions locked** across 3 review rounds.
