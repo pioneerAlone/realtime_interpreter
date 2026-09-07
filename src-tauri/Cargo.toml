@@ -42,6 +42,14 @@ tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel", branch = "v2"
 # Audio + protocol stack (versions verified at impl per spec/v0/04-latency-budget.md Appendix C)
 # cpal = "0.15"  # Pulled in by ticket #03 (R3 audio) — `oboe-sys` dep needs network
 # opus = "0.3"  # Added back in ticket #08 (inline OGG demuxer) — needs C build chain
+
+# CoreAudio FFI (ticket #06 — pre-flight topology check).
+# Only the `core_audio` feature is required to enumerate devices via
+# AudioObjectGetPropertyData. The `audio_toolbox` / `audio_unit` /
+# `audio_server_plugin` features pull in extra frameworks we do not need.
+[target.'cfg(target_os = "macos")'.dependencies]
+coreaudio-sys = { version = "0.2", default-features = false, features = ["core_audio"] }
+
 tokio = { version = "1", features = ["full"] }
 tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
 prost = "0.13"

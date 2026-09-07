@@ -5,6 +5,7 @@
 //! pipelines, Doubao WebSocket client, and OGG demuxer are stubs
 //! that later tickets (#03-#13) fill in.
 
+pub mod audio;
 mod error;
 mod ipc;
 mod platform;
@@ -124,6 +125,12 @@ pub fn run() {
                 }
             });
 
+            // Install the R6 device-change hot-unplug detector.
+            // Listens for CoreAudio device add/remove events and
+            // emits `device:lost` Tauri events to the React UI.
+            // No-op on non-macOS platforms (ticket #06 is macOS-first).
+            install_audio_monitor(app.handle().clone());
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -142,6 +149,7 @@ pub fn run() {
             ipc::subtitle::append_subtitle,
             ipc::subtitle::clear_subtitles,
             ipc::topology::check_topology,
+            ipc::topology::topology_status,
             ipc::topology::fix_topology_hint,
             ipc::config::get_config,
             ipc::config::set_config,
@@ -270,6 +278,19 @@ fn handle_global_hotkey(app: &AppHandle<Wry>, event: &str) {
 
 fn menu_error(e: tauri::Error) -> AppError {
     AppError::Ipc(format!("menu construction failed: {e}"))
+}
+
+/// Install the R6 device-change hot-unplug detector on the
+/// platform-appropriate module. No-op on non-macOS.
+fn install_audio_monitor(app_handle: AppHandle) {
+    #[cfg(target_os = "macos")]
+    {
+        audio::monitor_macos::install(app_handle);
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = app_handle;
+    }
 }
 
 /// Fallback tray icon (32x32 sound-wave design) when the default

@@ -18,6 +18,7 @@
 import { invokeOrMock } from "./shared";
 
 export * from "./shared";
+export * from "./topology";
 
 export async function ping(): Promise<string> {
   return invokeOrMock<string>("ping", undefined, {
