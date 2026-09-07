@@ -27,7 +27,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # Tauri 2 core (pinned per openless-take.md L58)
-tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api"] }
 tauri-plugin-shell = "2"
 
 # macOS-specific plugins
