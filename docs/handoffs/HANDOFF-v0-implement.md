@@ -190,3 +190,48 @@ If the blocker is a domain question (not a code error), surface to user via `/as
 - Spec drafts 8 files + BlackHole 16ch appendix in `docs/spec/v0/`
 - Research 4 files in `docs/research/` (PoC take + Open-Less take + latency budget + voice-clone strategies = 1173 lines)
 - All committed to `main` and pushed to `pioneerAlone/realtime_interpreter`
+
+---
+
+## UPDATE 2026-09-07 (post-claim)
+
+**Status**: issue #2 has been **claimed** and a **feature branch** has been opened, ready for the next session to begin implementation immediately.
+
+- **Assignee**: session user (via `gh issue edit 2 --add-assignee @me`)
+- **Branch**: `feature/ticket-02-skeleton` from `main@cdec6c4`, pushed to `origin/feature/ticket-02-skeleton`
+- **Issue body**: appended with `## 进度：5%` section per wayfinder convention (real newlines, H2 on own line, blank line between paragraphs)
+- **Commit on branch**: `785dbec docs(ticket-02): claim + 进度 5% on issue #2`
+- **No code committed yet** — next session will write the actual Tauri 2 skeleton
+
+### Updated startup commands (next session)
+
+```bash
+cd /Users/wangbo/proj/realtime_interpreter
+git checkout feature/ticket-02-skeleton  # already created
+git pull  # sync latest
+gh issue view 2  # re-read ticket with ## 进度：5% section
+cat docs/handoffs/HANDOFF-v0-implement.md  # this file
+# Then load /implement skill (path: /Users/wangbo/.agents/skills/implement/SKILL.md)
+# and start writing code per the ticket's Implementation notes + AC9-AC14
+```
+
+### Step-by-step execution plan for the next session
+
+1. **Install Tauri CLI**: `pnpm add -D @tauri-apps/cli@^2.0` (or global `cargo install tauri-cli --version "^2.0"`)
+2. **Scaffold the project**: `pnpm create tauri-app . --template react-ts --manager pnpm` or manually create `src-tauri/` + `src/` from scratch following Open-Less structure
+3. **Write Cargo.toml** per the pinned versions in the ticket's Implementation notes
+4. **Write tauri.conf.json** with the multi-window + strict CSP configuration
+5. **Write capabilities/{default,capsule}.json** for window scopes
+6. **Write src-tauri/src/lib.rs** (Tauri builder + tray + global hotkey + NSPanel convert)
+7. **Write src-tauri/src/platform/macos.rs** (NSPanel conversion function)
+8. **Write src-tauri/src/ipc/{mod,session,device,subtitle,topology,config,diagnostics}.rs** (stub commands, ~20 total)
+9. **Write src-tauri/src/bin/{topology-check,latency-probe}.rs** (placeholder binaries that print + exit 0)
+10. **Write src/main.tsx** (router by `?window=main|capsule`)
+11. **Write src/App.tsx** (renders MainView or SubtitleView based on URL param)
+12. **Write src/lib/ipc/{shared,index}.ts** (isTauri + requireBackendReady + invokeOrMock)
+13. **Write src/store/*.ts** (5 Zustand slices)
+14. **Write src/views/{MainView,SubtitleView}.tsx** (placeholders)
+15. **Write vite.config.ts** (`@vitejs/plugin-react` only)
+16. **Verify**: `cargo check` + `cargo clippy --all-targets -- -D warnings` + `pnpm install` + `pnpm tauri build`
+17. **Commit + push** + update issue #2 to ## 进度：100% + close
+
