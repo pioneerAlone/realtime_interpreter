@@ -199,15 +199,23 @@ fn run_check_macos(prefs: &TopologyPrefs) -> TopologyReport {
 
     // ---- Check 1: a real microphone input exists (R3 source) ----
     // The user picks one explicitly; if not picked, fall back to
-    // the first non-Virtual device with input channels. The picker
-    // dropdown only lists devices with input channels, so a user
-    // choice is always valid by construction.
-    let real_mic = lookup(&by_name, &prefs.mic_name, "").or_else(|| {
+    // the first non-Virtual device with input channels. We cannot
+    // pass `""` to `lookup` (every name contains the empty string,
+    // so it would always return the first device regardless of
+    // transport); gate the lookup behind a `Some(name)` check.
+    let real_mic = if let Some(name) = prefs.mic_name.as_deref().filter(|n| !n.is_empty()) {
+        by_name.get(name).cloned().cloned().or_else(|| {
+            devices
+                .iter()
+                .find(|d| d.channel_count_in > 0 && d.transport != "Virtual")
+                .cloned()
+        })
+    } else {
         devices
             .iter()
             .find(|d| d.channel_count_in > 0 && d.transport != "Virtual")
             .cloned()
-    });
+    };
     let any_mic = devices.iter().find(|d| d.channel_count_in > 0);
     let mic_present = real_mic.is_some();
     checks.push(CheckResult {
@@ -264,12 +272,24 @@ fn run_check_macos(prefs: &TopologyPrefs) -> TopologyReport {
     });
 
     // ---- Check 4: a real output device (headphones/speaker) exists ----
-    let real_output = lookup(&by_name, &prefs.r4_out_device_name, "").or_else(|| {
+    // For mic/headphones slots we use `lookup` only when the user has
+    // picked a name; when `prefs.X_name` is `None` we fall straight
+    // to the transport/channel heuristic (passing `""` to `lookup`
+    // would match every device because every name contains the empty
+    // string, defeating the heuristic).
+    let real_output = if let Some(name) = prefs.r4_out_device_name.as_deref().filter(|n| !n.is_empty()) {
+        by_name.get(name).cloned().cloned().or_else(|| {
+            devices
+                .iter()
+                .find(|d| d.channel_count_out > 0 && d.transport != "Virtual")
+                .cloned()
+        })
+    } else {
         devices
             .iter()
             .find(|d| d.channel_count_out > 0 && d.transport != "Virtual")
             .cloned()
-    });
+    };
     let real_output_severity = match &real_output {
         Some(d) if d.transport == "Aggregate" => Severity::Warn,
         Some(_) => Severity::Ok,

@@ -1,16 +1,60 @@
+/**
+ * mainView — top-level shell for the main window.
+ *
+ * Layout (Open-Less FloatingShell pattern, simplified for v0):
+ *
+ *   ┌──────────────────────────────────────────────────────────────────┐
+ *   │ TopBar:  [logo] realtime_interpreter          [API key status]   │
+ *   ├──────────┬───────────────────────────────────────────────────────┤
+ *   │ Sidebar  │ Main content (one of:                                 │
+ *   │          │   • Setup     — Topology pre-flight 4-picker panel  │
+ *   │ ⚙ Setup  │   • Channels  — Two ChannelCard (R3 + R4)            │
+ *   │ 🎙 Ch    │   • Hotkeys   — Three keyboard chips + permission     │
+ *   │ ⌨ Hot    │   • About     — Version + repo + license + D-Lock    │
+ *   │ ℹ About  │                                                      │
+ *   │          │                                                      │
+ *   │ ⏻ Quit   │                                                      │
+ *   ├──────────┴───────────────────────────────────────────────────────┤
+ *   │ StatusBar: Topology ● | R3 ● idle | R4 ● idle | ⌥⌃⌥P⌃⌥H        │
+ *   └──────────────────────────────────────────────────────────────────┘
+ *
+ * Active view is local React state — no router needed for 4 pages.
+ *
+ * Backend handshake (ping/version/contract) was moved into the
+ * TopBar to free the Setup page from boilerplate noise.
+ */
+
 import React, { useEffect, useState } from "react";
-import { ping, version } from "../lib/ipc";
-import { useSessionStore } from "../store/session";
-import { APP_ICON_DATA_URL } from "../assets/icon";
-import { TopologyCheckPanel } from "../components/TopologyCheckPanel";
+import { ping, version } from "@/lib/ipc";
+import { useSessionStore } from "@/store/session";
+import { useTopologyStore, resolveEffectivePrefs } from "@/store/topology";
+import { APP_ICON_DATA_URL } from "@/assets/icon";
+import { TopologyCheckPanel } from "@/components/TopologyCheckPanel";
+import { ChannelCard } from "@/components/ChannelCard";
+import { R3_INFO, R4_INFO } from "@/lib/channelInfo";
+import { Sidebar, type NavItemId } from "@/components/Sidebar";
+import { StatusBar } from "@/components/StatusBar";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 type PingResult = { status: "ok" | "err"; text: string };
 
+const R3_INPUT_DEFAULT = "MacBook Air麦克风";
+const R3_OUTPUT_DEFAULT = "BlackHole 2ch";
+const R4_INPUT_DEFAULT = "BlackHole 16ch";
+const R4_OUTPUT_DEFAULT = "MacBook Air扬声器";
+
 export default function MainView(): React.ReactElement {
-  const r3 = useSessionStore((s) => s.r3);
-  const r4 = useSessionStore((s) => s.r4);
+  const r3State = useSessionStore((s) => s.r3);
+  const r4State = useSessionStore((s) => s.r4);
+  const topologyPrefs = useTopologyStore((s) => s.prefs);
+  const topologyStatus = useTopologyStore((s) => s.status);
+  // Resolve effective prefs against discovered devices so the
+  // Channels page shows the same resolved devices as the Setup
+  // page (e.g. iFLYBUDS Nano+ when the user hasn't picked yet
+  // but macOS reports it as the default mic).
+  const effectivePrefs = resolveEffectivePrefs(topologyPrefs, topologyStatus?.devices ?? []);
   const [pingRes, setPingRes] = useState<PingResult>({ status: "err", text: "…" });
-  const [ver, setVer] = useState<string>("…");
+  const [ver, setVer] = useState<string>("0.0.1");
 
   useEffect(() => {
     ping()
@@ -21,111 +65,204 @@ export default function MainView(): React.ReactElement {
       .catch((e: unknown) => setVer(`error: ${String(e)}`));
   }, []);
 
+  const [active, setActive] = useState<NavItemId>("setup");
+
+  // Quit handler — Quit nav item dispatches this.
+  const handleNav = (id: NavItemId) => {
+    if (id === "quit") {
+      // Tauri shell API for graceful exit.
+      import("@tauri-apps/api/window").then(({ getCurrentWindow }) => {
+        void getCurrentWindow().close();
+      });
+      return;
+    }
+    setActive(id);
+  };
+
   return (
-    <div className="app">
-      <div className="app-header">
-        <img className="app-icon" src={APP_ICON_DATA_URL} alt="realtime_interpreter" />
-        <div className="app-title">realtime_interpreter</div>
-        <div className="spacer" />
-        <span className="muted">v0 scaffold</span>
+    <div className="rt-shell">
+      <TopBar pingRes={pingRes} version={ver} />
+
+      <div className="rt-shell__body">
+        <Sidebar active={active} onSelect={handleNav} version={ver} />
+
+        <main className="rt-shell__main">
+          {active === "setup" && (
+            <section className="rt-page" aria-labelledby="setup-heading">
+              <header className="rt-page__header">
+                <h1 id="setup-heading" className="rt-page__title">Setup</h1>
+                <p className="rt-page__desc">
+                  启动前必做的 4 设备拓扑检查 + 3 误区自检。每一个 picker 的选择都会立即保存到本地 store 并触发重新检查。
+                </p>
+              </header>
+              <TopologyCheckPanel />
+            </section>
+          )}
+
+          {active === "channels" && (
+            <section className="rt-page" aria-labelledby="channels-heading">
+              <header className="rt-page__header">
+                <h1 id="channels-heading" className="rt-page__title">Channels</h1>
+                <p className="rt-page__desc">
+                  v0 包含 R3 / R4 两个并行通道，鼠标悬停 ⓘ 看完整说明，点击「启动条件 / 依赖 / 错误模式」展开高级信息。
+                </p>
+              </header>
+              <div className="rt-page__grid">
+                <ChannelCard
+                  kind="R3"
+                  title={R3_INFO.title}
+                  fullName={R3_INFO.fullName}
+                  summary={R3_INFO.summary}
+                  status={r3State}
+                  srcLang={R3_INFO.srcLang}
+                  tgtLang={R3_INFO.tgtLang}
+                  inputDevice={effectivePrefs.mic_name ?? R3_INPUT_DEFAULT}
+                  outputDevice={effectivePrefs.r3_out_vac_name ?? R3_OUTPUT_DEFAULT}
+                  latencyTarget={R3_INFO.latencyTarget}
+                  startupConditions={R3_INFO.startupConditions}
+                  dependencies={R3_INFO.dependencies}
+                  errorModes={R3_INFO.errorModes}
+                  longDescription={R3_INFO.longDescription}
+                />
+                <ChannelCard
+                  kind="R4"
+                  title={R4_INFO.title}
+                  fullName={R4_INFO.fullName}
+                  summary={R4_INFO.summary}
+                  status={r4State}
+                  srcLang={R4_INFO.srcLang}
+                  tgtLang={R4_INFO.tgtLang}
+                  inputDevice={effectivePrefs.r4_in_vac_name ?? R4_INPUT_DEFAULT}
+                  outputDevice={effectivePrefs.r4_out_device_name ?? R4_OUTPUT_DEFAULT}
+                  latencyTarget={R4_INFO.latencyTarget}
+                  startupConditions={R4_INFO.startupConditions}
+                  dependencies={R4_INFO.dependencies}
+                  errorModes={R4_INFO.errorModes}
+                  longDescription={R4_INFO.longDescription}
+                />
+              </div>
+            </section>
+          )}
+
+          {active === "hotkeys" && (
+            <section className="rt-page" aria-labelledby="hotkeys-heading">
+              <header className="rt-page__header">
+                <h1 id="hotkeys-heading" className="rt-page__title">Hotkeys</h1>
+                <p className="rt-page__desc">
+                  全局快捷键需要在 System Settings → Privacy &amp; Security → Accessibility 中授权 realtime_interpreter。
+                  macOS 首次启动会自动弹出授权窗口；如果被拒绝，需要手动在系统设置中重新勾选。
+                </p>
+              </header>
+              <div className="hotkey-list">
+                <div className="hotkey-list__row">
+                  <div className="hotkey-list__desc">
+                    <strong>Toggle subtitle</strong>
+                    <span>显示 / 隐藏字幕悬浮窗。NSPanel 不抢焦点。</span>
+                  </div>
+                  <div className="hotkey-list__keys">
+                    <span className="kbd">Right Option</span>
+                  </div>
+                </div>
+                <div className="hotkey-list__row">
+                  <div className="hotkey-list__desc">
+                    <strong>原声直出 (Bypass)</strong>
+                    <span>关闭时英文原声 + 字幕同步上屏；开启时跳过字幕。</span>
+                  </div>
+                  <div className="hotkey-list__keys">
+                    <span className="kbd">⌃</span>
+                    <span className="kbd">⌥</span>
+                    <span className="kbd">P</span>
+                  </div>
+                </div>
+                <div className="hotkey-list__row">
+                  <div className="hotkey-list__desc">
+                    <strong>Hide subtitle</strong>
+                    <span>直接隐藏字幕窗（不切换）。</span>
+                  </div>
+                  <div className="hotkey-list__keys">
+                    <span className="kbd">⌃</span>
+                    <span className="kbd">⌥</span>
+                    <span className="kbd">H</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {active === "about" && (
+            <section className="rt-page" aria-labelledby="about-heading">
+              <header className="rt-page__header">
+                <h1 id="about-heading" className="rt-page__title">About</h1>
+              </header>
+              <div className="about-card">
+                <p>
+                  <strong>realtime_interpreter</strong> — open-source macOS dual-channel
+                  realtime zh↔en interpreter (v0 scaffold).
+                </p>
+                <p>
+                  对标金喜同传双通道版 (¥49–¥4999/年)，MIT 协议，macOS-first。
+                </p>
+                <p>
+                  <strong>仓库</strong>{" "}
+                  <a href="https://github.com/pioneerAlone/realtime_interpreter" target="_blank" rel="noreferrer">
+                    pioneerAlone/realtime_interpreter
+                  </a>
+                </p>
+                <p>
+                  <strong>PoC</strong>{" "}
+                  <a href="https://github.com/pioneerAlone/realtime_interpreter-poc" target="_blank" rel="noreferrer">
+                    pioneerAlone/realtime_interpreter-poc
+                  </a>
+                  <Tooltip
+                    wrap
+                    content="PoC 是基于 Doubao 同传 2.0 的 A-channel 可行性参考；本仓架构和模式参考 PoC，但 PoC 仓库因为 License 边界 (AGPL-3.0 上游依赖) 不合并入本仓。"
+                  >
+                    <span className="about-card__hint">ⓘ</span>
+                  </Tooltip>
+                </p>
+                <p>
+                  <strong>License</strong>: app code MIT, vendored Doppelvoice .proto Apache-2.0.
+                </p>
+                <p className="about-card__meta">
+                  v0.1 scaffold · 30 decisions locked · 12 implementation tickets open.
+                </p>
+              </div>
+            </section>
+          )}
+        </main>
       </div>
 
-      <div className="app-body">
-        <TopologyCheckPanel />
-
-        <section className="app-section">
-          <div className="section-title">Backend handshake</div>
-          <div className="card">
-            <div className="card-grid">
-              <div className="stat">
-                <span className="stat-label">IPC</span>
-                <span className="stat-value">
-                  <span
-                    className={`status-dot ${pingRes.status === "ok" ? "running" : "error"}`}
-                  />
-                  {pingRes.text}
-                </span>
-              </div>
-              <div className="stat">
-                <span className="stat-label">Version</span>
-                <span className="stat-value">{ver}</span>
-              </div>
-              <div className="stat">
-                <span className="stat-label">IPC contract</span>
-                <span className="stat-value">1.0.0</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="app-section">
-          <div className="section-title">Channels</div>
-          <div className="card">
-            <div className="card-grid">
-              <div className="stat">
-                <span className="stat-label">R3 — 你 → 客户 (s2s)</span>
-                <span className="stat-value">
-                  <span
-                    className={`status-dot ${
-                      r3 === "running" ? "running" : r3 === "error" ? "error" : "idle"
-                    }`}
-                  />
-                  {r3}
-                </span>
-              </div>
-              <div className="stat">
-                <span className="stat-label">R4 — 客户 → 字幕 (s2t)</span>
-                <span className="stat-value">
-                  <span
-                    className={`status-dot ${
-                      r4 === "running" ? "running" : r4 === "error" ? "error" : "idle"
-                    }`}
-                  />
-                  {r4}
-                </span>
-              </div>
-            </div>
-            <p className="muted" style={{ fontSize: 11, marginTop: 10 }}>
-              Channels are wired in tickets <span className="kbd">#03</span> (R3) and{" "}
-              <span className="kbd">#04</span> (R4).
-            </p>
-          </div>
-        </section>
-
-        <section className="app-section">
-          <div className="section-title">Hotkeys</div>
-          <div className="card">
-            <div className="card-grid">
-              <div className="stat">
-                <span className="stat-label">Toggle subtitle</span>
-                <span className="stat-value">
-                  <span className="kbd">Right Option</span>
-                </span>
-              </div>
-              <div className="stat">
-                <span className="stat-label">原声直出 toggle</span>
-                <span className="stat-value">
-                  <span className="kbd">⌃</span>
-                  <span className="kbd">⌥</span>
-                  <span className="kbd">P</span>
-                </span>
-              </div>
-              <div className="stat">
-                <span className="stat-label">Hide subtitle</span>
-                <span className="stat-value">
-                  <span className="kbd">⌃</span>
-                  <span className="kbd">⌥</span>
-                  <span className="kbd">H</span>
-                </span>
-              </div>
-            </div>
-            <p className="muted" style={{ fontSize: 11, marginTop: 10 }}>
-              Hotkeys require Accessibility permission (System Settings → Privacy &amp;
-              Security → Accessibility). On first launch macOS prompts automatically.
-            </p>
-          </div>
-        </section>
-      </div>
+      <StatusBar onNavigate={handleNav} />
     </div>
+  );
+}
+
+/**
+ * TopBar — minimal title bar. Backend handshake chips live here so
+ * the Setup page stays focused on topology.
+ */
+function TopBar({ pingRes, version }: { pingRes: PingResult; version: string }) {
+  return (
+    <header className="rt-topbar">
+      <div className="rt-topbar__brand">
+        <img className="rt-topbar__icon" src={APP_ICON_DATA_URL} alt="realtime_interpreter" />
+        <span className="rt-topbar__title">realtime_interpreter</span>
+        <span className="rt-topbar__chip">v{version} · scaffold</span>
+      </div>
+      <div className="rt-topbar__meta">
+        <Tooltip
+          wrap
+          content={`IPC handshake: ${pingRes.text}. click  = `}
+        >
+          <span className="rt-topbar__chip rt-topbar__chip--meta">
+            <span
+              className={`status-dot ${pingRes.status === "ok" ? "running" : "error"}`}
+              aria-hidden
+            />
+            IPC {pingRes.status === "ok" ? "ready" : "down"}
+          </span>
+        </Tooltip>
+      </div>
+    </header>
   );
 }

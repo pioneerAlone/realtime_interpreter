@@ -24,6 +24,7 @@ import { useEffect, useMemo } from "react";
 import { listen } from "@tauri-apps/api/event";
 import {
   useTopologyStore,
+  resolveEffectivePrefs,
   type TopologyCheckResult,
 } from "@/store/topology";
 import type { AudioDevice } from "@/lib/ipc/topology";
@@ -148,6 +149,15 @@ export function TopologyCheckPanel() {
 
   const devices = status?.devices ?? [];
 
+  // Resolve prefs against discovered devices so the pickers pre-select
+  // a sensible default when the user has not picked yet (or the saved
+  // pick matches a discovered device). Mirrors `lookup()` in
+  // `src-tauri/src/audio/topology.rs`.
+  const effective = useMemo(
+    () => resolveEffectivePrefs(prefs, devices),
+    [prefs, devices],
+  );
+
   // Build per-row picker options. The picker dropdowns always
   // include the user's stored pick (even when invisible) so the
   // selection is sticky across CoreAudio churn.
@@ -244,16 +254,16 @@ export function TopologyCheckPanel() {
                 Microphone (R3 input)
               </div>
               <SelectLite
-                value={prefs.mic_name ?? ""}
+                value={effective.mic_name ?? ""}
                 onChange={(v) => void pickMic(v || null)}
                 options={micOptions}
                 placeholder="(System default)"
                 ariaLabel="Microphone for R3 input"
                 loading={loading}
               />
-              {observedFor(prefs.mic_name) && (
+              {observedFor(effective.mic_name) && (
                 <div className="topology-picker__observed">
-                  observed: <code>{observedFor(prefs.mic_name)}</code>
+                  observed: <code>{observedFor(effective.mic_name)}</code>
                 </div>
               )}
             </li>
@@ -263,16 +273,16 @@ export function TopologyCheckPanel() {
                 R3 输出 VAC (meeting mic input)
               </div>
               <SelectLite
-                value={prefs.r3_out_vac_name ?? ""}
+                value={effective.r3_out_vac_name ?? ""}
                 onChange={(v) => void pickR3OutVac(v || null)}
                 options={r3OutOptions}
                 placeholder="(System default)"
                 ariaLabel="Virtual audio cable for R3 output (meeting mic input)"
                 loading={loading}
               />
-              {observedFor(prefs.r3_out_vac_name) && (
+              {observedFor(effective.r3_out_vac_name) && (
                 <div className="topology-picker__observed">
-                  observed: <code>{observedFor(prefs.r3_out_vac_name)}</code>
+                  observed: <code>{observedFor(effective.r3_out_vac_name)}</code>
                 </div>
               )}
             </li>
@@ -282,16 +292,16 @@ export function TopologyCheckPanel() {
                 R4 输入 VAC (meeting app speaker loopback)
               </div>
               <SelectLite
-                value={prefs.r4_in_vac_name ?? ""}
+                value={effective.r4_in_vac_name ?? ""}
                 onChange={(v) => void pickR4InVac(v || null)}
                 options={r4InOptions}
                 placeholder="(System default)"
                 ariaLabel="Virtual audio cable for R4 input (meeting app speaker loopback)"
                 loading={loading}
               />
-              {observedFor(prefs.r4_in_vac_name) && (
+              {observedFor(effective.r4_in_vac_name) && (
                 <div className="topology-picker__observed">
-                  observed: <code>{observedFor(prefs.r4_in_vac_name)}</code>
+                  observed: <code>{observedFor(effective.r4_in_vac_name)}</code>
                 </div>
               )}
             </li>
@@ -301,16 +311,16 @@ export function TopologyCheckPanel() {
                 Headphones / speakers (R4 output)
               </div>
               <SelectLite
-                value={prefs.r4_out_device_name ?? ""}
+                value={effective.r4_out_device_name ?? ""}
                 onChange={(v) => void pickR4OutDevice(v || null)}
                 options={r4OutOptions}
                 placeholder="(System default)"
                 ariaLabel="Real output device for R4 (headphones or speakers)"
                 loading={loading}
               />
-              {observedFor(prefs.r4_out_device_name) && (
+              {observedFor(effective.r4_out_device_name) && (
                 <div className="topology-picker__observed">
-                  observed: <code>{observedFor(prefs.r4_out_device_name)}</code>
+                  observed: <code>{observedFor(effective.r4_out_device_name)}</code>
                 </div>
               )}
             </li>

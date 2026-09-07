@@ -9,6 +9,7 @@ import {
   type TopologyReport,
   type TopologyCheckResult,
   type TopologyPrefs,
+  type AudioDevice,
 } from "@/lib/ipc/topology";
 
 interface TopologySlice {
@@ -184,3 +185,76 @@ export const BROWSER_PREVIEW_TOPOLOGY = MOCK_TOPOLOGY_REPORT;
 // Re-export the check-result type so consumers can typecheck
 // without reaching into the IPC module.
 export type { TopologyCheckResult, TopologyPrefs };
+
+/**
+ * Resolve `prefs` to a fully-populated copy where `null` slots
+ * are replaced with the best-matching device from `devices`.
+ *
+ * Mirrors the heuristic `lookup()` in `src-tauri/src/audio/topology.rs`.
+ * The Rust side runs the same logic for its checks, but the UI
+ * needs the resolved value too so the picker can pre-select a
+ * sensible default instead of "(System default)".
+ *
+ * Rules:
+ *  - mic_name: first device with `channel_count_in > 0 && transport != "Virtual"`
+ *  - r3_out_vac_name: first device with `channel_count_out >= 2 && transport == "Virtual"`
+ *    and name contains "BlackHole" or "VAC" (canonical R3 sink)
+ *  - r4_in_vac_name: first device with `channel_count_in >= 16 || channel_count_out >= 16`
+ *    and name contains "16ch" (canonical R4 source)
+ *  - r4_out_device_name: first device with `channel_count_out > 0 && transport != "Virtual"`
+ */
+export function resolveEffectivePrefs(
+  prefs: TopologyPrefs,
+  devices: AudioDevice[],
+): TopologyPrefs {
+  const findFirst = (predicate: (d: AudioDevice) => boolean) =>
+    devices.find(predicate)?.name ?? null;
+
+  // Prefer 2-channel VAC for R3-out (canonical BlackHole 2ch); if
+  // both BlackHole 2ch and 16ch are installed, the 2ch one is the
+  // correct R3 sink because cpal can resample the 48 kHz mono
+  // stream into a 2-channel bus without channel-mapping weirdness.
+  const fallbackR3Out = (() => {
+    const twoCh = devices.find(
+      (d) =>
+        d.channel_count_out === 2 &&
+        d.transport === "Virtual" &&
+        /BlackHole|VAC/i.test(d.name),
+    );
+    if (twoCh) return twoCh.name;
+    return findFirst(
+      (d) =>
+        d.channel_count_out >= 2 &&
+        d.transport === "Virtual" &&
+        /BlackHole|VAC/i.test(d.name),
+    );
+  })();
+
+  // Prefer 16-channel VAC for R4-in; if absent, any high-channel VAC.
+  const fallbackR4In = (() => {
+    const sixteenCh = devices.find(
+      (d) =>
+        (d.channel_count_in >= 16 || d.channel_count_out >= 16) &&
+        /16ch/i.test(d.name),
+    );
+    if (sixteenCh) return sixteenCh.name;
+    return findFirst(
+      (d) =>
+        d.channel_count_in >= 16 || d.channel_count_out >= 16,
+    );
+  })();
+
+  const fallbackMic = findFirst(
+    (d) => d.channel_count_in > 0 && d.transport !== "Virtual",
+  );
+  const fallbackR4Out = findFirst(
+    (d) => d.channel_count_out > 0 && d.transport !== "Virtual",
+  );
+
+  return {
+    mic_name: prefs.mic_name ?? fallbackMic,
+    r3_out_vac_name: prefs.r3_out_vac_name ?? fallbackR3Out,
+    r4_in_vac_name: prefs.r4_in_vac_name ?? fallbackR4In,
+    r4_out_device_name: prefs.r4_out_device_name ?? fallbackR4Out,
+  };
+}
