@@ -10,6 +10,18 @@ rust-version = "1.75"
 name = "realtime_interpreter_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[[bin]]
+name = "realtime_interpreter"
+path = "src/main.rs"
+
+[[bin]]
+name = "topology-check"
+path = "src/bin/topology-check.rs"
+
+[[bin]]
+name = "latency-probe"
+path = "src/bin/latency-probe.rs"
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
