@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "v0 实时双向同传 — 双通道架构",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "view_v0_overview",
+        "label": "v0 完整视图",
+        "focus": [
+          "user",
+          "mic",
+          "bh_2ch",
+          "meeting_sw",
+          "bh_16ch_agg",
+          "headphones",
+          "main_window",
+          "subtitle_window",
+          "tauri_shell",
+          "rust_audio",
+          "rust_doubao",
+          "doubao_api"
+        ],
+        "note": "All v0 components in one shot — what ships at v0.0.1."
+      },
+      {
+        "id": "view_r3_path",
+        "label": "R3 主路径",
+        "focus": [
+          "user",
+          "mic",
+          "rust_audio",
+          "rust_doubao",
+          "doubao_api",
+          "bh_2ch",
+          "meeting_sw"
+        ],
+        "note": "Follow the A-channel: 你说中文 → 客户听到英文."
+      },
+      {
+        "id": "view_r4_path",
+        "label": "R4 + parallel-route",
+        "focus": [
+          "meeting_sw",
+          "bh_16ch_agg",
+          "rust_audio",
+          "rust_doubao",
+          "doubao_api",
+          "tauri_shell",
+          "subtitle_window",
+          "headphones"
+        ],
+        "note": "Follow the B-channel + parallel-route 原声直出."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "你 + 客户",
+      "sublabel": "中/英双语用户",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        120,
+        60
+      ]
+    },
+    {
+      "id": "mic",
+      "type": "external",
+      "label": "Mac 麦克风",
+      "sublabel": "CoreAudio",
+      "tag": "16 kHz mono",
+      "pos": [
+        220,
+        280
+      ],
+      "size": [
+        130,
+        60
+      ]
+    },
+    {
+      "id": "main_window",
+      "type": "frontend",
+      "label": "主窗口",
+      "sublabel": "设备选择",
+      "tag": "React + Zustand",
+      "pos": [
+        60,
+        100
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "tauri_shell",
+      "type": "backend",
+      "label": "Tauri 2 壳",
+      "sublabel": "IPC + 托盘",
+      "tag": "~20 commands",
+      "pos": [
+        380,
+        100
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "subtitle_window",
+      "type": "frontend",
+      "label": "字幕窗",
+      "sublabel": "浮动双语字幕",
+      "tag": "tauri-nspanel",
+      "pos": [
+        700,
+        100
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "rust_audio",
+      "type": "backend",
+      "label": "Rust 音频",
+      "sublabel": "cpal + OGG demuxer",
+      "tag": "opus crate (D21)",
+      "pos": [
+        400,
+        280
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "rust_doubao",
+      "type": "backend",
+      "label": "Rust Doubao",
+      "sublabel": "tungstenite + prost",
+      "tag": "s2s/s2t + 650-655",
+      "pos": [
+        180,
+        460
+      ],
+      "size": [
+        180,
+        60
+      ]
+    },
+    {
+      "id": "bh_2ch",
+      "type": "cloud",
+      "label": "BlackHole 2ch",
+      "sublabel": "R3 翻译输出",
+      "tag": "48 kHz native",
+      "pos": [
+        620,
+        280
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "doubao_api",
+      "type": "cloud",
+      "label": "Doubao 同传 2.0",
+      "sublabel": "wss://openspeech...",
+      "tag": "S2S + S2T",
+      "pos": [
+        430,
+        460
+      ],
+      "size": [
+        180,
+        60
+      ]
+    },
+    {
+      "id": "bh_16ch_agg",
+      "type": "cloud",
+      "label": "BH 16ch+Aggregate",
+      "sublabel": "R4 对方声音采集",
+      "tag": "通道 1-2 共享",
+      "pos": [
+        820,
+        380
+      ],
+      "size": [
+        180,
+        60
+      ]
+    },
+    {
+      "id": "meeting_sw",
+      "type": "external",
+      "label": "会议软件",
+      "sublabel": "Zoom / Teams",
+      "tag": "mic = BH 2ch",
+      "pos": [
+        1040,
+        460
+      ],
+      "size": [
+        180,
+        60
+      ]
+    },
+    {
+      "id": "headphones",
+      "type": "external",
+      "label": "物理耳机",
+      "sublabel": "原声直出",
+      "tag": "parallel D24",
+      "pos": [
+        1060,
+        380
+      ],
+      "size": [
+        160,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "用户设备：Mac Studio M5 Max",
+      "wraps": [
+        "user",
+        "meeting_sw",
+        "mic",
+        "bh_2ch",
+        "bh_16ch_agg",
+        "headphones",
+        "main_window",
+        "subtitle_window",
+        "tauri_shell",
+        "rust_audio",
+        "rust_doubao"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "云端：火山引擎",
+      "wraps": [
+        "doubao_api"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "鉴权：X-Api-Key + X-Api-Resource-Id",
+      "wraps": [
+        "rust_doubao",
+        "doubao_api"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-to-mic",
+      "from": "user",
+      "to": "mic",
+      "label": "说中文"
+    },
+    {
+      "id": "mic-to-rust_audio",
+      "from": "mic",
+      "to": "rust_audio",
+      "label": "16 kHz PCM",
+      "variant": "emphasis",
+      "labelAt": [
+        375,
+        354
+      ]
+    },
+    {
+      "id": "rust_audio-to-rust_doubao",
+      "from": "rust_audio",
+      "to": "rust_doubao",
+      "label": "AGC + VAD",
+      "labelDy": -28
+    },
+    {
+      "id": "rust_doubao-to-doubao_api",
+      "from": "rust_doubao",
+      "to": "doubao_api",
+      "label": "mode=s2s",
+      "variant": "emphasis"
+    },
+    {
+      "id": "doubao_api-to-rust_doubao-r3",
+      "from": "doubao_api",
+      "to": "rust_doubao",
+      "label": "ogg_opus TTS",
+      "variant": "emphasis",
+      "labelDy": -28
+    },
+    {
+      "id": "rust_doubao-to-rust_audio",
+      "from": "rust_doubao",
+      "to": "rust_audio",
+      "label": "opus decode",
+      "labelDy": 28
+    },
+    {
+      "id": "rust_audio-to-bh_2ch",
+      "from": "rust_audio",
+      "to": "bh_2ch",
+      "label": "48 kHz 播放",
+      "labelAt": [
+        595,
+        354
+      ]
+    },
+    {
+      "id": "bh_2ch-to-meeting_sw",
+      "from": "bh_2ch",
+      "to": "meeting_sw",
+      "label": "mic 输入",
+      "labelDy": -28
+    },
+    {
+      "id": "meeting_sw-to-bh_16ch_agg",
+      "from": "meeting_sw",
+      "to": "bh_16ch_agg",
+      "label": "speaker → 通道 1-2",
+      "labelAt": [
+        1020,
+        456
+      ]
+    },
+    {
+      "id": "bh_16ch_agg-to-rust_audio",
+      "from": "bh_16ch_agg",
+      "to": "rust_audio",
+      "label": "R4 capture",
+      "labelAt": [
+        594,
+        354
+      ]
+    },
+    {
+      "id": "rust_doubao-to-doubao_api-r4",
+      "from": "rust_doubao",
+      "to": "doubao_api",
+      "label": "mode=s2t",
+      "variant": "dashed",
+      "labelDy": 28
+    },
+    {
+      "id": "doubao_api-to-rust_doubao-r4",
+      "from": "doubao_api",
+      "to": "rust_doubao",
+      "label": "subtitle events",
+      "variant": "dashed",
+      "labelAt": [
+        406,
+        456
+      ]
+    },
+    {
+      "id": "rust_doubao-to-tauri_shell",
+      "from": "rust_doubao",
+      "to": "tauri_shell",
+      "label": "subtitle:append",
+      "labelDy": -24
+    },
+    {
+      "id": "tauri_shell-to-subtitle_window",
+      "from": "tauri_shell",
+      "to": "subtitle_window",
+      "label": "IPC emit"
+    },
+    {
+      "id": "main_window-to-tauri_shell",
+      "from": "main_window",
+      "to": "tauri_shell",
+      "label": "Zustand ↔ invoke",
+      "variant": "dashed",
+      "labelAt": [
+        244,
+        96
+      ]
+    },
+    {
+      "id": "tauri_shell-to-main_window",
+      "from": "tauri_shell",
+      "to": "main_window",
+      "label": "config + topology",
+      "variant": "dashed",
+      "labelAt": [
+        356,
+        96
+      ]
+    },
+    {
+      "id": "bh_16ch_agg-to-headphones",
+      "from": "bh_16ch_agg",
+      "to": "headphones",
+      "label": "原声直出 parallel-route",
+      "labelAt": [
+        1030,
+        376
+      ]
+    },
+    {
+      "id": "tauri_shell-to-rust_doubao",
+      "from": "tauri_shell",
+      "to": "rust_doubao",
+      "label": "API key from Keychain",
+      "labelAt": [
+        370,
+        354
+      ],
+      "labelDy": 28
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "R3 主路径 — 你说话到客户听到",
+      "items": [
+        "16 kHz 麦克风采集",
+        "Rust AGC + VAD",
+        "Doubao S2S 推理（~2100 ms）",
+        "OGG demuxer + opus crate 流式解码",
+        "48 kHz 播放到 BlackHole 2ch"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "R4 主路径 — 客户说话到你看到字幕",
+      "items": [
+        "BlackHole 16ch + Aggregate 采集",
+        "Doubao S2T 字幕流（~1200 ms）",
+        "Rust 解析 650-655 事件",
+        "IPC emit subtitle:append",
+        "tauri-nspanel 浮动字幕窗"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "安全与防反馈",
+      "items": [
+        "D24 原声直出 parallel-route",
+        "Open-Less 借鉴仅架构（AGPL 不污染 MIT）",
+        "鉴权 2-header only",
+        "API key 存 macOS Keychain",
+        "拓扑检查防 3-误区"
+      ]
+    }
+  ]
+}
