@@ -1,16 +1,45 @@
-/* realtime_interpreter — global styles (v0 scaffold) */
+/* realtime_interpreter — system-aware dark/light theme (v0 scaffold)
+ *
+ * color-scheme: light dark + system-ui tokens via CSS variables.
+ * On macOS (the only platform at v0) the webview is WKWebView, which
+ * auto-adapts to the user's "Appearance" setting (Light / Dark / Auto).
+ */
 
 :root {
-  --bg-primary: #1c1c1e;
-  --bg-secondary: #2c2c2e;
-  --fg-primary: #ffffff;
-  --fg-secondary: #98989d;
+  /* light tokens */
+  --bg: #f5f5f7;
+  --bg-elevated: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.72);
+  --bg-card-border: rgba(0, 0, 0, 0.08);
+  --fg: #1d1d1f;
+  --fg-muted: #6e6e73;
+  --fg-subtle: #aeaeb2;
   --accent: #0a84ff;
-  --border: #3a3a3c;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "SF Pro Display",
-    "PingFang SC", "Microsoft YaHei", sans-serif;
-  color-scheme: dark;
+  --accent-fg: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --bg-elevated: #2c2c2e;
+    --bg-card: rgba(44, 44, 46, 0.72);
+    --bg-card-border: rgba(255, 255, 255, 0.08);
+    --fg: #f5f5f7;
+    --fg-muted: #98989d;
+    --fg-subtle: #6e6e73;
+    --accent: #0a84ff;
+    --accent-fg: #ffffff;
+    --border: rgba(255, 255, 255, 0.08);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
 }
 
 * {
@@ -23,24 +52,28 @@ html,
 body,
 #root {
   height: 100vh;
-  background: var(--bg-primary);
-  color: var(--fg-primary);
+  background: var(--bg);
+  color: var(--fg);
   overflow: hidden;
-}
-
-body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   font-size: 13px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button {
   background: var(--accent);
-  color: white;
+  color: var(--accent-fg);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 6px 14px;
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  transition: filter 0.12s ease;
 }
 
 button:disabled {
@@ -49,5 +82,145 @@ button:disabled {
 }
 
 button:hover:not(:disabled) {
-  filter: brightness(1.15);
+  filter: brightness(1.1);
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+button.secondary:hover:not(:disabled) {
+  background: var(--bg-elevated);
+}
+
+/* ---- App shell ---- */
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag; /* let user drag window via header */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.app-header .app-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.app-header .app-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border-radius: 4px;
+}
+
+.app-header .spacer {
+  flex: 1;
+}
+
+.app-body {
+  flex: 1;
+  overflow: auto;
+  padding: 20px 24px;
+  -webkit-app-region: no-drag;
+}
+
+.app-section + .app-section {
+  margin-top: 18px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+  margin-bottom: 8px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fg-subtle);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.status-dot.idle {
+  background: #8e8e93;
+}
+
+.status-dot.running {
+  background: #30d158;
+  box-shadow: 0 0 8px rgba(48, 209, 88, 0.5);
+}
+
+.status-dot.error {
+  background: #ff453a;
+}
+
+.kbd {
+  display: inline-block;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--fg-muted);
+}
+
+.muted {
+  color: var(--fg-muted);
 }

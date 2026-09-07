@@ -1,0 +1,4 @@
+// Auto-generated from src-tauri/icons/32x32.png at scaffold time.
+// 32x32 RGBA PNG brand icon.
+export const APP_ICON_DATA_URL =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAvklEQVR42u1X0Q6AIAj0ua/uof+m3HJzbhoHl9IWG0/hCSfakdKXbDtkL2757tp45joegAeHTSOE9xRcn3Xr7iRGQdoqzBij7vbQLpe9dhwjyxvn9XIbvBHSC70E6iQohWkeojaBRwa01VuasGahG6cBRimDMNtgT/UIRhcToFqKU2+UkhFp3Vzxn8DyHlh+C8K9A8yXkMkq/C9I7DOzqmBX9V5tSBEfbFlukmVTNGEIVRxiLggxGYWYDWdMxyeiIHgMQn9GrAAAAABJRU5ErkJggg==";
