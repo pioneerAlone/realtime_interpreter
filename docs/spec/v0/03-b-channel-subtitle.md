@@ -175,6 +175,7 @@ The 原声直出 toggle is the **cost-saver + panic button**. See `docs/spec/v0/
 1. **Tray menu** — `Open-Less /openless-take.md` §5 "System tray / menu bar" pattern. Item: "原声直出 (Bypass) [Ctrl+Alt+P]" with checkmark.
 2. **Floating subtitle window** — small button in the corner; one-click toggle.
 3. **Settings window** — checkbox with explanatory text "原声直出：跳过翻译，把对方原声直接送耳机（节省 API 费用 + 0 延迟）".
+4. **原声直出 output device picker** (per `docs/decisions/round-3-confirmations.md` D29) — sub-dropdown of the bypass tray menu item, lists every `cpal` enumerated output device (CoreAudio on macOS: MacBook Air 内置扬声器, USB / Bluetooth 耳机, 其他虚拟声卡, plus a "Mute" option for silent subtitle-only mode). Default = the system default output device at first install (typically physical headphones); persisted across launches via `tauri-plugin-store`. See `docs/spec/v0/02-audio-pipeline.md` §8.3 "Output device picker (D29)" for full details.
 
 All three surfaces update the same Zustand `bypass` boolean; Rust listens via Tauri event `bypass:changed`.
 
