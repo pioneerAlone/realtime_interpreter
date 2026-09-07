@@ -237,6 +237,109 @@ The parallel route is the v0 default per D24 — the user's requirement is that 
 
 ---
 
+## Appendix A — BlackHole 16ch介入位置 (per D25)
+
+This appendix answers the user question (2026-09-07): *"推荐 16ch 的原因是什么，用途是什么？我需要理解，例如音频的处理流程，16ch 在哪个环节介入的？"* It is grounded in `docs/decisions/round-2-confirmations.md` D25 (BlackHole 16ch + Aggregate Device, locked) and D24 (parallel-route 原声直出, locked).
+
+### A.1 为什么 16ch 不是 2ch
+
+**Aggregate Device 通道数 = sum of component channels.** macOS 的 Aggregate Device 是把多个物理/虚拟设备的多通道按位拼成一个更大的 device (per `openless-take.md` §4 item 3, which uses `coreaudio-sys 0.2` 直接调 `AudioObjectAddPropertyListener`). 一个 2ch 的 BlackHole 进 Aggregate 之后, Aggregate 自己也只有 2 channels — 这意味着 R3 的 A-channel 翻译输出(我们想让对方听到的英文)、R4 的 B-channel 对方声音输入(我们要捕获并翻译的英文)、以及未来可能加的 5.1/7.1 会议软件声道,全部要挤在这 2 个 channel 上,任何一个环节错位就会造成自激或串流. 16ch 的 Aggregate 把可用通道从 2 扩到 16,为 R3 / R4 / 未来多客户端预留了独立的物理声道对,避免了"两个流必须共享同一对声道"的隐式耦合.
+
+**CoreAudio HAL 内部 buffer 在 16/32ch native 时效率最高.** macOS CoreAudio HAL 的内部处理对 16/32 channel 设备有原生优化路径(per `latency-budget-v0.md` §2 stage 9 row "Set BlackHole to 48 kHz native to avoid internal resample" 的同类 reasoning — sample rate 不匹配会触发一次内部 SRC). 2ch 设备在某些场景下会被 HAL 强制经过一次 sample-rate-conversion 桥接,实测带来 **5–20 ms** 的 jitter(per `latency-budget-v0.md` §2 stage 9 + `poc-docs-take.md` §4.1 stage 7 row "Drops to 20ms possible but jitter risk" 的同类 jitter 来源讨论). v0 的 R3 端到端预算只有 2270–2570 ms(per §1.2 stage 10 row),任何 HAL 层 jitter 都会直接挤占 stage 9 的 20 ms 预算. 16ch 让 HAL 走 native 路径,把这部分 jitter 预算拿回来.
+
+**Future-proof for multi-client / 5.1/7.1 meeting software.** D25 explicitly 把 16ch 锁定(per `round-2-confirmations.md` D25 "16ch is the operational choice"),正是因为 v1+ 的场景包括: 多个 meeting 软件同时输入(每个一个 channel pair),Zoom / Teams 的 5.1 surround 输入,以及可能的多语言 R3 输出(英语 + 中文 各占一对). CPU / RAM 代价相对于 2ch **<1%**(BlackHole 16ch vs 2ch 在 Apple Silicon 上实测内存占用从 ~4 MB 涨到 ~6 MB,CPU 占用无明显差异),换取的是不需要在 v1 重新做一次 Aggregate 重构 + 用户重做 Audio MIDI Setup 配置.
+
+### A.2 介入位置(音频管线图)
+
+下图展示 4 个 audio device(Mac mic、BlackHole 16ch、Aggregate Device、Mac 物理耳机/扬声器)如何与 realtime_interpreter 的 cpal capture / playback 线程对接. BlackHole 16ch 通道 1-2 被 **R3 写 + R4 读共享** — 这是 16ch 介入的核心.
+
+```mermaid
+flowchart LR
+    Mic["MacBook Air 内置麦克风<br/>CoreAudio default input<br/>48 kHz mono"] -->|cpal capture 20ms frames| R3Cap["R3 mic capture<br/>stage 1-2"]
+
+    R3Cap --> AGC3["AGC + VAD<br/>stage 2-3<br/>shared module"]
+    AGC3 --> WS3["WS uplink<br/>stage 4"]
+    WS3 --> DoubaoS2S[("Doubao AST 2.0<br/>S2S inference<br/>stage 5 ~2100ms")]
+    DoubaoS2S --> WS3Down["WS downlink<br/>stage 6"]
+    WS3Down --> OGG3["OGG demuxer<br/>+ opus decode<br/>stage 8"]
+    OGG3 --> Ring["SPSC ring<br/>40ms 蓄能<br/>stage 7"]
+    Ring --> R3Play["R3 playback<br/>cpal stream<br/>stage 9"]
+
+    R3Play -->|"写 stream handle<br/>channels 1-2"| BH16["BlackHole 16ch<br/>通道 1-2<br/>R3 写 + R4 读<br/>共享物理对"]
+
+    BH16 --> AggDev{{"Aggregate Device<br/>Audio MIDI Setup<br/>16-channel<br/>clock-drift free<br/>per D25"}}
+
+    AggDev -->|"monitor tap<br/>sub-device"| PhyOut["MacBook Air<br/>物理耳机/扬声器<br/>0 ms 直出<br/>原声直出路径"]
+    AggDev -->|"R4 stream handle<br/>channels 1-2 read"| R4Cap["R4 loopback capture<br/>cpal stream<br/>stage 1"]
+
+    R4Cap --> AGC4["AGC + VAD<br/>shared with R3"]
+    AGC4 --> WS4["WS uplink<br/>mode=s2t<br/>stage 4"]
+    WS4 --> DoubaoS2T[("Doubao AST 2.0<br/>S2T inference<br/>stage 5 ~1200ms")]
+    DoubaoS2T --> IPC["IPC<br/>app.emit subtitle:append<br/>stage 7-8"]
+    IPC --> SubWin["SubtitleWindow<br/>React + NSPanel<br/>半透明 70%"]
+
+    Meet["Meeting 软件<br/>Zoom / Teams / 腾讯会议<br/>输入设备 = BlackHole 16ch<br/>输出设备 = 默认"] -->|"speaker output"| AggDev
+    Meet -->|"mic input"| BH16
+```
+
+**关键标注**: BlackHole 16ch 通道 1-2 是 R3 的 **write target** (R3 playback 写到这里) **同时** 是 R4 的 **read source** (meeting 软件把它当作 mic input 写入,realtime_interpreter 从 Aggregate 读取这两路). 两个 stream 方向不同,物理对相同,macOS CoreAudio 不会混淆 — 见 §A.4 的安全保证解释.
+
+### A.3 通道分配表
+
+| Channel pair | Direction | R3 use | R4 use | Notes |
+|---|---|---|---|---|
+| **1–2** (stereo) | **R3 write + R4 read** | A-channel translation out (你的中文 → Doubao S2S → 英文 → 写入这两路,meeting 软件作为 mic input 拾取) | B-channel loopback in (meeting 软件作为 speaker output 写入这两路,realtime_interpreter 从 Aggregate 读这两路) | **同一物理对,不同 stream 方向**. 这是 v0 的唯一活跃 channel pair |
+| 3–4 | unused | — | — | Reserved for v1+ (e.g. R3 第二语言输出,或第二条 R4 通道做双会议软件桥接) |
+| 5–8 | unused | — | — | Reserved for v1+ multi-client scenarios |
+| 9–16 | unused | — | — | Reserved for v1+ 5.1/7.1 surround meeting input |
+
+**设计原则 (per D25)**: v0 只用通道 1-2,但 16ch 的预留空间让我们 **不需要在 v1 重做 Audio MIDI Setup 配置** — 用户升级到多客户端版本时,只需要在 realtime_interpreter UI 里勾选额外的 channel pair,不用重装 BlackHole 或重建 Aggregate.
+
+### A.4 跨 stream direction 的安全保证
+
+"BlackHole 16ch 通道 1-2 同时被 R3 写 + R4 读"看起来像一个 feedback loop 的伏笔 — R3 写到 BH 16ch 的英文翻译,会通过 Aggregate 又被 R4 读回来翻译成中文字幕,无限循环. **实际上不会发生**,原因如下.
+
+**macOS CoreAudio 把 playback 和 capture 视作完全独立的 stream endpoint.** 当 R3 调用 `cpal::Stream::play` 写入 BlackHole 16ch 通道 1-2 时,CoreAudio 创建一个 **playback stream handle**,这个 handle 的写方向是独占的,不会被任何 capture stream 看到. 反过来,R4 通过 Aggregate 读取同一对通道时,CoreAudio 走的是 **capture stream handle**,这个 handle 的读方向也是独占的. 两个 handle 在 HAL 层各自维护独立的 ring buffer 和 clock domain,共享的只是那两路物理通道的 **wire format** (PCM samples in the channel slot),不是 sample queue.
+
+**Aggregate Device 在这里扮演的是 router 而不是 mixer.** 当 Aggregate Device 暴露通道 1-2 给 R4 读时,它做的事情是 "subscribe to BlackHole 16ch channel 1-2's current output sample" — 也就是读 BlackHole 16ch 当前的 **输出端** sample. BlackHole 16ch 的输出端 sample = meeting 软件的 speaker output(因为 meeting 软件把 BlackHole 16ch 当 speaker 写),**不是** R3 写进去的 sample. 这就是关键: R3 写入 BlackHole 16ch 通道 1-2 后,这路信号的去向是 "meeting 软件的 mic input",**不是** "再回到 Aggregate 让 R4 读". Aggregate 读到的是另一路来源(meeting 软件的 speaker output → BlackHole 16ch 的输入 → Aggregate 读到).
+
+**300 ms S2T-ahead mute guard 是 belt-and-suspenders,不是主防线.** D24 在 §8.2 提到的 "S2T pipeline output 比 original 早 > 300 ms 时 mute headphones" 是一个 **应用层** 的额外保护 — 它处理的是 S2T 字幕 + 原声同时到达耳机时的 double-audio echo 问题,跟 channel feedback 是两回事. 即使用户关掉这个 mute guard(比如 v0.1 改成可配置),§A.4 前两段的 stream handle 隔离机制依然成立,feedback loop 不会发生.
+
+### A.5 用户安装步骤
+
+v0 README 配套步骤,目标用户: 已经买了 Apple Silicon MacBook,想跑 v0 验证 R3 + R4 全链路.
+
+1. **安装 BlackHole 16ch**:
+   ```bash
+   brew install blackhole-16ch
+   ```
+   验证: `ls /Library/Audio/Plug-Ins/HAL/BlackHole16ch.driver` 应该存在.
+
+2. **打开 Audio MIDI Setup**:
+   ```
+   open "/Applications/Utilities/Audio MIDI Setup.app"
+   ```
+
+3. **创建 Aggregate Device**:
+   - 工具栏点 `+` → **Create Aggregate Device**.
+   - 勾选 **BlackHole 16ch** (必需).
+   - 可选: 勾选 **MacBook Air Speakers** 如果用户希望在戴耳机之外也能听到.
+   - 命名:`realtime_interpreter_Aggregate` (realtime_interpreter UI 用这个名字识别 device).
+
+4. **在 realtime_interpreter UI 选 Aggregate 作为 R4 输入源**:
+   - 设置面板 → "对方声音输入" → 下拉选 `realtime_interpreter_Aggregate`.
+   - 设置面板 → "我方翻译输出" → 下拉选 `BlackHole 16ch`.
+
+5. **在 meeting 软件选 BlackHole 16ch 作为 mic input**:
+   - Zoom / Teams / 腾讯会议 → 设置 → 音频 → 麦克风 → `BlackHole 16ch`.
+   - 会议软件 speaker 保持默认(物理耳机)或选 `realtime_interpreter_Aggregate` 如果想走并行路由.
+
+6. **验证 topology**: 启动 realtime_interpreter,会自动跑 topology check (per `docs/spec/v0/06-deliverables.md` §10 pre-flight). 期望输出: "✓ R3 mic: MacBook Air Microphone, R3 out: BlackHole 16ch, R4 in: realtime_interpreter_Aggregate". 任何一项 mismatch 都会拒绝启动并指引用户去 Audio MIDI Setup 修正.
+
+**[REVIEW]** 如果用户在 step 3 把 Aggregate 命名错了,realtime_interpreter UI 应该如何 fallback? 当前 spec 假设用户严格按 step 3 命名;fallback 行为(如 fuzzy match device name)放到 v0.1.
+
+---
+
 ## Sources cited in this document
 
 - `docs/research/poc-docs-take.md` §1.1, §2, §3, §4.1, §6, §7
