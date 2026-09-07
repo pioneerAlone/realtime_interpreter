@@ -51,3 +51,32 @@ Single acceptance seam — no ticket-specific tests in this ticket. Verified by:
 - **Internationalization** — UI strings are English only at scaffold; v0 ships zh-CN + en strings hardcoded.
 - **App icon + branding** — placeholder Tauri default icon at scaffold; final icon is a v0.x polish item.
 - **Logging / structured tracing** — scaffold uses `eprintln!` + `console.log` only; `tracing`/`tracing-subscriber` wiring is added by whichever ticket first needs structured logs (likely #03 or #06).
+
+## 进度：5%
+
+### 当前进展
+- ✅ Issue claimed: assignee = @me (via `gh issue edit 2 --add-assignee @me`, 2026-09-07)
+- ✅ Feature branch opened: `feature/ticket-02-skeleton` from `main@cdec6c4`
+- ✅ Handoff entry written: `docs/handoffs/HANDOFF-v0-implement.md`
+- ✅ Environment smoke: pnpm 11.8 / node v25.2.1 / cargo 1.96 / rustc 1.96 / xcode CLT present; `cargo tauri` CLI not yet installed (added in step 1 of execution via `cargo install tauri-cli --version "^2.0"` or pnpm-managed)
+- ⏳ Pending: actual code work (Cargo.toml, package.json, src-tauri/src/*, src/*, tauri.conf.json, capabilities/) + verification
+
+### 下一步
+- 启动新 session 加载 `/implement` skill（disable-model-invocation=true，需手动加载）。
+- 入口：`/Users/wangbo/.agents/skills/implement/SKILL.md` + `docs/handoffs/HANDOFF-v0-implement.md`
+- 第一次 commit 目标：可编译的 Tauri 2 + React 18 + TS 5.6 + Vite 6 + Zustand 骨架，`pnpm install && pnpm build && cargo check` 全过。
+- Build 验证后 commit + push feature/ticket-02-skeleton + 通过 PR 合入 main。
+- 全 6 项 acceptance criteria 通过后，comment 关闭 issue #2，移除 `ready-for-agent`，在 map issue #1 的 Decisions-so-far 追加一行 gist。
+
+### 未确认项 / 已 accept 风险
+- Tauri 2 在 macOS 14.4.1 上 NSPanel conversion 行为（tauri-nspanel v2 分支）需要在 GUI session 中手动 smoke；当前 session 没有 GUI，仅靠 `cargo check` / `pnpm build` 静态验证。
+- `cargo install tauri-cli` 全局安装 vs pnpm-managed 决定已记录在 handoff 第 4 步；本 ticket 选 pnpm-managed（`@tauri-apps/cli` 在 devDependencies）。
+- `Right Option` 默认 hotkey 与 Open-Less USAGE.md:71 一致（pattern only）；如冲突可在 v0.1 调整。
+
+### 引用
+- Spec: `docs/spec/v0/00-overview.md` §2.1 F9, AC1-AC8
+- Spec: `docs/spec/v0/01-architecture.md` §1-§7
+- Spec: `docs/spec/v0/03-b-channel-subtitle.md` §2 (floating NSPanel)
+- Decisions: D4 (Tauri 2) / D5 (Zustand) / D6 (Open-Less patterns only) / D7 (Rust-heavy) / D20 (tauri-nspanel v2 branch) / D22 (ad-hoc self-sign)
+- Open-Less reference (architecture only): `/tmp/openless-research/openless-all/`
+
