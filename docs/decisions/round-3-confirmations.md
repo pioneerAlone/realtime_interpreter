@@ -1,139 +1,102 @@
-# Round 3 Confirmations — D26–D29
+# Round 3 Confirmations — D26–D29 + partial D30
 
-> 4 user-confirmed decisions on 2026-09-07 from `/ask-matt` review of
-> the v0 architecture diagram (`docs/architecture/v0-architecture.html`).
-> D30 (voice-clone management) is pending a `/research` agent — see
-> `docs/decisions/round-3-research-pending.md` for the open question.
+> User-confirmed decisions from `/ask-matt` review of the v0
+> architecture diagram (`docs/architecture/v0-architecture.html`)
+> on 2026-09-07. Updated 2026-09-07 with partial D30 lock.
 
-## D26 — Architecture region label correction
+## D26 — Architecture region label correction (LOCKED)
 
-**Problem raised by user**: `docs/architecture/v0-architecture.html`
-shows the user-device region as "用户设备：Mac Studio M5 Max", but
-the user's **primary dev/primary hardware is a MacBook Air M2**
-(macOS 14.4.1). The spec drafts consistently say M2 MacBook Air
-(`docs/spec/v0/00-overview.md` §2.1 F5, AC1, AC2, AC6, §3.2, §4.5
-etc.) — only the architecture diagram was wrong.
+**Problem**: arch JSON said "Mac Studio M5 Max"; spec drafts said M2
+MacBook Air. User-confirmed label: "MacBook Air M2 (dev/primary)".
 
-**Confirmed by user**: label = "用户设备：MacBook Air M2 (dev/primary)".
+- All AC1–AC8 remain measured on M2 Air per existing spec text.
+- **Edits applied**: `docs/architecture/v0-architecture.json` +
+  re-render HTML (commits `741f1d8` + `89a76b0`).
 
-- Mac Studio M5 Max (128 GB RAM, per `USER.md` runtime memory) is a
-  future / secondary machine the user has purchased but is not the
-  current development machine.
-- All acceptance criteria (AC1–AC8) continue to be measured on M2 Air
-  per existing spec text — no change to AC.
-- **Edits**:
-  - `docs/architecture/v0-architecture.json`: region label updated
-  - `docs/architecture/v0-architecture.html`: re-render after JSON
-    update via `archify deliver`
+## D27 — Virtual sound card: BlackHole 16ch + Aggregate Device (LOCKED)
 
-## D27 — Virtual sound card strategy: BlackHole 16ch + Aggregate Device
+**Confirmed**: stick with BH 16ch + Aggregate. Rationale in
+`02-audio-pipeline.md` Appendix A.
 
-**Problem raised by user**: User asked why spec uses
-"BlackHole 16ch + Aggregate" instead of the gold-标准 "BlackHole 2ch
-+ VB-Cable" split-device approach.
+- **No spec edits** (already documented).
 
-**Confirmed by user**: stick with **BlackHole 16ch + Aggregate**.
+## D28 — Output sample rate: 48 kHz (LOCKED)
 
-Rationale per existing `docs/spec/v0/02-audio-pipeline.md`
-Appendix A (committed in commit `6b8f281`):
+**Confirmed**: 48 kHz. New "Why 48 kHz (vs 44.1 / 16)" paragraph in
+`02-audio-pipeline.md` §7 (commit `741f1d8`).
 
-1. **Aggregate Device channel上限 = sum of components**: a 2ch
-   component caps the Aggregate at 2 channels; future 5.1/7.1
-   meeting software is blocked.
-2. **CoreAudio HAL internal buffer is 16/32ch native**: 2ch devices
-   pay an extra SRC step adding 5-20 ms jitter.
-3. **CPU/RAM delta < 1%** between 2ch and 16ch on M2 Air.
-4. **One device, one install**: `brew install blackhole-16ch`
-   once, never re-install. Aggregate Device is created via
-   `/Applications/Utilities/Audio MIDI Setup` (UI step in
-   `02-audio-pipeline.md` Appendix A.5).
+## D29 — 原声直出 output device picker (LOCKED)
 
-- **Edits**: none required (spec already documents this; the
-  user-confirmed answer is recorded here for traceability).
+**Confirmed**: default = physical headphones, UI dropdown lists all
+cpal output devices including "Mute". New paragraph in
+`02-audio-pipeline.md` §8.3 + 4th bullet in `03-b-channel-subtitle.md`
+§5.1 (commit `741f1d8`).
 
-## D28 — Output sample rate: 48 kHz
+## D30 — Voice-clone management (PARTIAL LOCK)
 
-**Problem raised by user**: Is 48 kHz playback to BlackHole the
-mainstream choice?
+**Status on 2026-09-07**: research complete at
+`docs/research/voice-clone-strategies.md` (3097 words, 4 strategies
+taxonomy, 10+ primary sources). 4 sub-questions.
 
-**Confirmed by user**: 48 kHz is correct.
+### D30-Q1: Strategy 1 only vs Strategy 1 + 3 CLI flag
 
-Rationale:
+**Not yet locked** — user asked: "我看有的方案支持音色卡槽，可以提前录制一段自己的音频呢，到底哪个方案好呢"
 
-- macOS CoreAudio default sample rate is 48 kHz (matches USB audio
-  interfaces and consumer DACs); this is the **macOS mainstream**.
-- BlackHole's native rate is 48 kHz — playing at 48 kHz avoids an
-  internal SRC step (which would add 5-20 ms jitter).
-- Meeting software (Zoom/Teams/腾讯会议) auto-downsamples to
-  16 kHz narrowband or 24 kHz wideband Opus — the parent project's
-  playback rate does not need to match meeting software's internal
-  rate.
-- 44.1 kHz (CD red book) is the pro-audio standard but would force
-  BlackHole to resample, wasting latency budget.
+**Research needed**: detailed comparison of:
+- Strategy 3 (preset `speaker_id` like `zh_female_vv_uranus_bigtts`)
+- Strategy 4 (user-enrolled preset voice via 5-30s recording)
+- Doubao AST 2.0 API capability for custom voice enrollment
+- Industry products that ship Strategy 4 vs Strategy 1
+- Cost / time / UX trade-offs
 
-- **Edits**:
-  - `docs/spec/v0/02-audio-pipeline.md` §7 (Sample rate handling):
-    add explicit "Why 48 kHz" paragraph citing the above.
-  - `docs/spec/v0/04-latency-budget.md` stage 9 row already cites
-    "BlackHole 48 kHz native — avoid internal resample" — no change.
-  - `docs/architecture/v0-architecture.json`: `bh_2ch` tag updated
-    to call out the 48 kHz rationale.
+`/research` agent dispatched: see `docs/research/voice-clone-strategies.md`
+for Strategy 1 vs 3 framing; pending extension covers Strategy 4.
 
-## D29 — 原声直出 output device: user-configurable, default = physical headphones
+### D30-Q2: denoise UI toggle — **LOCKED as default=false, UI not exposed**
 
-**Problem raised by user**: 原声直出 currently hardcodes "physical
-headphones" in the spec. User wants this configurable.
+**Confirmed**: v0 always sends `denoise=false` server-side; no UI
+toggle. Reasoning: zero-sample cloning quality > ambient noise
+reduction. Per `poc-docs-take.md` §3 row "Audio input spec" + ADR-0003.
 
-**Confirmed by user**: **default = physical headphones**, plus UI
-dropdown listing all `cpal` enumerated output devices.
+- **Edits**: none required; this matches the existing spec.
 
-- The UI affordance (per existing `02-audio-pipeline.md` §8.3) is a
-  tray menu toggle "原声直出 (Bypass)" with keyboard shortcut
-  `Ctrl+Alt+P`. **Add a sub-dropdown** listing cpal output devices
-  (headphones, MacBook speakers, virtual sound cards, etc.).
-- Default selection: the system default output device at first
-  install (typically physical headphones).
-- Persisted across launches via `tauri-plugin-store` (already in
-  `02-audio-pipeline.md` §3 dependencies).
-- "Mute" option: present in the dropdown so users can choose to
-  see subtitles without any audio output.
+### D30-Q3: Reconnect strategy — **PENDING RESEARCH**
 
-- **Edits**:
-  - `docs/spec/v0/02-audio-pipeline.md` §8.3: add "Output device
-    dropdown" paragraph.
-  - `docs/spec/v0/03-b-channel-subtitle.md` §5.1: add "原声直出
-    output device picker" reference.
-  - `docs/architecture/v0-architecture.json`: `headphones` component
-    updated to "原声直出端 (可配)" with tag explaining the picker.
+**Not yet locked** — user asked: "有没有更好的方案"
 
-## D30 — Voice-clone management strategy (PENDING RESEARCH)
+**Research needed**: detailed comparison of:
+- 10s replay ring buffer (per `poc-docs-take.md` §4.4 + §4.5)
+- accept silence + re-sample (Doppelvoice current)
+- partial-result continuation (server-side)
+- seamless reconnect via parallel WS
+- voiceprint caching strategies
 
-**Problem raised by user**: "我想知道主流的音色 clone 方案是什么"
+`/research` agent dispatched to extend
+`docs/research/voice-clone-strategies.md` with reconnect strategies
+section.
 
-**Status**: pending a `/research` agent that investigates:
+### D30-Q4: Privacy disclosure — **LOCKED: full disclosure + "what data leaves your machine"**
 
-- Doubao 同传 2.0 zero-sample clone behavior (existing
-  `poc-docs-take.md` §2.3 row "Zero-sample cloning with speaker_id=''")
-- 4 mainstream voice-clone strategies used in production
-  realtime-interp products (金喜, Doppelvoice, TransEcho, sokuji):
-  cross-session persistence, per-session extract, speaker
-  enrollment, voiceprint caching
-- Reconnect stability per `poc-docs-take.md` §4.5 "重连漂移" risk
-- Whether Doppelvoice's `speaker_id` cache approach (if any) is
-  MIT-compatible
-- v0 trade-offs: simplicity (per-session) vs UX (persistent)
+**Confirmed**: README has explicit "What data leaves your machine"
+section explaining that:
+- Your voice (R3 input audio) → Volcengine AST 2.0 servers, real-time
+- 对方 voice (R4 input audio via BlackHole 16ch loopback) → same
+- API key is the only credential sent (no device IDs, no analytics)
+- No audio is stored to disk by realtime_interpreter (per issue #30)
+- Per `.scratch/macos-siminterpret-poc/issues/30-audio-privacy-defaults.md`
 
-The user wants to know the mainstream option before deciding. The
-`/research` result will be written to
-`docs/research/voice-clone-strategies.md` and D30 will be added to
-this file once the user confirms.
+- **Edits**: `README.md` "What data leaves your machine" section
+  (issue #30 / issue #22 task list).
 
-## Summary of edit batch (4 confirmed + 1 pending)
+## Edit batch summary (5 confirmed, 2 pending research)
 
-| Decision | Edits applied |
-|---|---|
-| D26 region label | `docs/architecture/v0-architecture.json` + re-render HTML |
-| D27 BH 16ch + Aggregate | none (already in spec) |
-| D28 48 kHz rationale | `02-audio-pipeline.md` §7 + arch JSON |
-| D29 bypass output device picker | `02-audio-pipeline.md` §8.3 + `03-b-channel-subtitle.md` §5.1 + arch JSON |
-| D30 voice clone | pending `/research` |
+| Decision | Status | Edits |
+|---|---|---|
+| D26 region label | ✅ applied | arch JSON + HTML re-render |
+| D27 BH 16ch | ✅ no edit needed | already in spec |
+| D28 48 kHz | ✅ applied | 02-audio-pipeline.md §7 |
+| D29 bypass picker | ✅ applied | 02-audio-pipeline.md §8.3 + 03-b-channel-subtitle.md §5.1 |
+| D30-Q2 denoise | ✅ no edit needed | already default=false |
+| D30-Q4 privacy | ✅ applied (next pass) | README "What data leaves your machine" |
+| D30-Q1 Strategy choice | ⏳ research | extension to voice-clone-strategies.md |
+| D30-Q3 reconnect | ⏳ research | extension to voice-clone-strategies.md |
