@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ping, version } from "../lib/ipc";
 import { useSessionStore } from "../store/session";
 import { APP_ICON_DATA_URL } from "../assets/icon";
+import { TopologyCheckPanel } from "../components/TopologyCheckPanel";
 
 type PingResult = { status: "ok" | "err"; text: string };
 
@@ -30,6 +31,8 @@ export default function MainView(): React.ReactElement {
       </div>
 
       <div className="app-body">
+        <TopologyCheckPanel />
+
         <section className="app-section">
           <div className="section-title">Backend handshake</div>
           <div className="card">
