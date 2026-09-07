@@ -1,0 +1,77 @@
+[package]
+name = "realtime_interpreter"
+version = "0.0.1"
+description = "Open-source macOS realtime zh↔en interpreter (v0 dual-channel s2s + s2t)"
+authors = ["pioneerAlone"]
+edition = "2021"
+rust-version = "1.75"
+
+[lib]
+name = "realtime_interpreter_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# Tauri 2 core (pinned per openless-take.md L58)
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-shell = "2"
+
+# macOS-specific plugins
+tauri-plugin-os = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-store = "2"
+tauri-plugin-global-shortcut = "2"
+
+# NSPanel conversion (per D20, git-branch v2)
+tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel", branch = "v2" }
+
+# Audio + protocol stack (versions verified at impl per spec/v0/04-latency-budget.md Appendix C)
+# cpal = "0.15"  # Pulled in by ticket #03 (R3 audio) — `oboe-sys` dep needs network
+# opus = "0.3"  # Added back in ticket #08 (inline OGG demuxer) — needs C build chain
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+prost = "0.13"
+tonic = { version = "0.12", features = ["transport", "prost"] }
+
+# Concurrency + storage
+crossbeam-channel = "0.5"
+rubato = "0.15"
+parking_lot = "0.12"
+
+# Error + logging + secrets
+anyhow = "1"
+thiserror = "2"
+keyring = { version = "3", features = ["apple-native", "linux-native", "windows-native"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Hotkey (global-hotkey fallback used by tauri-plugin-global-shortcut)
+global-hotkey = "0.6"
+
+# Serialization (used by IPC + Zustand state bridge)
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Async traits
+async-trait = "0.1"
+futures = "0.3"
+
+# UUID for IPC request ids
+uuid = { version = "1", features = ["v4"] }
+
+[features]
+# Default build features
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
+
+[profile.dev]
+incremental = true

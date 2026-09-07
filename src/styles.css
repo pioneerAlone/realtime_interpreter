@@ -1,0 +1,53 @@
+/* realtime_interpreter — global styles (v0 scaffold) */
+
+:root {
+  --bg-primary: #1c1c1e;
+  --bg-secondary: #2c2c2e;
+  --fg-primary: #ffffff;
+  --fg-secondary: #98989d;
+  --accent: #0a84ff;
+  --border: #3a3a3c;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100vh;
+  background: var(--bg-primary);
+  color: var(--fg-primary);
+  overflow: hidden;
+}
+
+body {
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.15);
+}

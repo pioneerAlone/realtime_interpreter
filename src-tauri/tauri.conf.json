@@ -1,0 +1,100 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "realtime_interpreter",
+  "version": "0.0.1",
+  "identifier": "com.pioneeralone.realtime-interpreter",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "realtime_interpreter",
+        "width": 1240,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "transparent": true,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay",
+        "trafficLightPosition": {
+          "x": 12,
+          "y": 14
+        },
+        "url": "index.html"
+      },
+      {
+        "label": "subtitle",
+        "title": "Subtitles",
+        "width": 720,
+        "height": 220,
+        "minWidth": 360,
+        "minHeight": 120,
+        "resizable": true,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "focus": false,
+        "visible": false,
+        "titleBarStyle": "Overlay",
+        "url": "index.html?window=capsule"
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self'",
+        "style-src": "'self' 'unsafe-inline'",
+        "img-src": "'self' data: blob:",
+        "font-src": "'self' data:",
+        "connect-src": "'self' ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1420",
+        "object-src": "'none'",
+        "frame-ancestors": "'none'",
+        "base-uri": "'none'",
+        "form-action": "'none'"
+      },
+      "assetProtocol": {
+        "enable": false,
+        "scope": []
+      }
+    },
+    "trayIcon": {
+      "id": "main-tray",
+      "iconPath": "icons/32x32.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false,
+      "tooltip": "realtime_interpreter"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "app",
+      "dmg"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Productivity",
+    "shortDescription": "Realtime zh\u2194en interpreter",
+    "longDescription": "Open-source macOS dual-channel realtime zh\u2194en interpreter competing with \u91d1\u559c\u540c\u4f20",
+    "macOS": {
+      "minimumSystemVersion": "12.0",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null,
+      "entitlements": null
+    }
+  }
+}
