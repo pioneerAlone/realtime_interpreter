@@ -5,6 +5,31 @@
  * auto-adapts to the user's "Appearance" setting (Light / Dark / Auto).
  */
 
+/* ------------------------------------------------------------------ *
+ * WindowChrome — outer wrapper that gives the main window a draggable
+ * top strip via the `data-tauri-drag-region` attribute. Mirrors the
+ * pattern in Open-Less (openless-all/app/src/components/WindowChrome.tsx).
+ * ------------------------------------------------------------------ */
+.rt-winchrome {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.rt-winchrome__drag-strip {
+  /* The Tauri 2 attribute below injects native window drag handlers
+   * into this element. See tauri.app/v1/guides/window-customization
+   * /custom-titlebar. */
+}
+.rt-winchrome__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
+
 :root {
   /* light tokens */
   --bg: #f5f5f7;
@@ -116,6 +141,11 @@ button.secondary:hover:not(:disabled) {
   grid-template-columns: 200px 1fr;
   min-height: 0;
   overflow-x: hidden; /* prevent horizontal scrollbar leaking into the 1240-px main window */
+  /* Top padding reserves space for the macOS native title bar
+   * (traffic lights at y=20 + 28-px drag strip). The body content
+   * starts below the title bar; on Linux / Windows the title bar
+   * is shorter so this looks fine. */
+  padding-top: 0;
 }
 
 /* 3-column variant — Sidebar | Main | Live Stage. Mirrors the
@@ -250,7 +280,7 @@ button.secondary:hover:not(:disabled) {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 8px 14px 8px;
+  padding: 8px 8px 14px 8px;
   border-bottom: 0.5px solid var(--bg-card-border);
   margin-bottom: 8px;
 }
