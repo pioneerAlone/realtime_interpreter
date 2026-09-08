@@ -63,7 +63,7 @@ export default function MainView(): React.ReactElement {
       .catch((e: unknown) => setVer(`error: ${String(e)}`));
   }, []);
 
-  const [active, setActive] = useState<NavItemId>("setup");
+  const [active, setActive] = useState<NavItemId>("main");
 
   const handleNav = (id: NavItemId) => {
     if (id === "quit") {
@@ -83,7 +83,7 @@ export default function MainView(): React.ReactElement {
         <Sidebar active={active} onSelect={handleNav} version={ver} />
 
         <main className="rt-shell__main">
-          {active === "setup" && (
+          {active === "main" && (
             <section className="rt-page" aria-labelledby="setup-heading">
               <header className="rt-page__header">
                 <h1 id="setup-heading" className="rt-page__title">音频设置</h1>

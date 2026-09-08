@@ -42,8 +42,8 @@ export function StatusBar({ onNavigate }: StatusBarProps) {
       <button
         type="button"
         className="rt-statusbar__chip"
-        onClick={() => onNavigate("setup")}
-        title="打开音频设置"
+        onClick={() => onNavigate("main")}
+        title="打开实时翻译"
       >
         <span className="rt-statusbar__chip-dot" style={{ background: top.color }} aria-hidden />
         <span>{top.label}</span>

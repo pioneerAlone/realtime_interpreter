@@ -74,10 +74,12 @@
 
 /* 3-column variant — Sidebar | Main | Live Stage. Mirrors the
  * HaloVoice reference layout (left nav / center config / right live
- * preview). The Live Stage column is 320 px so the center column
- * stays the dominant work area at 1240-px window width. */
+ * preview). T-G-3 ticket #20: Sidebar 200 → 280 (Halo 启发). The
+ * Live Stage column is 320 px so the center column stays the
+ * dominant work area at 1240-px window width. Ticket #22 will
+ * collapse this to 2-col (Sidebar 280 + Main flex-1). */
 .rt-shell--3col .rt-shell__body {
-  grid-template-columns: 200px minmax(0, 1fr) 320px;
+  grid-template-columns: 280px minmax(0, 1fr) 320px;
 }
 
 /* TopBar */
@@ -196,9 +198,20 @@
   flex-direction: column;
   background: var(--bg-elevated);
   border-right: 0.5px solid var(--bg-card-border);
-  padding: 14px 8px 10px 8px;
+  /* 30px top padding reserves the macOS traffic-light area (Open-Less
+   * MAC_TRAFFIC_LIGHT_CLEARANCE = 30, FloatingShell.tsx:50). Linux /
+   * Windows fall through to a slightly tighter top. */
+  padding: 30px 12px 12px 12px;
   min-height: 0;
   overflow-y: auto;
+  /* T-G-3 ticket #20: width 200 → 280 (HaloVoice 启发). The actual
+   * width is set on the .rt-shell__body grid track in
+   * .rt-shell--3col below; this element is `min-width: 280` to keep
+   * the bottom sections (3 段场景模式 / 配额 / user card) from
+   * squeezing. */
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
 }
 .rt-sidebar__brand {
   display: flex;
@@ -206,7 +219,7 @@
   gap: 8px;
   padding: 8px 8px 8px 8px;
   border-bottom: 0.5px solid var(--bg-card-border);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .rt-sidebar__brand-mark {
   font-size: 18px;
@@ -221,7 +234,7 @@
   flex-shrink: 0;
 }
 .rt-sidebar__brand-name {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.01em;
   flex: 1;
@@ -244,12 +257,163 @@
   gap: 1px;
   flex: 1;
 }
+/* ------------------------------------------------------------------ *
+ * Sidebar footer (T-G-3 ticket #20 — Halo 启发) —
+ * 3 段：场景模式 + 本月配额 + 用户卡片。
+ *  - 场景模式：3 个 mock toggle（v0 不接 TTS/ASR 后端）
+ *  - 本月配额：XX:XX / XX:XX 进度条
+ *  - 用户卡片：avatar + 用户名 + 在线状态点 + 折叠箭头
+ * ------------------------------------------------------------------ */
 .rt-sidebar__footer {
-  padding-top: 8px;
-  border-top: 0.5px solid var(--bg-card-border);
-  margin-top: 8px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--bg-card-border);
+  margin-top: 10px;
+}
+/* 场景模式段：3 行 toggle（小图标 + 中文 + SwitchLite） */
+.rt-sidebar__scene {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+.rt-sidebar__scene-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  padding: 0 4px 2px 4px;
+}
+.rt-sidebar__scene-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--fg);
+  cursor: default;
+  transition: background 0.12s ease;
+}
+.rt-sidebar__scene-row:hover {
+  background: var(--bg-card);
+}
+.rt-sidebar__scene-icon {
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.rt-sidebar__scene-name {
+  flex: 1;
+  min-width: 0;
+}
+/* 配额段：进度条 + 文本 */
+.rt-sidebar__quota {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 6px 6px 6px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--bg-card-border);
+}
+.rt-sidebar__quota-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  display: flex;
+  justify-content: space-between;
+}
+.rt-sidebar__quota-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--control-solid);
+  overflow: hidden;
+}
+.rt-sidebar__quota-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.3s var(--motion-ease);
+}
+.rt-sidebar__quota-text {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--fg);
+  display: flex;
+  justify-content: space-between;
+}
+/* 用户卡片：avatar + 名 + 状态点 */
+.rt-sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--bg-card-border);
+  cursor: default;
+  transition: background 0.12s ease;
+}
+.rt-sidebar__user:hover {
+  background: var(--control-solid);
+}
+.rt-sidebar__user-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #5856d6);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  position: relative;
+}
+.rt-sidebar__user-avatar-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--positive);
+  border: 1.5px solid var(--bg-elevated);
+}
+.rt-sidebar__user-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.rt-sidebar__user-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--fg);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rt-sidebar__user-status {
+  font-size: 10.5px;
+  color: var(--fg-muted);
+  line-height: 1.2;
+}
+.rt-sidebar__user-chevron {
+  font-size: 9px;
+  color: var(--fg-subtle);
+  flex-shrink: 0;
 }
 .rt-sidebar__nav-btn {
   display: flex;
@@ -1286,7 +1450,7 @@
  * the prototype / debug window. */
 @media (max-width: 599px) {
   .rt-shell--3col .rt-shell__body {
-    grid-template-columns: 200px minmax(0, 1fr);
+    grid-template-columns: 280px minmax(0, 1fr);
   }
   .rt-livestage {
     display: none;
