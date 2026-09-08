@@ -25,7 +25,6 @@ import { listen } from "@tauri-apps/api/event";
 import {
   useTopologyStore,
   resolveEffectivePrefs,
-  type TopologyCheckResult,
 } from "@/store/topology";
 import type { AudioDevice } from "@/lib/ipc/topology";
 import { SelectLite } from "@/components/ui/SelectLite";
@@ -39,22 +38,15 @@ const VERDICT_COLOR: Record<Verdict, string> = {
 };
 
 const VERDICT_LABEL: Record<Verdict, string> = {
-  pass: "OK",
-  warn: "OK with warnings",
-  fail: "Blocking issues",
+  pass: "已就绪",
+  warn: "可以启动",
+  fail: "需要修正",
 };
 
-const SEVERITY_GLYPH: Record<TopologyCheckResult["severity"], string> = {
-  ok: "\u2713", // checkmark
-  warn: "!",
-  fail: "X",
-};
-
-const SEVERITY_FG: Record<TopologyCheckResult["severity"], string> = {
-  ok: "var(--accent-green, #22c55e)",
-  warn: "var(--accent-amber, #f59e0b)",
-  fail: "var(--accent-red, #ef4444)",
-};
+// (SEVERITY_GLYPH / SEVERITY_FG removed: the 3-misconception rows
+// are no longer rendered to the end-user. Kept as `undefined`
+// reference in case a future "advanced diagnostics" UI surfaces
+// them.)
 
 /** Build a dropdown option list for a picker row. We always include
  *  "System default" (value `""`) as the first option so the user can
@@ -192,17 +184,9 @@ export function TopologyCheckPanel() {
     return `${picked} (not currently visible)`;
   };
 
-  // Find the 3-misconception rows in `status.checks` so we can
-  // render them as read-only hint rows below the pickers.
-  const misconceptionRows = useMemo<TopologyCheckResult[]>(() => {
-    if (!status) return [];
-    const ids = new Set([
-      "r3_out_vac_differs_from_r4_in_vac",
-      "meeting_app_mic_is_r3_vac",
-      "peer_audio_to_real_output_only",
-    ]);
-    return status.checks.filter((c) => ids.has(c.id));
-  }, [status]);
+  // (3-misconception rows hidden from end-users; reserved for
+  // future "advanced diagnostics" disclosure behind a developer
+  // toggle.)
 
   return (
     <section className="topology-panel" aria-label="Topology check">
@@ -213,9 +197,9 @@ export function TopologyCheckPanel() {
             style={{ background: verdictColor }}
             aria-hidden
           />
-          <h2>Topology</h2>
+          <h2>音频连接</h2>
           <span className="topology-panel__verdict-label" style={{ color: verdictColor }}>
-            {verdict ? VERDICT_LABEL[verdict] : "checking..."}
+            {verdict ? VERDICT_LABEL[verdict] : "检查中…"}
           </span>
         </div>
         <button
@@ -226,141 +210,106 @@ export function TopologyCheckPanel() {
           }}
           disabled={loading}
         >
-          {loading ? "Checking..." : "Re-check"}
+          {loading ? "检查中…" : "重新检查"}
         </button>
       </header>
 
       {deviceLost && (
         <div className="topology-panel__banner topology-panel__banner--warn">
-          Audio device changed since the last check. Click Re-check to update
-          the topology. (Per R6, CoreAudio hot-unplug detector fired.)
+          音频设备有变化。点「重新检查」刷新连接状态。
         </div>
       )}
 
       {lastError && (
         <div className="topology-panel__banner topology-panel__banner--fail">
-          Topology check failed: {lastError}
+          检查失败：{lastError}
         </div>
       )}
 
       {status && (
         <>
-          <p className="topology-panel__summary">{status.fix_summary}</p>
-
           {/* ---- 4 picker rows: device assignment ---- */}
           <ul className="topology-panel__pickers">
             <li className="topology-picker">
               <div className="topology-picker__label">
-                Microphone (R3 input)
+                我的麦克风
               </div>
               <SelectLite
                 value={effective.mic_name ?? ""}
                 onChange={(v) => void pickMic(v || null)}
                 options={micOptions}
                 placeholder="(System default)"
-                ariaLabel="Microphone for R3 input"
+                ariaLabel="我的麦克风"
                 loading={loading}
               />
               {observedFor(effective.mic_name) && (
                 <div className="topology-picker__observed">
-                  observed: <code>{observedFor(effective.mic_name)}</code>
+                  当前: <code>{observedFor(effective.mic_name)}</code>
                 </div>
               )}
             </li>
 
             <li className="topology-picker">
               <div className="topology-picker__label">
-                R3 输出 VAC (meeting mic input)
+                我的翻译输出
               </div>
               <SelectLite
                 value={effective.r3_out_vac_name ?? ""}
                 onChange={(v) => void pickR3OutVac(v || null)}
                 options={r3OutOptions}
                 placeholder="(System default)"
-                ariaLabel="Virtual audio cable for R3 output (meeting mic input)"
+                ariaLabel="我的翻译输出虚拟声卡"
                 loading={loading}
               />
               {observedFor(effective.r3_out_vac_name) && (
                 <div className="topology-picker__observed">
-                  observed: <code>{observedFor(effective.r3_out_vac_name)}</code>
+                  当前: <code>{observedFor(effective.r3_out_vac_name)}</code>
                 </div>
               )}
             </li>
 
             <li className="topology-picker">
               <div className="topology-picker__label">
-                R4 输入 VAC (meeting app speaker loopback)
+                对方的说话输入
               </div>
               <SelectLite
                 value={effective.r4_in_vac_name ?? ""}
                 onChange={(v) => void pickR4InVac(v || null)}
                 options={r4InOptions}
                 placeholder="(System default)"
-                ariaLabel="Virtual audio cable for R4 input (meeting app speaker loopback)"
+                ariaLabel="对方的说话输入虚拟声卡"
                 loading={loading}
               />
               {observedFor(effective.r4_in_vac_name) && (
                 <div className="topology-picker__observed">
-                  observed: <code>{observedFor(effective.r4_in_vac_name)}</code>
+                  当前: <code>{observedFor(effective.r4_in_vac_name)}</code>
                 </div>
               )}
             </li>
 
             <li className="topology-picker">
               <div className="topology-picker__label">
-                Headphones / speakers (R4 output)
+                我的耳机或扬声器
               </div>
               <SelectLite
                 value={effective.r4_out_device_name ?? ""}
                 onChange={(v) => void pickR4OutDevice(v || null)}
                 options={r4OutOptions}
                 placeholder="(System default)"
-                ariaLabel="Real output device for R4 (headphones or speakers)"
+                ariaLabel="我的耳机或扬声器"
                 loading={loading}
               />
               {observedFor(effective.r4_out_device_name) && (
                 <div className="topology-picker__observed">
-                  observed: <code>{observedFor(effective.r4_out_device_name)}</code>
+                  当前: <code>{observedFor(effective.r4_out_device_name)}</code>
                 </div>
               )}
             </li>
           </ul>
 
-          {/* ---- 3-misconception self-check rows ---- */}
-          {misconceptionRows.length > 0 && (
-            <ul className="topology-panel__checks">
-              {misconceptionRows.map((c) => (
-                <li
-                  key={c.id}
-                  className={`topology-check topology-check--${c.severity}`}
-                >
-                  <span
-                    className="topology-check__glyph"
-                    style={{ color: SEVERITY_FG[c.severity] }}
-                    aria-hidden
-                  >
-                    {SEVERITY_GLYPH[c.severity]}
-                  </span>
-                  <div className="topology-check__body">
-                    <div className="topology-check__label">{c.label}</div>
-                    {c.observed && (
-                      <div className="topology-check__observed">
-                        observed: <code>{c.observed}</code>
-                      </div>
-                    )}
-                    {c.action && c.severity !== "ok" && (
-                      <div className="topology-check__action">{c.action}</div>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-
           <details className="topology-panel__devices">
             <summary>
-              {status.devices.length} audio device
-              {status.devices.length === 1 ? "" : "s"} found
+              高级诊断信息（开发用）
             </summary>
             <ul>
               {status.devices.map((d) => (

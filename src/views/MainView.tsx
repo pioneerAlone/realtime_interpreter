@@ -86,9 +86,9 @@ export default function MainView(): React.ReactElement {
           {active === "setup" && (
             <section className="rt-page" aria-labelledby="setup-heading">
               <header className="rt-page__header">
-                <h1 id="setup-heading" className="rt-page__title">Setup</h1>
+                <h1 id="setup-heading" className="rt-page__title">音频设置</h1>
                 <p className="rt-page__desc">
-                  启动前必做的 4 设备拓扑检查 + 3 误区自检。每一个 picker 的选择都会立即保存到本地 store 并触发重新检查。
+                  选择你的麦克风、翻译输出、对方声音输入和耳机。设置后会自动检查连接是否正确。
                 </p>
               </header>
               <TopologyCheckPanel />
@@ -98,16 +98,16 @@ export default function MainView(): React.ReactElement {
           {active === "channels" && (
             <section className="rt-page" aria-labelledby="channels-heading">
               <header className="rt-page__header">
-                <h1 id="channels-heading" className="rt-page__title">Channels</h1>
+                <h1 id="channels-heading" className="rt-page__title">通道详情</h1>
                 <p className="rt-page__desc">
-                  v0 包含 R3 / R4 两个并行通道，鼠标悬停 ⓘ 看完整说明，点击「启动条件 / 依赖 / 错误模式」展开高级信息。
+                  两个并行通道：把中文翻译成英文输出给对方，把对方的英文翻译成字幕显示给你。鼠标悬停 ⓘ 看完整说明。
                 </p>
               </header>
               <div className="rt-page__grid">
                 <ChannelCard
                   kind="R3"
                   title={R3_INFO.title}
-                  fullName={R3_INFO.fullName}
+                  fullName={R3_INFO.title}
                   summary={R3_INFO.summary}
                   status={r3State}
                   srcLang={R3_INFO.srcLang}
@@ -123,7 +123,7 @@ export default function MainView(): React.ReactElement {
                 <ChannelCard
                   kind="R4"
                   title={R4_INFO.title}
-                  fullName={R4_INFO.fullName}
+                  fullName={R4_INFO.title}
                   summary={R4_INFO.summary}
                   status={r4State}
                   srcLang={R4_INFO.srcLang}
@@ -143,10 +143,10 @@ export default function MainView(): React.ReactElement {
           {active === "hotkeys" && (
             <section className="rt-page" aria-labelledby="hotkeys-heading">
               <header className="rt-page__header">
-                <h1 id="hotkeys-heading" className="rt-page__title">Hotkeys</h1>
+                <h1 id="hotkeys-heading" className="rt-page__title">快捷键</h1>
                 <p className="rt-page__desc">
-                  全局快捷键需要在 System Settings → Privacy &amp; Security → Accessibility 中授权 realtime_interpreter。
-                  macOS 首次启动会自动弹出授权窗口；如果被拒绝，需要手动在系统设置中重新勾选。
+                  全局快捷键需要在「系统设置 → 隐私与安全性 → 辅助功能」中授权。
+                  首次启动会自动弹出授权窗口；如果被拒绝，需要手动在系统设置中重新勾选。
                 </p>
               </header>
               <div className="hotkey-list">
@@ -193,9 +193,9 @@ export default function MainView(): React.ReactElement {
               <div className="about-card">
                 <p>
                   <strong>realtime_interpreter</strong> — open-source macOS dual-channel
-                  realtime zh↔en interpreter (v0 scaffold).
+                  Mac 上运行的双通道实时中英翻译。
                 </p>
-                <p>对标金喜同传双通道版 (¥49–¥4999/年)，MIT 协议，macOS-first。</p>
+                <p>开源免费，对标付费的「金喜同传」双通道版。</p>
                 <p>
                   <strong>仓库</strong>{" "}
                   <a href="https://github.com/pioneerAlone/realtime_interpreter" target="_blank" rel="noreferrer">
@@ -218,7 +218,7 @@ export default function MainView(): React.ReactElement {
                   <strong>License</strong>: app code MIT, vendored Doppelvoice .proto Apache-2.0.
                 </p>
                 <p className="about-card__meta">
-                  v0.1 scaffold · 30 decisions locked · 12 implementation tickets open.
+                  开源中英同传 · MIT 协议 · macOS-first
                 </p>
               </div>
             </section>
@@ -233,13 +233,12 @@ export default function MainView(): React.ReactElement {
   );
 }
 
-function TopBar({ pingRes, version }: { pingRes: PingResult; version: string }) {
+function TopBar({ pingRes, version: _version }: { pingRes: PingResult; version: string }) {
   return (
     <header className="rt-topbar">
       <div className="rt-topbar__brand">
         <img className="rt-topbar__icon" src={APP_ICON_DATA_URL} alt="realtime_interpreter" />
         <span className="rt-topbar__title">realtime_interpreter</span>
-        <span className="rt-topbar__chip">v{version} · scaffold</span>
       </div>
       <div className="rt-topbar__meta">
         <Tooltip wrap content={`IPC handshake: ${pingRes.text}.`}>
@@ -248,7 +247,7 @@ function TopBar({ pingRes, version }: { pingRes: PingResult; version: string }) 
               className={`status-dot ${pingRes.status === "ok" ? "running" : "error"}`}
               aria-hidden
             />
-            IPC {pingRes.status === "ok" ? "ready" : "down"}
+            {pingRes.status === "ok" ? "已就绪" : "未连接"}
           </span>
         </Tooltip>
       </div>

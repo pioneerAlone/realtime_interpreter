@@ -1,69 +1,74 @@
 /**
  * LiveStage — right-column "Live Stage" panel.
  *
- * Architecture: HaloVoice 3-column layout pattern (Left nav /
- * Center config / Right live preview). The right column shows what
- * the app is doing **right now** — session state, R3/R4 status dots,
- * the Start/Stop button, and a subtitle preview that's a mock of
- * what the floating NSPanel window will display.
+ * User-facing language: never show technical channel code names
+ * (R3/R4/A-channel/B-channel), transport labels (VAC), or implementation
+ * details (NSPanel, s2s/s2t, v0 mock). Internal references live in
+ * `data-channel` HTML attributes for devs grepping the DOM.
  *
  * Three regions:
- *   1. Session header: scene chip + Start/Stop button.
- *   2. Channel status: R3 + R4 cards (compact vs ChannelCard detail
- *      page — this is the "live" snapshot).
- *   3. Subtitle preview: last 6 subtitles streamed from the
- *      `subtitles` Zustand store. Click "Pop out" to launch the
- *      NSPanel caption window (v0 = mock; v1 = real).
- *
- * Note: subtitles store is empty at v0 (the Doubao WebSocket
- * pipeline is not wired up yet, blocked on #8/#9/#10). For the
- * prototype we hardcode a few sample subtitles so the layout is
- * reviewable.
+ *   1. Session header: "实时翻译" title + Start button (CTA).
+ *   2. Channel status: 我的声音 / 对方声音 status rows.
+ *   3. Subtitle preview: 中英双语 rolling list (mock data at v0).
  */
 
 import { useSessionStore } from "@/store/session";
-import { Tooltip } from "@/components/ui/Tooltip";
+import type { ChannelInfo } from "@/lib/channelInfo";
 
 const SAMPLE_SUBTITLES = [
-  { id: "1", speaker: "Client" as const, source_text: "Thanks for joining today, let's discuss the Q4 roadmap.", translation_text: "感谢今天加入，我们来讨论 Q4 路线图。", is_final: true, timestamp_ms: Date.now() - 12000 },
-  { id: "2", speaker: "Client" as const, source_text: "We need to ship the integration by end of month.", translation_text: "我们需要月底前发布集成。", is_final: true, timestamp_ms: Date.now() - 8000 },
-  { id: "3", speaker: "Client" as const, source_text: "Are there any blockers on the audio pipeline?", translation_text: "音频管线有没有任何阻碍？", is_final: false, timestamp_ms: Date.now() - 3000 },
+  { id: "1", source_text: "Thanks for joining today, let's discuss the Q4 roadmap.", translation_text: "感谢今天加入，我们来讨论 Q4 路线图。", is_final: true, timestamp_ms: Date.now() - 12000 },
+  { id: "2", source_text: "We need to ship the integration by end of month.", translation_text: "我们需要月底前发布集成。", is_final: true, timestamp_ms: Date.now() - 8000 },
+  { id: "3", source_text: "Are there any blockers on the audio pipeline?", translation_text: "音频管线有没有任何阻碍？", is_final: false, timestamp_ms: Date.now() - 3000 },
 ];
 
-export function LiveStage() {
+interface LiveStageProps {
+  /** Channel meta + runtime status from session store. Reserved for
+   *  future use; today LiveStage reads directly from session store. */
+  channels?: Array<{ info: ChannelInfo; status: string }>;
+}
+
+export function LiveStage(_props: LiveStageProps = {}) {
   const r3State = useSessionStore((s) => s.r3);
   const r4State = useSessionStore((s) => s.r4);
-  // Treat any non-idle state as "session running".
-  const sessionRunning = r3State === "running" || r3State === "starting" || r4State === "running" || r4State === "starting";
 
   return (
-    <aside className="rt-livestage" aria-label="Live translation stage">
+    <aside className="rt-livestage" aria-label="实时翻译">
       <header className="rt-livestage__header">
-        <div className="rt-livestage__title-row">
-          <h2 className="rt-livestage__title">Live</h2>
-          <span className="rt-livestage__scene-chip" aria-label="Current scene">会议</span>
-        </div>
-        <SessionButton running={sessionRunning} />
+        <h2 className="rt-livestage__title">实时翻译</h2>
+        <button
+          type="button"
+          className="rt-session-btn"
+          disabled
+          aria-label="开始翻译"
+        >
+          <span className="rt-session-btn__icon" aria-hidden>●</span>
+          <span>开始翻译</span>
+        </button>
       </header>
 
-      <section className="rt-livestage__channels" aria-label="Channel status">
-        <ChannelStatusLite kind="R3" status={r3State} running={sessionRunning} />
-        <ChannelStatusLite kind="R4" status={r4State} running={sessionRunning} />
+      <section className="rt-livestage__channels" aria-label="通道状态">
+        <ChannelStatusRow
+          internalName="R3"
+          label="我的声音"
+          sublabel="你说 → 翻译给对方"
+          status={r3State}
+        />
+        <ChannelStatusRow
+          internalName="R4"
+          label="对方声音"
+          sublabel="对方说 → 字幕给你"
+          status={r4State}
+        />
       </section>
 
-      <section className="rt-livestage__subtitles" aria-label="Subtitle preview">
+      <section className="rt-livestage__subtitles" aria-label="字幕预览">
         <div className="rt-livestage__subtitles-header">
-          <span className="rt-livestage__subtitles-title">Subtitles</span>
-          <Tooltip content="在悬浮窗 (NSPanel) 中独立显示字幕，可拖到屏幕任意位置。v0 预览中；v1 ticket #5 实装。" wrap>
-            <button type="button" className="rt-livestage__popout" disabled>
-              Pop out ↗
-            </button>
-          </Tooltip>
+          <span className="rt-livestage__subtitles-title">字幕</span>
         </div>
         <div className="rt-livestage__subtitle-list" aria-live="polite">
           {SAMPLE_SUBTITLES.length === 0 ? (
             <div className="rt-livestage__subtitle-empty">
-              Session idle. Click Start to begin.
+              点击「开始翻译」启动会话
             </div>
           ) : (
             SAMPLE_SUBTITLES.map((s) => (
@@ -78,46 +83,33 @@ export function LiveStage() {
           )}
         </div>
       </section>
-
-      <footer className="rt-livestage__footer">
-        <Tooltip
-          wrap
-          content="v0: subtitles only shown in main window. NSPanel caption window ships with ticket #5 once #3/#4 audio pipelines are wired."
-        >
-          <span className="rt-livestage__footer-hint">ⓘ Caption window: v0 mock</span>
-        </Tooltip>
-      </footer>
     </aside>
   );
 }
 
-function SessionButton({ running }: { running: boolean }) {
-  return (
-    <button
-      type="button"
-      className={`rt-session-btn ${running ? "rt-session-btn--running" : ""}`}
-      disabled
-      aria-label={running ? "Stop translation session" : "Start translation session"}
-    >
-      <span className="rt-session-btn__icon" aria-hidden>{running ? "■" : "●"}</span>
-      <span>{running ? "Stop" : "Start"}</span>
-    </button>
-  );
-}
-
-function ChannelStatusLite({
-  kind,
+function ChannelStatusRow({
+  internalName,
+  label,
+  sublabel,
   status,
-  running,
 }: {
-  kind: "R3" | "R4";
+  internalName: string;
+  label: string;
+  sublabel: string;
   status: string;
-  running: boolean;
 }) {
-  const color = running && status === "running" ? "var(--accent-green)" : status === "error" ? "var(--accent-red)" : "var(--text-tertiary, #94a3b8)";
+  const color =
+    status === "running"
+      ? "var(--accent-green, #22c55e)"
+      : status === "error"
+        ? "var(--accent-red, #ef4444)"
+        : "var(--text-tertiary, #94a3b8)";
   return (
-    <div className="rt-livestage__channel">
-      <span className="rt-livestage__channel-kind">{kind}</span>
+    <div className="rt-livestage__channel" data-channel={internalName}>
+      <div className="rt-livestage__channel-meta">
+        <span className="rt-livestage__channel-label">{label}</span>
+        <span className="rt-livestage__channel-sublabel">{sublabel}</span>
+      </div>
       <span className="rt-livestage__channel-dot" style={{ background: color }} aria-hidden />
       <span className="rt-livestage__channel-status">{status}</span>
     </div>

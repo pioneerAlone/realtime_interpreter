@@ -83,16 +83,17 @@ export function ChannelCard(props: ChannelCardProps) {
     outputDevice,
     latencyTarget,
     startupConditions,
-    dependencies,
+    // `dependencies` retained on the type for future use (dev mode
+    // diagnostic). Hidden in the rendered card at v0.
+    dependencies: _dependencies,
     errorModes,
     longDescription,
   } = props;
 
   return (
-    <article className="channel-card" aria-label={fullName}>
+    <article className="channel-card" aria-label={fullName} data-channel={kind}>
       <header className="channel-card__header">
         <div className="channel-card__title-row">
-          <span className="channel-card__kind">{kind}</span>
           <span className="channel-card__title">{title}</span>
           <Tooltip content={longDescription} wrap>
             <button
@@ -110,7 +111,9 @@ export function ChannelCard(props: ChannelCardProps) {
             style={{ background: STATUS_COLOR[status] }}
             aria-hidden
           />
-          <span className="channel-card__status-label">{status}</span>
+          <span className="channel-card__status-label">
+            {status === "idle" ? "未启动" : status}
+          </span>
         </div>
       </header>
 
@@ -121,16 +124,16 @@ export function ChannelCard(props: ChannelCardProps) {
         <dd>{srcLang}</dd>
         <dt>目标语言</dt>
         <dd>{tgtLang}</dd>
-        <dt>输入设备</dt>
-        <dd>{inputDevice ?? "(未指定)"}</dd>
-        <dt>输出设备</dt>
-        <dd>{outputDevice ?? "(未指定)"}</dd>
+        <dt>来源</dt>
+        <dd>{inputDevice ?? "（未指定）"}</dd>
+        <dt>输出</dt>
+        <dd>{outputDevice ?? "（未指定）"}</dd>
         <dt>延迟目标</dt>
         <dd>{latencyTarget}</dd>
       </dl>
 
       <details className="channel-card__advanced">
-        <summary>启动条件 / 依赖 / 错误模式</summary>
+        <summary>启动条件 / 错误模式</summary>
         <div className="channel-card__advanced-body">
           <section>
             <h4>启动条件</h4>
@@ -141,15 +144,7 @@ export function ChannelCard(props: ChannelCardProps) {
             </ul>
           </section>
           <section>
-            <h4>依赖 tickets</h4>
-            <ul>
-              {dependencies.map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ul>
-          </section>
-          <section>
-            <h4>错误模式</h4>
+            <h4>常见错误</h4>
             <ul>
               {errorModes.map((s) => (
                 <li key={s}>{s}</li>
