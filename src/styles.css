@@ -115,6 +115,15 @@ button.secondary:hover:not(:disabled) {
   display: grid;
   grid-template-columns: 200px 1fr;
   min-height: 0;
+  overflow-x: hidden; /* prevent horizontal scrollbar leaking into the 1240-px main window */
+}
+
+/* 3-column variant — Sidebar | Main | Live Stage. Mirrors the
+ * HaloVoice reference layout (left nav / center config / right live
+ * preview). The Live Stage column is 320 px so the center column
+ * stays the dominant work area at 1240-px window width. */
+.rt-shell--3col .rt-shell__body {
+  grid-template-columns: 200px minmax(0, 1fr) 320px;
 }
 
 /* TopBar */
@@ -1047,4 +1056,226 @@ button.secondary:hover:not(:disabled) {
 }
 .rt-page .topology-panel__header {
   margin-bottom: 14px;
+}
+
+/* ------------------------------------------------------------------ *
+ * LiveStage — right-column "Live Stage" panel (HaloVoice 3-col layout).
+ *
+ * Architecture: visually a peer of Sidebar (also `aside`), but its
+ * purpose is "what the app is doing right now" vs Sidebar's "where to
+ * go next". Top section = session header (scene chip + start/stop
+ * button). Middle = compact R3 / R4 status row. Bottom = subtitle
+ * preview list. Footer = caption-window hint.
+ *
+ * Fixed at 360 px wide so the center column stays the dominant work
+ * area. Background slightly inset (var(--bg-elevated)) so it reads as
+ * a panel, not part of the main flow.
+ * ------------------------------------------------------------------ */
+.rt-livestage {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 18px;
+  background: var(--bg-elevated);
+  border-left: 0.5px solid var(--bg-card-border);
+  min-height: 0;
+  overflow-y: auto;
+}
+.rt-livestage__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.rt-livestage__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rt-livestage__title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--fg);
+}
+.rt-livestage__scene-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 500;
+}
+
+.rt-session-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 999px;
+  border: 0.5px solid var(--bg-card-border);
+  background: var(--accent);
+  color: var(--accent-fg);
+  cursor: default;
+  transition: opacity 0.12s ease;
+}
+.rt-session-btn:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.rt-session-btn--running {
+  background: var(--accent-red, #ef4444);
+}
+.rt-session-btn__icon {
+  font-size: 11px;
+}
+
+.rt-livestage__channels {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--bg-card-border);
+}
+.rt-livestage__channel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.rt-livestage__channel-kind {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--bg-card-border);
+  flex-shrink: 0;
+}
+.rt-livestage__channel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.rt-livestage__channel-status {
+  flex: 1;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+}
+
+.rt-livestage__subtitles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+.rt-livestage__subtitles-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+.rt-livestage__subtitles-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+}
+.rt-livestage__popout {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 0.5px solid var(--bg-card-border);
+  background: var(--bg-card);
+  color: var(--fg-muted);
+  font-family: inherit;
+  cursor: default;
+}
+.rt-livestage__popout:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.rt-livestage__subtitle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--bg-card-border);
+  flex: 1;
+  min-height: 220px;
+  max-height: 100%;
+}
+.rt-livestage__subtitle-empty {
+  margin: auto;
+  font-size: 12px;
+  color: var(--fg-muted);
+  text-align: center;
+  padding: 20px 12px;
+}
+.rt-livestage__subtitle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--bg-card-border);
+}
+.rt-livestage__subtitle--partial {
+  opacity: 0.7;
+  border-left: 2px solid var(--accent);
+}
+.rt-livestage__subtitle-source {
+  font-size: 12px;
+  color: var(--fg);
+  font-weight: 500;
+  line-height: 1.45;
+}
+.rt-livestage__subtitle-translation {
+  font-size: 11.5px;
+  color: var(--fg-muted);
+  line-height: 1.45;
+}
+
+.rt-livestage__footer {
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 0.5px dashed var(--bg-card-border);
+  font-size: 10.5px;
+  color: var(--fg-muted);
+}
+.rt-livestage__footer-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Responsive: collapse Live Stage below 600 px so the 3-col layout
+ * still degrades gracefully for very narrow browser-preview windows
+ * (Safari defaults to ~735 px). The bundled .app main window is
+ * 1240 px wide (per tauri.conf.json), so this only triggers for
+ * the prototype / debug window. */
+@media (max-width: 599px) {
+  .rt-shell--3col .rt-shell__body {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .rt-livestage {
+    display: none;
+  }
 }

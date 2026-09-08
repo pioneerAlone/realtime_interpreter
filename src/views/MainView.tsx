@@ -1,27 +1,29 @@
 /**
- * mainView — top-level shell for the main window.
+ * MainView — top-level shell for the main window.
  *
- * Layout (Open-Less FloatingShell pattern, simplified for v0):
+ * Layout (HaloVoice 3-column pattern + Open-Less FloatingShell
+ * structure):
  *
  *   ┌──────────────────────────────────────────────────────────────────┐
- *   │ TopBar:  [logo] realtime_interpreter          [API key status]   │
- *   ├──────────┬───────────────────────────────────────────────────────┤
- *   │ Sidebar  │ Main content (one of:                                 │
- *   │          │   • Setup     — Topology pre-flight 4-picker panel  │
- *   │ ⚙ Setup  │   • Channels  — Two ChannelCard (R3 + R4)            │
- *   │ 🎙 Ch    │   • Hotkeys   — Three keyboard chips + permission     │
- *   │ ⌨ Hot    │   • About     — Version + repo + license + D-Lock    │
- *   │ ℹ About  │                                                      │
- *   │          │                                                      │
- *   │ ⏻ Quit   │                                                      │
- *   ├──────────┴───────────────────────────────────────────────────────┤
+ *   │ TopBar:  [logo] realtime_interpreter              [API key status]   │
+ *   ├──────────┬──────────────────────────────┬────────────────────────┤
+ *   │ Sidebar  │  Center content              │  Live Stage            │
+ *   │ ⚙ Setup  │  (one of:                   │  ┌──────────────────┐ │
+ *   │ 🎙 Ch    │    • Setup     — Topology    │  │ ● Start   [会议] │ │
+ *   │ ⌨ Hot    │    • Channels  — R3/R4 cards │  ├──────────────────┤ │
+ *   │ ℹ About  │    • Hotkeys   — 3 chips     │  │ R3 ● idle       │ │
+ *   │          │    • About     — meta info   │  │ R4 ● idle       │ │
+ *   │ ⏻ Quit   │                              │  ├──────────────────┤ │
+ *   │          │                              │  │ Subtitles       │ │
+ *   │          │                              │  │ [EN] Thanks for… │ │
+ *   │          │                              │  │ [ZH] 感谢今天…  │ │
+ *   │          │                              │  └──────────────────┘ │
+ *   ├──────────┴──────────────────────────────┴────────────────────────┤
  *   │ StatusBar: Topology ● | R3 ● idle | R4 ● idle | ⌥⌃⌥P⌃⌥H        │
  *   └──────────────────────────────────────────────────────────────────┘
  *
- * Active view is local React state — no router needed for 4 pages.
- *
- * Backend handshake (ping/version/contract) was moved into the
- * TopBar to free the Setup page from boilerplate noise.
+ * 3 columns map directly to Open-Less's `<aside> + <main>` pattern
+ * extended with a third column for live preview (HaloVoice).
  */
 
 import React, { useEffect, useState } from "react";
@@ -34,13 +36,13 @@ import { ChannelCard } from "@/components/ChannelCard";
 import { R3_INFO, R4_INFO } from "@/lib/channelInfo";
 import { Sidebar, type NavItemId } from "@/components/Sidebar";
 import { StatusBar } from "@/components/StatusBar";
+import { LiveStage } from "@/components/LiveStage";
 import { Tooltip } from "@/components/ui/Tooltip";
 
 type PingResult = { status: "ok" | "err"; text: string };
 
 const R3_INPUT_DEFAULT = "MacBook Air麦克风";
 const R3_OUTPUT_DEFAULT = "BlackHole 2ch";
-const R4_INPUT_DEFAULT = "BlackHole 16ch";
 const R4_OUTPUT_DEFAULT = "MacBook Air扬声器";
 
 export default function MainView(): React.ReactElement {
@@ -48,10 +50,6 @@ export default function MainView(): React.ReactElement {
   const r4State = useSessionStore((s) => s.r4);
   const topologyPrefs = useTopologyStore((s) => s.prefs);
   const topologyStatus = useTopologyStore((s) => s.status);
-  // Resolve effective prefs against discovered devices so the
-  // Channels page shows the same resolved devices as the Setup
-  // page (e.g. iFLYBUDS Nano+ when the user hasn't picked yet
-  // but macOS reports it as the default mic).
   const effectivePrefs = resolveEffectivePrefs(topologyPrefs, topologyStatus?.devices ?? []);
   const [pingRes, setPingRes] = useState<PingResult>({ status: "err", text: "…" });
   const [ver, setVer] = useState<string>("0.0.1");
@@ -67,10 +65,8 @@ export default function MainView(): React.ReactElement {
 
   const [active, setActive] = useState<NavItemId>("setup");
 
-  // Quit handler — Quit nav item dispatches this.
   const handleNav = (id: NavItemId) => {
     if (id === "quit") {
-      // Tauri shell API for graceful exit.
       import("@tauri-apps/api/window").then(({ getCurrentWindow }) => {
         void getCurrentWindow().close();
       });
@@ -80,7 +76,7 @@ export default function MainView(): React.ReactElement {
   };
 
   return (
-    <div className="rt-shell">
+    <div className="rt-shell rt-shell--3col">
       <TopBar pingRes={pingRes} version={ver} />
 
       <div className="rt-shell__body">
@@ -132,7 +128,7 @@ export default function MainView(): React.ReactElement {
                   status={r4State}
                   srcLang={R4_INFO.srcLang}
                   tgtLang={R4_INFO.tgtLang}
-                  inputDevice={effectivePrefs.r4_in_vac_name ?? R4_INPUT_DEFAULT}
+                  inputDevice={effectivePrefs.r4_in_vac_name ?? R4_OUTPUT_DEFAULT}
                   outputDevice={effectivePrefs.r4_out_device_name ?? R4_OUTPUT_DEFAULT}
                   latencyTarget={R4_INFO.latencyTarget}
                   startupConditions={R4_INFO.startupConditions}
@@ -199,9 +195,7 @@ export default function MainView(): React.ReactElement {
                   <strong>realtime_interpreter</strong> — open-source macOS dual-channel
                   realtime zh↔en interpreter (v0 scaffold).
                 </p>
-                <p>
-                  对标金喜同传双通道版 (¥49–¥4999/年)，MIT 协议，macOS-first。
-                </p>
+                <p>对标金喜同传双通道版 (¥49–¥4999/年)，MIT 协议，macOS-first。</p>
                 <p>
                   <strong>仓库</strong>{" "}
                   <a href="https://github.com/pioneerAlone/realtime_interpreter" target="_blank" rel="noreferrer">
@@ -230,6 +224,8 @@ export default function MainView(): React.ReactElement {
             </section>
           )}
         </main>
+
+        <LiveStage />
       </div>
 
       <StatusBar onNavigate={handleNav} />
@@ -237,10 +233,6 @@ export default function MainView(): React.ReactElement {
   );
 }
 
-/**
- * TopBar — minimal title bar. Backend handshake chips live here so
- * the Setup page stays focused on topology.
- */
 function TopBar({ pingRes, version }: { pingRes: PingResult; version: string }) {
   return (
     <header className="rt-topbar">
@@ -250,10 +242,7 @@ function TopBar({ pingRes, version }: { pingRes: PingResult; version: string }) 
         <span className="rt-topbar__chip">v{version} · scaffold</span>
       </div>
       <div className="rt-topbar__meta">
-        <Tooltip
-          wrap
-          content={`IPC handshake: ${pingRes.text}. click  = `}
-        >
+        <Tooltip wrap content={`IPC handshake: ${pingRes.text}.`}>
           <span className="rt-topbar__chip rt-topbar__chip--meta">
             <span
               className={`status-dot ${pingRes.status === "ok" ? "running" : "error"}`}
