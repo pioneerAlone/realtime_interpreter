@@ -57,6 +57,13 @@
   --accent-ink: #ffffff;                 /* 强调色上的文字（按钮文字） */
   --accent-gradient: linear-gradient(135deg, #5b5bd6 0%, #7c3aed 100%);
 
+  /* ---------- CTA 按钮色（Halo 启发：light 黑底 / dark 白底） ----------
+   * 主操作（开始翻译 / 开始变声）走深色对比按钮 — 在两种主题下
+   * 都保持最高对比度，不与品牌色 (--accent) 混用。 */
+  --cta-bg: #1d1d1f;          /* light 模式：黑底 */
+  --cta-hover: #2c2c2e;        /* light 模式：hover 略浅 */
+  --cta-ink: #ffffff;          /* light 模式：白文字 */
+
   /* ---------- 状态色（系统自检 / 设备状态） ---------- */
   --positive: #30d158;       /* 绿 — 设备就绪 / 实时翻译运行中 */
   --positive-soft: rgba(48, 209, 88, 0.14);
@@ -64,6 +71,21 @@
   --warn-soft: rgba(245, 158, 11, 0.14);
   --critical: #ef4444;       /* 红 — 设备缺失 / 反馈回路风险 */
   --critical-soft: rgba(239, 68, 68, 0.14);
+
+  /* ---------- 控件色（开关 / 分段控件 / chip 选中态） ----------
+   * 与品牌色 (--accent) 分离：开关关闭态用中性灰，滑块用纯白
+   * 实色，分段控件轨道用浅灰底 — Open-Less + Halo 启发一致。 */
+  --control-off: rgba(0, 0, 0, 0.18);     /* switch 关闭态底 */
+  --control-off-strong: rgba(0, 0, 0, 0.28); /* switch 关闭态（hover） */
+  --control-knob: #ffffff;                /* switch 滑块白点 */
+  --control-solid: rgba(127, 127, 127, 0.10); /* 控件实色底（按钮 / input） */
+  --line-strong: rgba(0, 0, 0, 0.18);     /* 强描边（input / segmented track） */
+  --chip-selected-bg: var(--bg-elevated); /* 选中态 chip 背景 */
+  --chip-selected-border: var(--line);    /* 选中态 chip 描边 */
+  --chip-selected-ink: var(--ink);        /* 选中态 chip 文字 */
+  --segmented-bg: rgba(127, 127, 127, 0.10);   /* segmented 轨道底 */
+  --segmented-active-bg: var(--bg-elevated);   /* segmented 选中项 */
+  --segmented-active-shadow: var(--shadow-sm); /* segmented 选中阴影 */
 
   /* ---------- 圆角 ---------- */
   --radius-xs: 4px;          /* 极小 — checkbox / 微小 chip */
@@ -112,8 +134,11 @@
   --motion-fast: 120ms;        /* 按钮 hover / chip 切换 */
   --motion-base: 180ms;        /* popover / pop-in */
   --motion-slow: 260ms;        /* Modal / 主题切换 */
+  --motion-quick: 160ms;       /* 控件 / segmented / 焦点过渡 */
+  --motion-spring: 220ms;      /* 弹性 spring 曲线（switch knob / 滑入） */
   --motion-ease: cubic-bezier(0.2, 0, 0, 1);  /* iOS 风格减速曲线 */
   --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* pop 减速回弹 */
+  --motion-spring-ease: cubic-bezier(0.5, 0, 0, 1); /* spring 减速曲线 */
 
   /* ---------- 字体栈 ---------- */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display",
@@ -167,12 +192,23 @@
     --accent-ink: #ffffff;
     --accent-gradient: linear-gradient(135deg, #7c8cff 0%, #a78bfa 100%);
 
+    --cta-bg: #ffffff;          /* dark 模式：白底 */
+    --cta-hover: #e5e5e7;       /* dark 模式：hover 略深 */
+    --cta-ink: #1d1d1f;         /* dark 模式：黑文字 */
+
     --positive: #30d158;
     --positive-soft: rgba(48, 209, 88, 0.18);
     --warn: #fbbf24;
     --warn-soft: rgba(251, 191, 36, 0.18);
     --critical: #ff6b6b;
     --critical-soft: rgba(255, 107, 107, 0.18);
+
+    --control-off: rgba(255, 255, 255, 0.18);
+    --control-off-strong: rgba(255, 255, 255, 0.28);
+    --control-knob: #ffffff;
+    --control-solid: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.18);
+    --segmented-bg: rgba(255, 255, 255, 0.08);
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);

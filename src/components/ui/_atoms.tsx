@@ -17,6 +17,8 @@
  * - 不做 Modal / Drawer（这些是 T-G-7 / T-G-8 范围）。
  * - 不写状态色（绿/红）按钮 — 状态色仅用于 chip (Pill)，按钮保持
  *   单色 + 强调色，避免误用为警示。
+ * - 5 个 variant：primary (品牌蓝紫) / secondary (浅灰) / ghost (透明) /
+ *   danger (柔和红) / dark (Halo 启发的 CTA 主按钮 — light 黑底，dark 白底)。
  */
 
 import {
@@ -30,7 +32,7 @@ import {
  * Btn — 按钮
  * ===================================================================== */
 
-export type BtnVariant = "primary" | "secondary" | "ghost" | "danger";
+export type BtnVariant = "primary" | "secondary" | "ghost" | "danger" | "dark";
 export type BtnSize = "sm" | "md" | "lg";
 
 export interface BtnProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -87,6 +89,13 @@ const BTN_VARIANT_BASE: Record<BtnVariant, {
     bg: "var(--critical-soft)",
     bgHover: "var(--critical)",
     ink: "var(--critical)",
+    border: "none",
+  },
+  /** dark = Halo 启发的 CTA 主按钮（黑底白字 / 白底黑字 — 主题反转） */
+  dark: {
+    bg: "var(--cta-bg)",
+    bgHover: "var(--cta-hover)",
+    ink: "var(--cta-ink)",
     border: "none",
   },
 };
