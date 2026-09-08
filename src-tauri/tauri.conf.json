@@ -41,8 +41,8 @@
         "minWidth": 360,
         "minHeight": 120,
         "resizable": true,
-        "decorations": true,
-        "transparent": false,
+        "decorations": false,
+        "transparent": true,
         "alwaysOnTop": true,
         "skipTaskbar": true,
         "focus": false,
@@ -92,8 +92,8 @@
       "icons/icon.ico"
     ],
     "category": "Productivity",
-    "shortDescription": "Realtime zh\u2194en interpreter",
-    "longDescription": "Open-source macOS dual-channel realtime zh\u2194en interpreter competing with \u91d1\u559c\u540c\u4f20",
+    "shortDescription": "Realtime zh↔en interpreter",
+    "longDescription": "Open-source macOS dual-channel realtime zh↔en interpreter competing with 金喜同传",
     "macOS": {
       "minimumSystemVersion": "12.0",
       "frameworks": [],
