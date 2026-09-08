@@ -77,7 +77,7 @@
  * 砍掉独立 LiveStage 单列。状态信息（启停 / 字幕 preview）下沉到
  * Main 区底部 sticky CTA 区域。 */
 .rt-shell--2col .rt-shell__body {
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 200px minmax(0, 1fr);
 }
 
 /* TopBar */
@@ -197,32 +197,30 @@
   background: var(--bg-elevated);
   border-right: 0.5px solid var(--bg-card-border);
   /* 30px top padding reserves the macOS traffic-light area (Open-Less
-   * MAC_TRAFFIC_LIGHT_CLEARANCE = 30, FloatingShell.tsx:50). Linux /
-   * Windows fall through to a slightly tighter top. */
-  padding: 30px 12px 12px 12px;
+   * MAC_TRAFFIC_LIGHT_CLEARANCE = 30, FloatingShell.tsx:50). */
+  padding: 30px 10px 12px 10px;
+  /* v0.1 收尾：grid cell 默认会让 .rt-sidebar 拉伸到 row 高度，
+   * 但加 height: 100% 显式声明以让 margin-top: auto 在 footer
+   * 上生效（让退出按钮钉到底部）。 */
+  height: 100%;
   min-height: 0;
   overflow-y: auto;
-  /* T-G-3 ticket #20: width 200 → 280 (HaloVoice 启发). The actual
-   * width is set on the .rt-shell__body grid track in
-   * .rt-shell--3col below; this element is `min-width: 280` to keep
-   * the bottom sections (3 段场景模式 / 配额 / user card) from
-   * squeezing. */
-  width: 280px;
-  min-width: 280px;
+  /* v0.1 收尾：宽度 280 → 200 (Open-Less SIDEBAR_WIDTH = 188 → 凑整 200)。
+   * 用户反馈 "sidebar 太宽/太空/太挤"，走 Open-Less 极简风。 */
+  width: 200px;
+  min-width: 200px;
   flex-shrink: 0;
 }
 .rt-sidebar__brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 8px 8px 8px;
-  border-bottom: 0.5px solid var(--bg-card-border);
-  margin-bottom: 8px;
+  gap: 9px;
+  padding: 2px 8px 12px 8px;
 }
 .rt-sidebar__brand-mark {
-  font-size: 18px;
   width: 22px;
   height: 22px;
+  font-size: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -230,9 +228,11 @@
   background: linear-gradient(135deg, var(--accent), #5856d6);
   color: white;
   flex-shrink: 0;
+  /* Open-Less 风格：轻阴影让 logo 浮起来 */
+  box-shadow: 0 1px 2px rgba(0,0,0,.1), 0 0 0 0.5px rgba(0,0,0,.06);
 }
 .rt-sidebar__brand-name {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   letter-spacing: -0.01em;
   flex: 1;
@@ -240,27 +240,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--fg);
 }
-.rt-sidebar__brand-version {
-  font-size: 10px;
-  color: var(--fg-muted);
-  padding: 1px 5px;
-  border-radius: 999px;
-  background: var(--bg-card);
-  border: 0.5px solid var(--bg-card-border);
+/* v0.0.1 chip 在 v0.1 收尾里删除（版本信息进 "设置" 页）。 */
 }
 .rt-sidebar__nav {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  flex: 1;
+  gap: 2px;
+  /* v0.1 收尾：去掉 flex: 1，让 nav 按内容自然高度排列 (4 个
+   * nav row 紧凑显示)。sidebar 的多余空间由 margin-top: auto
+   * 在 footer 上把退出按钮钉到底部，中间留白自然。 */
+  min-height: 0;
 }
 /* ------------------------------------------------------------------ *
- * Sidebar footer (T-G-3 ticket #20 — Halo 启发) —
- * 3 段：场景模式 + 本月配额 + 用户卡片。
- *  - 场景模式：3 个 mock toggle（v0 不接 TTS/ASR 后端）
- *  - 本月配额：XX:XX / XX:XX 进度条
- *  - 用户卡片：avatar + 用户名 + 在线状态点 + 折叠箭头
+ * Sidebar footer (T-G-3 ticket #20 v0.1 收尾)
+ * v0.1 砍掉 Halo 借鉴的「场景模式 / 配额 / 用户卡片」3 段，footer
+ * 现在只剩「退出」按钮 — 用 margin-top: auto 钉到 sidebar 底部。
  * ------------------------------------------------------------------ */
 .rt-sidebar__footer {
   display: flex;
@@ -268,158 +264,17 @@
   gap: 10px;
   padding-top: 10px;
   border-top: 0.5px solid var(--bg-card-border);
-  margin-top: 10px;
+  /* v0.1：把 footer 钉到 sidebar 底部（Open-Less 模式） */
+  margin-top: auto;
 }
-/* 场景模式段：3 行 toggle（小图标 + 中文 + SwitchLite） */
-.rt-sidebar__scene {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 4px 0;
-}
-.rt-sidebar__scene-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--fg-muted);
-  padding: 0 4px 2px 4px;
-}
-.rt-sidebar__scene-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--fg);
-  cursor: default;
-  transition: background 0.12s ease;
-}
-.rt-sidebar__scene-row:hover {
-  background: var(--bg-card);
-}
-.rt-sidebar__scene-icon {
-  font-size: 12px;
-  width: 16px;
-  text-align: center;
-  flex-shrink: 0;
-  opacity: 0.7;
-}
-.rt-sidebar__scene-name {
-  flex: 1;
-  min-width: 0;
-}
-/* 配额段：进度条 + 文本 */
-.rt-sidebar__quota {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 6px 6px 6px;
-  border-radius: 8px;
-  background: var(--bg-card);
-  border: 0.5px solid var(--bg-card-border);
-}
-.rt-sidebar__quota-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--fg-muted);
-  display: flex;
-  justify-content: space-between;
-}
-.rt-sidebar__quota-bar {
-  height: 4px;
-  border-radius: 999px;
-  background: var(--control-solid);
-  overflow: hidden;
-}
-.rt-sidebar__quota-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 999px;
-  transition: width 0.3s var(--motion-ease);
-}
-.rt-sidebar__quota-text {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--fg);
-  display: flex;
-  justify-content: space-between;
-}
-/* 用户卡片：avatar + 名 + 状态点 */
-.rt-sidebar__user {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px;
-  border-radius: 8px;
-  background: var(--bg-card);
-  border: 0.5px solid var(--bg-card-border);
-  cursor: default;
-  transition: background 0.12s ease;
-}
-.rt-sidebar__user:hover {
-  background: var(--control-solid);
-}
-.rt-sidebar__user-avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), #5856d6);
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  flex-shrink: 0;
-  position: relative;
-}
-.rt-sidebar__user-avatar-dot {
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--positive);
-  border: 1.5px solid var(--bg-elevated);
-}
-.rt-sidebar__user-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-.rt-sidebar__user-name {
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--fg);
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.rt-sidebar__user-status {
-  font-size: 10.5px;
-  color: var(--fg-muted);
-  line-height: 1.2;
-}
-.rt-sidebar__user-chevron {
-  font-size: 9px;
-  color: var(--fg-subtle);
-  flex-shrink: 0;
 }
 .rt-sidebar__nav-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   width: 100%;
-  padding: 7px 10px;
-  font-size: 12.5px;
+  padding: 6px 10px;
+  font-size: 12px;
   font-weight: 500;
   font-family: inherit;
   background: transparent;
@@ -429,6 +284,11 @@
   cursor: default;
   text-align: left;
   transition: background 0.12s ease;
+  /* v0.1 收尾：单行强制，禁止 wrap (Open-Less 模式)。
+   * 配合 .rt-sidebar__nav-label 的 nowrap + ellipsis 让 200px 宽度
+   * 下 4 字中文不溢出。 */
+  white-space: nowrap;
+  overflow: hidden;
 }
 .rt-sidebar__nav-btn:hover {
   background: var(--bg-card);
@@ -445,15 +305,26 @@
   color: var(--accent-red, #ef4444);
 }
 .rt-sidebar__nav-icon {
-  font-size: 13px;
-  width: 18px;
-  text-align: center;
+  /* v0.2 收尾：sidebar icon 之前 opacity 0.85 太淡，dark 模式几乎看不见。
+   * 改 1.0 opacity + 调色由 stroke 颜色自然变化（active 时 inherit accent）。 */
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  opacity: 0.85;
+  color: var(--ink-muted);
+}
+.rt-sidebar__nav-btn--active .rt-sidebar__nav-icon {
+  color: var(--accent);
 }
 .rt-sidebar__nav-label {
   flex: 1;
   min-width: 0;
+  /* v0.1 收尾：单行 + 溢出省略 (Open-Less 模式) */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Main content area */
@@ -1354,4 +1225,272 @@
   font-size: 11.5px;
   color: var(--fg-muted);
   line-height: 1.45;
+}
+
+.rt-review-frame {
+  width: 1100px;
+  height: 720px;
+  overflow: hidden;
+  margin: 0 auto;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------------ *
+ * v0.2 重设计：从需求出发（v0 不要 HaloVoice / Open-Less 借鉴）
+ *  - 3 个页面：实时翻译 / 设备 / 设置
+ *  - 实时翻译主页：3 状态环 + 流式字幕 + sticky CTA
+ *  - 设备页：4 个 picker + 会议模式 toggle
+ *  - 设置页：快捷键 + 关于卡
+ * ------------------------------------------------------------------ */
+
+/* 共享：.rt-main 容器（替换之前 dashboard 版本的 flex: 1） */
+.rt-main {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 28px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--bg);
+}
+.rt-main__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+/* 顶部 3 个状态环 row（横向 grid） */
+.rt-status-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+.rt-status-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--bg-card-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  min-width: 0;
+}
+.rt-status-card__icon {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--line);
+  color: var(--ink-muted);
+  flex-shrink: 0;
+}
+.rt-status-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.rt-status-card__label {
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.rt-status-card__device {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rt-status-card__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--ink-muted);
+  flex-shrink: 0;
+}
+.rt-status-card__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* 流式字幕（核心） */
+.rt-stream {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.rt-stream__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+.rt-stream__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+.rt-stream__sub {
+  font-size: 11px;
+  color: var(--ink-subtle);
+  margin-left: 8px;
+}
+.rt-stream__pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.rt-stream__list {
+  flex: 1;
+  min-height: 200px;
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 2px;
+  background: var(--bg);
+  border-radius: 10px;
+  border: 0.5px solid var(--line-soft);
+}
+.rt-stream__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 0.5px solid var(--bg-card-border);
+}
+.rt-stream__item--partial {
+  opacity: 0.65;
+  border-left: 2px solid var(--accent);
+}
+.rt-stream__source {
+  font-size: 12px;
+  color: var(--ink-muted);
+  line-height: 1.4;
+  font-style: italic;
+}
+.rt-stream__translation {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.45;
+  font-weight: 500;
+}
+.rt-stream__empty {
+  margin: auto;
+  padding: 30px 12px;
+  font-size: 12px;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+/* Sticky CTA */
+.rt-main-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--bg-card-border);
+  border-radius: 999px;
+  margin-top: 4px;
+}
+.rt-main-cta__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  min-width: 0;
+}
+
+/* 会议模式 toggle 卡（设备页） */
+.rt-mode-card {
+  margin-top: 4px;
+}
+.rt-mode-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.rt-mode-card__body {
+  flex: 1;
+  min-width: 0;
+}
+.rt-mode-card__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.rt-mode-card__desc {
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
+/* 设置页：关于卡 */
+.rt-about-card {
+  margin-top: 4px;
+}
+.rt-about-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.rt-about-card__desc {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.rt-about-card__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.rt-about-card__sep {
+  color: var(--ink-subtle);
+}
+
+/* 键帽（设置页快捷键展示，复用 Kbd atom） */
+.rt-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 21px;
+  padding: 0 6px;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--ink-muted);
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--line-strong);
+  box-shadow: 0 1.5px 0 var(--line), 0 0 0 0.5px rgba(0, 0, 0, 0.02);
 }

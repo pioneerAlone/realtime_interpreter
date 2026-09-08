@@ -94,6 +94,14 @@ export function Tooltip({ content, wrap = false, children }: TooltipProps) {
     wordBreak: wrap ? "break-word" : undefined,
   };
 
+  /* v0.1 收尾：wrapper span 从 `display: inline-flex` 改成
+   * `display: block` (默认 block 行为) + `width: 100%`。
+   *  - 在 flex column 父级里 block 元素会 stretch 占满 100%
+   *  - child button 内部 `display: flex` row 不受影响 (因为 button
+   *    自己定位了, 跟 wrapper 是不是 flex 容器无关)
+   *  - block-level wrapper 让 Tooltip 像普通容器一样参与父级
+   *    flex column 的 stretch
+   *  - rect tracking 用 wrapper box (与 button 同位/同宽) */
   return (
     <span
       ref={anchorRef}
@@ -101,7 +109,7 @@ export function Tooltip({ content, wrap = false, children }: TooltipProps) {
       onMouseLeave={() => setOpen(false)}
       onFocus={() => setOpen(true)}
       onBlur={() => setOpen(false)}
-      style={{ display: "inline-flex" }}
+      style={{ display: "block", width: "100%" }}
     >
       {children}
       {open && pos

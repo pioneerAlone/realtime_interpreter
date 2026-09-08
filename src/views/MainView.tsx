@@ -14,13 +14,17 @@
  *   │ 快捷键   │    • 通道详情 = R3 / R4 卡片                       │
  *   │ 设置     │    • 快捷键   = 3 个 SettingRow                    │
  *   │          │    • 设置     = version / repo / license SettingRow │
- *   │ 场景模式 │                                                    │
- *   │ 配额     │                                                    │
- *   │ bakewell │                                                    │
+ *   │ 会议模式 │                                                    │
  *   │ 退出     │                                                    │
  *   ├──────────┴───────────────────────────────────────────────────┤
  *   │ StatusBar: Topology ● | R3 ● idle | R4 ● idle | ⌥⌃⌥P⌃⌥H        │
  *   └──────────────────────────────────────────────────────────────┘
+ *
+ * v0.1 收尾（用户 2026-09-08 反馈）：砍掉 Halo 借鉴里 v0 不需要的
+ *   - 本月剩余配额段
+ *   - 用户账号卡片（bakewell / 在线 / 折叠菜单）
+ *   - 直播模式 / 游戏模式 toggle
+ * 现在 sidebar footer 只剩 2 段：会议模式 toggle + 退出。
  *
  * 与 D-G-1 撤销的 3 列布局对比（原 Sidebar 200 / Main 1fr / LiveStage 320）：
  *  - LiveStage 单列被砍（黑色 CTA + 状态行 + 字幕 preview 全部下沉到 Main 底部）
@@ -36,7 +40,7 @@ import { APP_ICON_DATA_URL } from "@/assets/icon";
 import { TopologyCheckPanel } from "@/components/TopologyCheckPanel";
 import { ChannelCard } from "@/components/ChannelCard";
 import { R3_INFO, R4_INFO } from "@/lib/channelInfo";
-import { Sidebar, type NavItemId, type SceneRow } from "@/components/Sidebar";
+import { Sidebar, type NavItemId } from "@/components/Sidebar";
 import { StatusBar } from "@/components/StatusBar";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { Card, Pill } from "@/components/ui/_atoms";
@@ -82,12 +86,8 @@ export default function MainView(): React.ReactElement {
   const [pingRes, setPingRes] = useState<PingResult>({ status: "err", text: "…" });
   const [ver, setVer] = useState<string>("0.0.1");
 
-  /* 场景模式状态（v0 mock，会议默认开） */
-  const [scenes, setScenes] = useState<SceneRow[]>([
-    { id: "meeting", icon: "议", name: "会议模式", enabled: true },
-    { id: "live", icon: "播", name: "直播模式", enabled: false },
-    { id: "game", icon: "戏", name: "游戏模式", enabled: false },
-  ]);
+  /* 场景模式状态（v0 mock，会议默认开；暂时只 1 个场景） */
+  const [meetingMode, setMeetingMode] = useState(true);
 
   useEffect(() => {
     ping()
@@ -115,29 +115,15 @@ export default function MainView(): React.ReactElement {
       <TopBar pingRes={pingRes} version={ver} />
 
       <div className="rt-shell__body">
-        <Sidebar
-          active={active}
-          onSelect={handleNav}
-          version={ver}
-          scenes={scenes}
-          onSceneToggle={(id, enabled) =>
-            setScenes((prev) =>
-              prev.map((s) => (s.id === id ? { ...s, enabled } : s)),
-            )
-          }
-        />
+        <Sidebar active={active} onSelect={handleNav} />
 
         <main className="rt-shell__main">
           {active === "main" && (
             <MainTranslateSection
               r3State={r3State}
               r4State={r4State}
-              scenes={scenes}
-              onSceneToggle={(id, enabled) =>
-                setScenes((prev) =>
-                  prev.map((s) => (s.id === id ? { ...s, enabled } : s)),
-                )
-              }
+              meetingMode={meetingMode}
+              onMeetingModeChange={setMeetingMode}
             />
           )}
 
@@ -290,32 +276,27 @@ export default function MainView(): React.ReactElement {
 interface MainTranslateSectionProps {
   r3State: string;
   r4State: string;
-  scenes: SceneRow[];
-  onSceneToggle: (id: SceneRow["id"], enabled: boolean) => void;
+  meetingMode: boolean;
+  onMeetingModeChange: (enabled: boolean) => void;
 }
 
 function MainTranslateSection({
   r3State,
   r4State,
-  scenes,
-  onSceneToggle,
+  meetingMode,
+  onMeetingModeChange,
 }: MainTranslateSectionProps) {
   return (
     <section className="rt-page" aria-labelledby="main-heading">
       <header className="rt-page__header">
         <h1 id="main-heading" className="rt-page__title">实时翻译</h1>
         <p className="rt-page__desc">
-          检查设备连接、选择场景模式、查看字幕预览。设置后会自动验证连接是否正确。
+          检查设备连接、查看字幕预览。设置后会自动验证连接是否正确。
         </p>
       </header>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {/* 设备检查 — SectionCard 化 */}
-        <Card padding="md">
-          <TopologyCheckPanel />
-        </Card>
-
-        {/* 场景模式 — SettingRow 卡片（D-G-17） */}
+        {/* 会议模式 toggle — SectionCard 化（v0.1 从 sidebar 移过来） */}
         <Card padding="md">
           <SettingRow
             noDivider
@@ -323,31 +304,16 @@ function MainTranslateSection({
             desc="v0 默认场景。开启双向翻译。"
           >
             <Switch
-              on={scenes.find((s) => s.id === "meeting")?.enabled ?? false}
-              onChange={(next) => onSceneToggle("meeting", next)}
+              on={meetingMode}
+              onChange={onMeetingModeChange}
               ariaLabel="会议模式 toggle"
             />
           </SettingRow>
-          <SettingRow
-            label="直播模式"
-            desc="减少识别延迟，关闭本地声音回放避免反馈。"
-          >
-            <Switch
-              on={scenes.find((s) => s.id === "live")?.enabled ?? false}
-              onChange={(next) => onSceneToggle("live", next)}
-              ariaLabel="直播模式 toggle"
-            />
-          </SettingRow>
-          <SettingRow
-            label="游戏模式"
-            desc="对游戏内语音做优先识别（v0.1 暂未实现）。"
-          >
-            <Switch
-              on={scenes.find((s) => s.id === "game")?.enabled ?? false}
-              onChange={(next) => onSceneToggle("game", next)}
-              ariaLabel="游戏模式 toggle"
-            />
-          </SettingRow>
+        </Card>
+
+        {/* 设备检查 — SectionCard 化 */}
+        <Card padding="md">
+          <TopologyCheckPanel />
         </Card>
 
         {/* 字幕 preview 卡片 */}
