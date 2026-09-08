@@ -195,7 +195,7 @@ export default function MainView(): React.ReactElement {
                   <strong>realtime_interpreter</strong> — open-source macOS dual-channel
                   Mac 上运行的双通道实时中英翻译。
                 </p>
-                <p>开源免费，对标付费的「金喜同传」双通道版。</p>
+                <p>开源免费的中英实时翻译工具，运行在你的 Mac 上。</p>
                 <p>
                   <strong>仓库</strong>{" "}
                   <a href="https://github.com/pioneerAlone/realtime_interpreter" target="_blank" rel="noreferrer">
@@ -233,14 +233,19 @@ export default function MainView(): React.ReactElement {
   );
 }
 
+/* TopBar — minimal title bar. Reserves space for the macOS traffic
+ * lights, then shows the brand icon + product name on row 1 and
+ * the status chip on row 2 (right-aligned). The whole bar is a
+ * window drag region; interactive children override with
+ * `-webkit-app-region: no-drag`. */
 function TopBar({ pingRes, version: _version }: { pingRes: PingResult; version: string }) {
   return (
-    <header className="rt-topbar">
-      <div className="rt-topbar__brand">
+    <header className="rt-topbar" data-tauri-drag-region>
+      <div className="rt-topbar__brand-row">
         <img className="rt-topbar__icon" src={APP_ICON_DATA_URL} alt="realtime_interpreter" />
         <span className="rt-topbar__title">realtime_interpreter</span>
       </div>
-      <div className="rt-topbar__meta">
+      <div className="rt-topbar__status-row">
         <Tooltip wrap content={`IPC handshake: ${pingRes.text}.`}>
           <span className="rt-topbar__chip rt-topbar__chip--meta">
             <span

@@ -21,13 +21,15 @@
         "minHeight": 600,
         "resizable": true,
         "fullscreen": false,
-        "transparent": true,
+        "decorations": true,
+        "transparent": false,
         "hiddenTitle": true,
         "titleBarStyle": "Overlay",
         "trafficLightPosition": {
           "x": 12,
           "y": 14
         },
+        "acceptFirstMouse": true,
         "url": "index.html"
       },
       {
@@ -38,13 +40,14 @@
         "minWidth": 360,
         "minHeight": 120,
         "resizable": true,
-        "decorations": false,
-        "transparent": true,
+        "decorations": true,
+        "transparent": false,
         "alwaysOnTop": true,
         "skipTaskbar": true,
         "focus": false,
         "visible": false,
         "titleBarStyle": "Overlay",
+        "acceptFirstMouse": true,
         "url": "index.html?window=capsule"
       }
     ],
