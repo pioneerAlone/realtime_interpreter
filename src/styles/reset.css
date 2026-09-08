@@ -1,0 +1,109 @@
+/* realtime_interpreter — 最小样式重置 (v0)
+ * ----------------------------------------------------------------------
+ * 只重置必要的项；不抄 normalize.css 全集（v0 只需要 macOS WKWebView
+ * 上的稳定基线）。后续 GUI 重构 ticket 如果发现具体冲突再扩展。
+ * ---------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;          /* v0 主窗固定尺寸，不需要文档滚动 */
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 表单元素基线 — 让 SelectLite / Pill / Btn 之上的一致控件能共享 */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* macOS WKWebView 上的选区高亮用强调色，避免系统默认蓝 */
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+/* 滚动条 — macOS 默认即可；深色模式下稍亮一点 */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+}

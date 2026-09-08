@@ -1,9 +1,20 @@
-/* realtime_interpreter — system-aware dark/light theme (v0 scaffold)
+/* realtime_interpreter — 组件级样式 (v0)
+ * ----------------------------------------------------------------------
+ * 设计变量（颜色 / 字号 / 间距 / 圆角 / 阴影 / 动画曲线）和基线重置
+ * 已迁移到 src/styles/{tokens,reset}.css，由 src/styles/global.css
+ * 统一 import。本文件只剩组件级 class 规则。
  *
- * color-scheme: light dark + system-ui tokens via CSS variables.
- * On macOS (the only platform at v0) the webview is WKWebView, which
- * auto-adapts to the user's "Appearance" setting (Light / Dark / Auto).
- */
+ * 迁移说明（v0 GUI 重构地基 ticket #17）：
+ * - 删除原 :root + @media 颜色定义块（去 src/styles/tokens.css）。
+ * - 删除全局 box-sizing / html / body / button 基础样式（去
+ *   src/styles/reset.css），避免与新 reset 重复。
+ * - 保留所有 .rt-* / .topology-* / .select-lite-* / .channel-card*
+ *   / .hotkey-list* / .about-card* 组件样式，按 D-G-1..D-G-12 决策
+ *   继续使用。
+ * - 旧 token 名（--fg / --fg-muted / --accent / --border 等）的兼容
+ *   别名见 src/styles/tokens.css 的「兼容别名」段，后续 T-G-4 / T-G-5
+ *   等重构 ticket 会逐步替换为语义化新名。
+ * ---------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------ *
  * WindowChrome — outer wrapper that gives the main window a draggable
@@ -30,95 +41,8 @@
   position: relative;
 }
 
-:root {
-  /* light tokens */
-  --bg: #f5f5f7;
-  --bg-elevated: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.72);
-  --bg-card-border: rgba(0, 0, 0, 0.08);
-  --fg: #1d1d1f;
-  --fg-muted: #6e6e73;
-  --fg-subtle: #aeaeb2;
-  --accent: #0a84ff;
-  --accent-fg: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1c1e;
-    --bg-elevated: #2c2c2e;
-    --bg-card: rgba(44, 44, 46, 0.72);
-    --bg-card-border: rgba(255, 255, 255, 0.08);
-    --fg: #f5f5f7;
-    --fg-muted: #98989d;
-    --fg-subtle: #6e6e73;
-    --accent: #0a84ff;
-    --accent-fg: #ffffff;
-    --border: rgba(255, 255, 255, 0.08);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
-  }
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html,
-body,
-#root {
-  height: 100vh;
-  background: var(--bg);
-  color: var(--fg);
-  overflow: hidden;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "SF Pro Display",
-    "SF Pro Text", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  font-size: 13px;
-  line-height: 1.45;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-button {
-  background: var(--accent);
-  color: var(--accent-fg);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: filter 0.12s ease;
-}
-
-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-button:hover:not(:disabled) {
-  filter: brightness(1.1);
-}
-
-button.secondary {
-  background: transparent;
-  color: var(--fg);
-  border: 1px solid var(--border);
-}
-
-button.secondary:hover:not(:disabled) {
-  background: var(--bg-elevated);
-}
+/* (WindowChrome 之后的 .rt-shell / .rt-topbar / .rt-sidebar 等
+ * 组件样式按原样保留，未做改动 — 这次 migration 只搬走 token + reset) */
 
 /* ---- App shell (TopBar + Sidebar + Main + StatusBar) ---- */
 /* Layout mirrors Open-Less FloatingShell (openless-all/app/src/
