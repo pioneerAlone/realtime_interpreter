@@ -1,29 +1,31 @@
 /**
  * MainView — top-level shell for the main window.
+ * ----------------------------------------------------------------------
+ * T-G-4 ticket #22 — Halo 启发 2 列布局 + 黑色 CTA + SectionCard 化。
  *
- * Layout (HaloVoice 3-column pattern + Open-Less FloatingShell
- * structure):
+ * 布局：
  *
- *   ┌──────────────────────────────────────────────────────────────────┐
- *   │ TopBar:  [logo] realtime_interpreter              [API key status]   │
- *   ├──────────┬──────────────────────────────┬────────────────────────┤
- *   │ Sidebar  │  Center content              │  Live Stage            │
- *   │ ⚙ Setup  │  (one of:                   │  ┌──────────────────┐ │
- *   │ 🎙 Ch    │    • Setup     — Topology    │  │ ● Start   [会议] │ │
- *   │ ⌨ Hot    │    • Channels  — R3/R4 cards │  ├──────────────────┤ │
- *   │ ℹ About  │    • Hotkeys   — 3 chips     │  │ R3 ● idle       │ │
- *   │          │    • About     — meta info   │  │ R4 ● idle       │ │
- *   │ ⏻ Quit   │                              │  ├──────────────────┤ │
- *   │          │                              │  │ Subtitles       │ │
- *   │          │                              │  │ [EN] Thanks for… │ │
- *   │          │                              │  │ [ZH] 感谢今天…  │ │
- *   │          │                              │  └──────────────────┘ │
- *   ├──────────┴──────────────────────────────┴────────────────────────┤
+ *   ┌──────────────────────────────────────────────────────────────┐
+ *   │ TopBar:  [logo] realtime_interpreter          [API key status]   │
+ *   ├──────────┬───────────────────────────────────────────────────┤
+ *   │ Sidebar  │  Main content                                       │
+ *   │ 实时翻译 │  (one of:                                          │
+ *   │ 通道详情 │    • 实时翻译 = 设备 + 字幕 preview + sticky CTA  │
+ *   │ 快捷键   │    • 通道详情 = R3 / R4 卡片                       │
+ *   │ 设置     │    • 快捷键   = 3 个 SettingRow                    │
+ *   │          │    • 设置     = version / repo / license SettingRow │
+ *   │ 场景模式 │                                                    │
+ *   │ 配额     │                                                    │
+ *   │ bakewell │                                                    │
+ *   │ 退出     │                                                    │
+ *   ├──────────┴───────────────────────────────────────────────────┤
  *   │ StatusBar: Topology ● | R3 ● idle | R4 ● idle | ⌥⌃⌥P⌃⌥H        │
- *   └──────────────────────────────────────────────────────────────────┘
+ *   └──────────────────────────────────────────────────────────────┘
  *
- * 3 columns map directly to Open-Less's `<aside> + <main>` pattern
- * extended with a third column for live preview (HaloVoice).
+ * 与 D-G-1 撤销的 3 列布局对比（原 Sidebar 200 / Main 1fr / LiveStage 320）：
+ *  - LiveStage 单列被砍（黑色 CTA + 状态行 + 字幕 preview 全部下沉到 Main 底部）
+ *  - Sidebar 280 + Main flex-1（Main 占主，dominant work area）
+ *  - 全部 4 个 section 卡片化（D-G-17 Halo 启发）
  */
 
 import React, { useEffect, useState } from "react";
@@ -34,16 +36,42 @@ import { APP_ICON_DATA_URL } from "@/assets/icon";
 import { TopologyCheckPanel } from "@/components/TopologyCheckPanel";
 import { ChannelCard } from "@/components/ChannelCard";
 import { R3_INFO, R4_INFO } from "@/lib/channelInfo";
-import { Sidebar, type NavItemId } from "@/components/Sidebar";
+import { Sidebar, type NavItemId, type SceneRow } from "@/components/Sidebar";
 import { StatusBar } from "@/components/StatusBar";
-import { LiveStage } from "@/components/LiveStage";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { Card, Pill } from "@/components/ui/_atoms";
+import { SettingRow } from "@/components/ui/SettingRow";
+import { Btn } from "@/components/ui/_atoms";
+import { Kbd, KbdGroup } from "@/components/ui/Kbd";
+import { Switch } from "@/components/ui/Switch";
 
 type PingResult = { status: "ok" | "err"; text: string };
 
 const R3_INPUT_DEFAULT = "MacBook Air麦克风";
 const R3_OUTPUT_DEFAULT = "BlackHole 2ch";
 const R4_OUTPUT_DEFAULT = "MacBook Air扬声器";
+
+/* 字幕 preview mock 数据（v0 不接 R3/R4 后端） */
+const SAMPLE_SUBTITLES = [
+  {
+    id: "1",
+    source: "Thanks for joining today, let's discuss the Q4 roadmap.",
+    translation: "感谢今天加入，我们来讨论 Q4 路线图。",
+    is_final: true,
+  },
+  {
+    id: "2",
+    source: "We need to ship the integration by end of month.",
+    translation: "我们需要月底前发布集成。",
+    is_final: true,
+  },
+  {
+    id: "3",
+    source: "Are there any blockers on the audio pipeline?",
+    translation: "音频管线有没有任何阻碍？",
+    is_final: false,
+  },
+];
 
 export default function MainView(): React.ReactElement {
   const r3State = useSessionStore((s) => s.r3);
@@ -53,6 +81,13 @@ export default function MainView(): React.ReactElement {
   const effectivePrefs = resolveEffectivePrefs(topologyPrefs, topologyStatus?.devices ?? []);
   const [pingRes, setPingRes] = useState<PingResult>({ status: "err", text: "…" });
   const [ver, setVer] = useState<string>("0.0.1");
+
+  /* 场景模式状态（v0 mock，会议默认开） */
+  const [scenes, setScenes] = useState<SceneRow[]>([
+    { id: "meeting", icon: "议", name: "会议模式", enabled: true },
+    { id: "live", icon: "播", name: "直播模式", enabled: false },
+    { id: "game", icon: "戏", name: "游戏模式", enabled: false },
+  ]);
 
   useEffect(() => {
     ping()
@@ -76,23 +111,34 @@ export default function MainView(): React.ReactElement {
   };
 
   return (
-    <div className="rt-shell rt-shell--3col">
+    <div className="rt-shell rt-shell--2col">
       <TopBar pingRes={pingRes} version={ver} />
 
       <div className="rt-shell__body">
-        <Sidebar active={active} onSelect={handleNav} version={ver} />
+        <Sidebar
+          active={active}
+          onSelect={handleNav}
+          version={ver}
+          scenes={scenes}
+          onSceneToggle={(id, enabled) =>
+            setScenes((prev) =>
+              prev.map((s) => (s.id === id ? { ...s, enabled } : s)),
+            )
+          }
+        />
 
         <main className="rt-shell__main">
           {active === "main" && (
-            <section className="rt-page" aria-labelledby="setup-heading">
-              <header className="rt-page__header">
-                <h1 id="setup-heading" className="rt-page__title">音频设置</h1>
-                <p className="rt-page__desc">
-                  选择你的麦克风、翻译输出、对方声音输入和耳机。设置后会自动检查连接是否正确。
-                </p>
-              </header>
-              <TopologyCheckPanel />
-            </section>
+            <MainTranslateSection
+              r3State={r3State}
+              r4State={r4State}
+              scenes={scenes}
+              onSceneToggle={(id, enabled) =>
+                setScenes((prev) =>
+                  prev.map((s) => (s.id === id ? { ...s, enabled } : s)),
+                )
+              }
+            />
           )}
 
           {active === "channels" && (
@@ -149,86 +195,219 @@ export default function MainView(): React.ReactElement {
                   首次启动会自动弹出授权窗口；如果被拒绝，需要手动在系统设置中重新勾选。
                 </p>
               </header>
-              <div className="hotkey-list">
-                <div className="hotkey-list__row">
-                  <div className="hotkey-list__desc">
-                    <strong>Toggle subtitle</strong>
-                    <span>显示 / 隐藏字幕悬浮窗。NSPanel 不抢焦点。</span>
-                  </div>
-                  <div className="hotkey-list__keys">
-                    <span className="kbd">Right Option</span>
-                  </div>
-                </div>
-                <div className="hotkey-list__row">
-                  <div className="hotkey-list__desc">
-                    <strong>原声直出 (Bypass)</strong>
-                    <span>关闭时英文原声 + 字幕同步上屏；开启时跳过字幕。</span>
-                  </div>
-                  <div className="hotkey-list__keys">
-                    <span className="kbd">⌃</span>
-                    <span className="kbd">⌥</span>
-                    <span className="kbd">P</span>
-                  </div>
-                </div>
-                <div className="hotkey-list__row">
-                  <div className="hotkey-list__desc">
-                    <strong>Hide subtitle</strong>
-                    <span>直接隐藏字幕窗（不切换）。</span>
-                  </div>
-                  <div className="hotkey-list__keys">
-                    <span className="kbd">⌃</span>
-                    <span className="kbd">⌥</span>
-                    <span className="kbd">H</span>
-                  </div>
-                </div>
-              </div>
+              <Card padding="md">
+                <SettingRow
+                  noDivider
+                  label="Toggle subtitle"
+                  desc="显示 / 隐藏字幕悬浮窗。飘窗不抢焦点。"
+                >
+                  <Kbd>Right Option</Kbd>
+                </SettingRow>
+                <SettingRow
+                  label="原声直出 (Bypass)"
+                  desc="关闭时英文原声 + 字幕同步上屏；开启时跳过字幕。"
+                >
+                  <KbdGroup keys={["⌃", "⌥", "P"]} />
+                </SettingRow>
+                <SettingRow
+                  label="Hide subtitle"
+                  desc="直接隐藏字幕窗（不切换）。"
+                >
+                  <KbdGroup keys={["⌃", "⌥", "H"]} />
+                </SettingRow>
+              </Card>
             </section>
           )}
 
           {active === "about" && (
             <section className="rt-page" aria-labelledby="about-heading">
               <header className="rt-page__header">
-                <h1 id="about-heading" className="rt-page__title">About</h1>
-              </header>
-              <div className="about-card">
-                <p>
-                  <strong>realtime_interpreter</strong> — open-source macOS dual-channel
-                  Mac 上运行的双通道实时中英翻译。
+                <h1 id="about-heading" className="rt-page__title">设置</h1>
+                <p className="rt-page__desc">
+                  版本、仓库地址、协议信息。
                 </p>
-                <p>开源免费的中英实时翻译工具，运行在你的 Mac 上。</p>
-                <p>
-                  <strong>仓库</strong>{" "}
+              </header>
+              <Card padding="md">
+                <SettingRow
+                  noDivider
+                  label="版本"
+                  desc="当前安装的实时翻译版本号。"
+                >
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{ver}</span>
+                </SettingRow>
+                <SettingRow
+                  label="仓库"
+                  desc="主仓库地址（公开，开源）。"
+                >
                   <a href="https://github.com/pioneerAlone/realtime_interpreter" target="_blank" rel="noreferrer">
                     pioneerAlone/realtime_interpreter
                   </a>
-                </p>
-                <p>
-                  <strong>PoC</strong>{" "}
+                </SettingRow>
+                <SettingRow
+                  label="PoC 仓库"
+                  desc="PoC 是基于 Doubao 同传 2.0 的 A-channel 可行性参考；License 边界 (AGPL-3.0 上游依赖) 不合并入本仓。"
+                >
                   <a href="https://github.com/pioneerAlone/realtime_interpreter-poc" target="_blank" rel="noreferrer">
-                    pioneerAlone/realtime_interpreter-poc
+                    realtime_interpreter-poc
                   </a>
-                  <Tooltip
-                    wrap
-                    content="PoC 是基于 Doubao 同传 2.0 的 A-channel 可行性参考；本仓架构和模式参考 PoC，但 PoC 仓库因为 License 边界 (AGPL-3.0 上游依赖) 不合并入本仓。"
-                  >
-                    <span className="about-card__hint">ⓘ</span>
-                  </Tooltip>
-                </p>
-                <p>
-                  <strong>License</strong>: app code MIT, vendored Doppelvoice .proto Apache-2.0.
-                </p>
-                <p className="about-card__meta">
-                  开源中英同传 · MIT 协议 · macOS-first
-                </p>
-              </div>
+                </SettingRow>
+                <SettingRow
+                  label="License"
+                  desc="app code MIT, vendored Doppelvoice .proto Apache-2.0"
+                >
+                  <Pill tone="accent">MIT</Pill>
+                </SettingRow>
+                <SettingRow
+                  label="平台"
+                  desc="v0 仅支持 macOS（M-series + Intel）。"
+                >
+                  <Pill tone="positive">macOS</Pill>
+                </SettingRow>
+              </Card>
             </section>
           )}
         </main>
-
-        <LiveStage />
       </div>
 
       <StatusBar onNavigate={handleNav} />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * MainTranslateSection — 实时翻译主面板
+ *
+ * 3 个 SectionCard（D-G-17 Halo 启发）：
+ *   1. 设备检查（TopologyCheckPanel）
+ *   2. 场景模式 + 快捷 SettingRow（侧栏底部已显示，本 section 重复展示
+ *      是因为：a) 主区是默认 landing，要看到所有 mode；b) SettingRow
+ *      卡片化方便切换 + 解释）
+ *   3. 字幕 preview
+ *
+ * Sticky CTA: 通道状态 + 开始翻译按钮（D-G-16 黑色 CTA）— 横跨 main
+ * 容器底部，不在 section 内部。
+ * ------------------------------------------------------------------ */
+interface MainTranslateSectionProps {
+  r3State: string;
+  r4State: string;
+  scenes: SceneRow[];
+  onSceneToggle: (id: SceneRow["id"], enabled: boolean) => void;
+}
+
+function MainTranslateSection({
+  r3State,
+  r4State,
+  scenes,
+  onSceneToggle,
+}: MainTranslateSectionProps) {
+  return (
+    <section className="rt-page" aria-labelledby="main-heading">
+      <header className="rt-page__header">
+        <h1 id="main-heading" className="rt-page__title">实时翻译</h1>
+        <p className="rt-page__desc">
+          检查设备连接、选择场景模式、查看字幕预览。设置后会自动验证连接是否正确。
+        </p>
+      </header>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* 设备检查 — SectionCard 化 */}
+        <Card padding="md">
+          <TopologyCheckPanel />
+        </Card>
+
+        {/* 场景模式 — SettingRow 卡片（D-G-17） */}
+        <Card padding="md">
+          <SettingRow
+            noDivider
+            label="会议模式"
+            desc="v0 默认场景。开启双向翻译。"
+          >
+            <Switch
+              on={scenes.find((s) => s.id === "meeting")?.enabled ?? false}
+              onChange={(next) => onSceneToggle("meeting", next)}
+              ariaLabel="会议模式 toggle"
+            />
+          </SettingRow>
+          <SettingRow
+            label="直播模式"
+            desc="减少识别延迟，关闭本地声音回放避免反馈。"
+          >
+            <Switch
+              on={scenes.find((s) => s.id === "live")?.enabled ?? false}
+              onChange={(next) => onSceneToggle("live", next)}
+              ariaLabel="直播模式 toggle"
+            />
+          </SettingRow>
+          <SettingRow
+            label="游戏模式"
+            desc="对游戏内语音做优先识别（v0.1 暂未实现）。"
+          >
+            <Switch
+              on={scenes.find((s) => s.id === "game")?.enabled ?? false}
+              onChange={(next) => onSceneToggle("game", next)}
+              ariaLabel="游戏模式 toggle"
+            />
+          </SettingRow>
+        </Card>
+
+        {/* 字幕 preview 卡片 */}
+        <div className="rt-subtitle-card" aria-label="字幕预览">
+          <div className="rt-subtitle-card__header">
+            <span>字幕</span>
+            <span style={{ textTransform: "none", letterSpacing: 0, color: "var(--fg-subtle)" }}>
+              {SAMPLE_SUBTITLES.length} 条
+            </span>
+          </div>
+          {SAMPLE_SUBTITLES.length === 0 ? (
+            <div className="rt-subtitle-card__empty">
+              点击「开始翻译」启动会话
+            </div>
+          ) : (
+            SAMPLE_SUBTITLES.map((s) => (
+              <article
+                key={s.id}
+                className={`rt-subtitle-card__item${s.is_final ? "" : " rt-subtitle-card__item--partial"}`}
+                data-channel={s.id}
+              >
+                <div className="rt-subtitle-card__source">{s.source}</div>
+                <div className="rt-subtitle-card__translation">{s.translation}</div>
+              </article>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Sticky CTA: 通道状态 + 开始翻译按钮（D-G-16 黑色 CTA） */}
+      <div className="rt-main-cta" role="region" aria-label="实时翻译控制">
+        <div className="rt-main-cta__channels">
+          <ChannelStatusInline label="我的声音" status={r3State} />
+          <div className="rt-main-cta__divider" aria-hidden />
+          <ChannelStatusInline label="对方声音" status={r4State} />
+        </div>
+        <Btn variant="dark" shape="pill" size="lg" disabled>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <span aria-hidden>●</span>
+            开始翻译
+          </span>
+        </Btn>
+      </div>
+    </section>
+  );
+}
+
+function ChannelStatusInline({ label, status }: { label: string; status: string }) {
+  const color =
+    status === "running"
+      ? "var(--positive)"
+      : status === "error"
+        ? "var(--critical)"
+        : "var(--ink-subtle)";
+  const statusLabel = status === "idle" ? "未启动" : status;
+  return (
+    <div className="rt-main-cta__channel">
+      <span className="rt-main-cta__channel-dot" style={{ background: color }} aria-hidden />
+      <span className="rt-main-cta__channel-label">{label}</span>
+      <span className="rt-main-cta__channel-status">{statusLabel}</span>
     </div>
   );
 }
