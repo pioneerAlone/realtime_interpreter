@@ -280,9 +280,9 @@ button.secondary:hover:not(:disabled) {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 8px 14px 8px;
+  padding: 8px 8px 8px 8px;
   border-bottom: 0.5px solid var(--bg-card-border);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 .rt-sidebar__brand-mark {
   font-size: 18px;
@@ -726,9 +726,9 @@ button.secondary:hover:not(:disabled) {
 }
 .topology-picker {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.2fr);
+  grid-template-columns: minmax(140px, max-content) minmax(220px, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   padding: 8px 12px;
   border-radius: 8px;
   background: var(--bg-primary, white);
@@ -738,6 +738,7 @@ button.secondary:hover:not(:disabled) {
   font-size: 13px;
   font-weight: 500;
   color: var(--text-primary, #111);
+  white-space: nowrap;
 }
 .topology-picker__observed {
   grid-column: 2;
@@ -1307,8 +1308,7 @@ button.secondary:hover:not(:disabled) {
   background: var(--bg-card);
   border: 0.5px solid var(--bg-card-border);
   flex: 1;
-  min-height: 220px;
-  max-height: 100%;
+  min-height: 0;
 }
 .rt-livestage__subtitle-empty {
   margin: auto;
