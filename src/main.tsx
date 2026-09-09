@@ -69,6 +69,25 @@ if (windowParam !== "capsule") {
   useCaptionStore.getState().setMockState("empty");
 }
 
+// T-G-08: 监听系统托盘事件（仅 Tauri runtime · 浏览器 preview 跳过）
+import { isTauri } from "./lib/ipc/shared";
+if (isTauri() && windowParam !== "capsule") {
+  void import("@tauri-apps/api/event").then(async ({ listen }) => {
+    // 启动同传 · 系统托盘 → React
+    await listen("tray:start_engine", () => {
+      void useEngineStore.getState().start();
+    });
+    // 切换 preset · 系统托盘 → React
+    await listen<string>("tray:switch_preset", (event) => {
+      void usePresetStore.getState().setActive(event.payload);
+    });
+    // 静音切换 · v0 mock 真实 R3 mute 属于 #03
+    await listen("tray:toggle_mute", () => {
+      console.log("[tray] toggle_mute · v0 mock · 真实 R3 mute 属于 #03 ticket");
+    });
+  });
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App
