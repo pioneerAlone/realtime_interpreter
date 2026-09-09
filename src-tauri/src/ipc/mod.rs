@@ -7,6 +7,8 @@
 pub mod config;
 pub mod device;
 pub mod diagnostics;
+pub mod engine;
+pub mod presets;
 pub mod session;
 pub mod subtitle;
 pub mod topology;

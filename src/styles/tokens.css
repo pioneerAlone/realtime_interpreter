@@ -1,0 +1,149 @@
+/* realtime_interpreter — design system v2 (T-G-01)
+ *
+ * Reference 调色板 (#2571E8 accent) + SF Pro 字体栈 + Things 3 spacing/radius.
+ * 系统主题通过 `prefers-color-scheme` 自动切换 light/dark。
+ * 不复用 v0.2 styles.css（1500 行失控 + Review.tsx 被否）—— 从 0 写干净。
+ *
+ * 决策来源: `.scratch/gui-rebuild-v0.md` §1 (Q1-Q30) + §9 (de-jargon)
+ * Ticket:    #26 (T-G-01)
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* === accent (system blue, Reference 调色板) === */
+  --accent: #2571E8;
+  --accent-fg: #ffffff;
+  --accent-tint: rgba(37, 113, 232, 0.08); /* sidebar active bg */
+  --accent-tint-strong: rgba(37, 113, 232, 0.14);
+  --accent-soft: #dbe8fa; /* light mode 下选中文本底色 */
+
+  /* === neutral 9 levels (light mode baseline) === */
+  --neutral-1: #ffffff;
+  --neutral-2: #fafafa;
+  --neutral-3: #f5f5f7;
+  --neutral-4: #ececef;
+  --neutral-5: #d2d2d7;
+  --neutral-6: #aeaeb2;
+  --neutral-7: #8e8e93;
+  --neutral-8: #48484a;
+  --neutral-9: #1d1d1f;
+
+  /* === surface (窗口/侧栏/卡片 三层) === */
+  --surface-1: var(--neutral-3); /* window bg */
+  --surface-2: var(--neutral-2); /* sidebar bg (#fafafa · Open-Less 同款) */
+  --surface-3: var(--neutral-1); /* card bg */
+  --surface-capsule: rgba(29, 29, 31, 0.82); /* 字幕胶囊 NSPanel bg · Hermeneus 同款 */
+
+  /* === fg === */
+  --fg: var(--neutral-9);
+  --fg-secondary: var(--neutral-8);
+  --fg-muted: var(--neutral-7);
+  --fg-subtle: var(--neutral-6);
+  --fg-on-capsule: #ffffff; /* 胶囊窗永远 dark 0.82 · 反白 */
+
+  /* === semantic === */
+  --success: #30d158;
+  --success-soft: rgba(48, 209, 88, 0.14);
+  --warn: #ff9f0a;
+  --warn-soft: rgba(255, 159, 10, 0.14);
+  --error: #ff453a;
+  --error-soft: rgba(255, 69, 58, 0.14);
+  --info: var(--accent);
+
+  /* === border === */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+
+  /* === shadow === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+  /* === radius (Things 3 主导 6-8px · 统一不大于 12) === */
+  --radius-1: 4px;
+  --radius-2: 6px;
+  --radius-3: 8px; /* Things 3 rectangular rows 主导 */
+  --radius-4: 12px; /* 字幕胶囊 */
+  --radius-pill: 9999px;
+
+  /* === spacing (4/8/12/16/20/24/32) === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+
+  /* === typography (SF Pro Display / Text / Mono) === */
+  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-text: "SF Pro Text", -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "SF Pro Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-17: 17px; /* subtitle source */
+  --fs-20: 20px;
+  --fs-24: 24px;
+  --fs-28: 28px;
+
+  --lh-tight: 1.2;
+  --lh-snug: 1.35;
+  --lh-normal: 1.45;
+  --lh-loose: 1.6;
+
+  --tracking-tight: -0.01em;
+  --tracking-wide: 0.04em;
+  --tracking-eyebrow: 0.06em;
+
+  /* === motion === */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-1: 120ms; /* hover / press */
+  --dur-2: 240ms; /* panel expand */
+
+  /* === layout primitives (供后续 T-G-02 shell 使用) === */
+  --sidebar-width: 220px;
+  --titlebar-height: 28px; /* macOS native traffic-light strip · invisible */
+
+  font-family: var(--font-text);
+  font-size: var(--fs-13);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* === dark mode === */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --neutral-1: #1c1c1e;
+    --neutral-2: #2c2c2e;
+    --neutral-3: #000000;
+    --neutral-4: #38383a;
+    --neutral-5: #48484a;
+    --neutral-6: #6e6e73;
+    --neutral-7: #98989d;
+    --neutral-8: #c7c7cc;
+    --neutral-9: #f5f5f7;
+
+    --surface-1: #1c1c1e;
+    --surface-2: #2c2c2e;
+    --surface-3: #38383a;
+
+    --accent-soft: rgba(37, 113, 232, 0.24);
+
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+  }
+}

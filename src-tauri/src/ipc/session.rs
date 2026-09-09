@@ -1,16 +1,21 @@
 //! Session IPC commands (R3 / R4 start / stop / status).
-//! Stub for v0 scaffold; real bodies land in tickets #03 (R3) and #04 (R4).
+//!
+//! T-G-04 stub：start_session / stop_session 接受调用并返回新 state。
+//! 真实 audio pipeline 接入属于 ticket #03 (R3) 和 #04 (R4) 范围 —
+//! 本 ticket 只验证 preferences.json 持久化 + preset 切换 + 启动 CTA 调通。
 
 use serde::{Deserialize, Serialize};
+use tauri::State;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+use crate::state::AppState;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Channel {
     R3,
     R4,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[allow(dead_code)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SessionState {
     Idle,
     Starting,
@@ -20,21 +25,38 @@ pub enum SessionState {
 }
 
 #[tauri::command]
-pub async fn start_session(_channel: Channel) -> Result<SessionState, String> {
-    Err("not implemented — see ticket #03 (R3) or #04 (R4)".to_string())
+pub async fn start_session(
+    channel: Channel,
+    state: State<'_, AppState>,
+) -> Result<SessionState, String> {
+    state
+        .set_status(channel, SessionState::Running)
+        .await;
+    Ok(SessionState::Running)
 }
 
 #[tauri::command]
-pub async fn stop_session(_channel: Channel) -> Result<SessionState, String> {
-    Err("not implemented — see ticket #03 (R3) or #04 (R4)".to_string())
-}
-
-#[tauri::command]
-pub async fn session_status(_channel: Channel) -> Result<SessionState, String> {
+pub async fn stop_session(
+    channel: Channel,
+    state: State<'_, AppState>,
+) -> Result<SessionState, String> {
+    state
+        .set_status(channel, SessionState::Idle)
+        .await;
     Ok(SessionState::Idle)
 }
 
 #[tauri::command]
-pub async fn list_sessions() -> Result<Vec<(Channel, SessionState)>, String> {
-    Ok(vec![(Channel::R3, SessionState::Idle), (Channel::R4, SessionState::Idle)])
+pub async fn session_status(
+    channel: Channel,
+    state: State<'_, AppState>,
+) -> Result<SessionState, String> {
+    Ok(state.get_status(channel).await)
+}
+
+#[tauri::command]
+pub async fn list_sessions(
+    state: State<'_, AppState>,
+) -> Result<Vec<(Channel, SessionState)>, String> {
+    Ok(state.list_status().await)
 }
