@@ -1,0 +1,319 @@
+/* realtime_interpreter — primitives v2 (T-G-01)
+ *
+ * 三个新 primitives：
+ *   .rt-progress-pie — Things 3 风格 SVG-less 圆环进度
+ *   .rt-wire-hint    — Loopback 风格 "↓ Teams 麦克风 绑定这里" 细线 + 箭头
+ *   .rt-preset-row   — Things 3 rectangular row + 内嵌 Toggle
+ *
+ * 配套：.rt-toggle / .rt-toggle-knob（preset-row 用，也供 v0.1 复用）
+ *
+ * 决策来源: `.scratch/gui-rebuild-v0.md` §1 (Things 3 / Loopback / OBS patterns)
+ * Ticket:    #26 (T-G-01)
+ */
+
+/* ============================ progress-pie ============================ */
+
+.rt-progress-pie {
+  --pie-size: 18px;
+  --pie-stroke: 2.5px;
+  --pie-fg: var(--accent);
+  --pie-bg: var(--border-strong);
+  --pie-center-bg: var(--surface-1);
+
+  width: var(--pie-size);
+  height: var(--pie-size);
+  border-radius: 50%;
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.rt-progress-pie::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--pie-fg) calc(var(--pie-value, 0) * 1%),
+    var(--pie-bg) 0
+  );
+  /* smooth rotate-in animation when value jumps */
+  transition: background var(--dur-2) var(--ease-out);
+}
+
+.rt-progress-pie::after {
+  content: "";
+  position: absolute;
+  inset: var(--pie-stroke);
+  border-radius: 50%;
+  background: var(--pie-center-bg);
+}
+
+.rt-progress-pie[data-tone="success"] {
+  --pie-fg: var(--success);
+}
+.rt-progress-pie[data-tone="warn"] {
+  --pie-fg: var(--warn);
+}
+.rt-progress-pie[data-tone="error"] {
+  --pie-fg: var(--error);
+}
+
+/* ============================ wire-hint =============================== */
+
+.rt-wire-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-text);
+  font-size: var(--fs-11);
+  color: var(--fg-muted);
+  padding: var(--space-1) 0 var(--space-1) calc(var(--space-4) + var(--space-1));
+  position: relative;
+  user-select: none;
+}
+
+.rt-wire-hint::before {
+  /* vertical stem connecting picker to hint */
+  content: "";
+  position: absolute;
+  left: var(--space-4);
+  top: -6px;
+  bottom: 50%;
+  width: 1px;
+  background: var(--border-strong);
+}
+
+.rt-wire-hint-icon {
+  font-size: 12px;
+  line-height: 1;
+  color: var(--fg-subtle);
+}
+
+/* ============================ preset-row ============================== */
+
+.rt-preset-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-3); /* Things 3 rectangular 8px */
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+
+.rt-preset-row:hover:not([data-disabled="true"]) {
+  background: var(--neutral-4);
+}
+
+.rt-preset-row[data-active="true"] {
+  background: var(--accent-tint);
+  border-color: var(--accent);
+}
+
+.rt-preset-row[data-active="true"]:hover {
+  background: var(--accent-tint-strong);
+}
+
+.rt-preset-row[data-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.rt-preset-row-caret {
+  font-size: 12px;
+  color: var(--fg-muted);
+  flex: 0 0 auto;
+  width: 12px;
+  text-align: center;
+}
+
+.rt-preset-row[data-expanded="true"] .rt-preset-row-caret {
+  transform: rotate(90deg);
+}
+
+.rt-preset-row-name {
+  font-family: var(--font-text);
+  font-size: var(--fs-14);
+  font-weight: 500;
+  color: var(--fg);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rt-preset-row-badge {
+  font-family: var(--font-text);
+  font-size: var(--fs-11);
+  color: var(--fg-muted);
+  background: var(--neutral-4);
+  padding: 2px 8px;
+  border-radius: var(--radius-1);
+  flex: 0 0 auto;
+}
+
+.rt-preset-row[data-disabled="true"] .rt-preset-row-badge {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+/* ============================ toggle ================================== */
+
+.rt-toggle {
+  --toggle-width: 32px;
+  --toggle-height: 18px;
+  --toggle-knob: 14px;
+  --toggle-off-bg: var(--neutral-5);
+  --toggle-on-bg: var(--success);
+
+  position: relative;
+  width: var(--toggle-width);
+  height: var(--toggle-height);
+  border-radius: var(--radius-pill);
+  background: var(--toggle-off-bg);
+  flex: 0 0 auto;
+  padding: 0;
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+.rt-toggle[data-on="true"] {
+  background: var(--toggle-on-bg);
+}
+
+.rt-toggle[data-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rt-toggle-knob {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: var(--toggle-knob);
+  height: var(--toggle-knob);
+  border-radius: 50%;
+  background: #ffffff;
+  transform: translate(0, -50%);
+  transition: transform var(--dur-1) var(--ease-out);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.rt-toggle[data-on="true"] .rt-toggle-knob {
+  transform: translate(
+    calc(var(--toggle-width) - var(--toggle-knob) - 2px),
+    -50%
+  );
+}
+
+/* ============================ demo page (AtomsDemo) ==================== */
+
+.rt-demo-page {
+  height: 100vh;
+  overflow: auto;
+  padding: var(--space-7);
+  background: var(--surface-1);
+  color: var(--fg);
+  font-family: var(--font-text);
+}
+
+.rt-demo-page h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-24);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  margin-bottom: var(--space-2);
+}
+
+.rt-demo-page > p.rt-demo-intro {
+  font-size: var(--fs-13);
+  color: var(--fg-muted);
+  margin-bottom: var(--space-7);
+}
+
+.rt-demo-page section {
+  margin-bottom: var(--space-7);
+}
+
+.rt-demo-page h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+  color: var(--fg);
+}
+
+.rt-demo-page h2 small {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--fg-subtle);
+  margin-left: var(--space-2);
+  font-weight: 400;
+}
+
+.rt-demo-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-4);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-3);
+}
+
+.rt-demo-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-3);
+}
+
+.rt-demo-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--fg-muted);
+  min-width: 64px;
+}
+
+.rt-token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-3);
+}
+
+.rt-token-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.rt-token-chip {
+  height: 48px;
+  border-radius: var(--radius-2);
+  border: 1px solid var(--border);
+}
+
+.rt-token-name {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--fg);
+}
+
+.rt-token-value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--fg-muted);
+}
