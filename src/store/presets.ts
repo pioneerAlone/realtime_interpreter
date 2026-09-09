@@ -1,94 +1,120 @@
 import { create } from "zustand";
+import { getPreferences, savePreset, setActivePreset } from "../lib/ipc";
 
 /**
- * presets.ts — preset state（T-G-03）
+ * presets.ts — preset state（T-G-04 接入持久化）
  *
- * v0 mock state · 不持久化 · 不接 Keychain · 真实持久化属于 T-G-04。
+ * 真实持久化通过 Tauri IPC：
+ *   - getPreferences()  on init 加载
+ *   - savePreset()       on 编辑
+ *   - setActivePreset()  on 切换 active
  *
- * 决策来源: `.scratch/gui-rebuild-v0.md` §4 (preset 列表) + §10.1 T-G-03
- * Ticket:    #28 (T-G-03)
+ * 不接 Keychain / preferences.json 直写 · 都走 Tauri 命令 · Rust 侧用
+ * `~/Library/Application Support/com.pioneeralone.realtime-interpreter/preferences.json`。
+ *
+ * 决策来源: `.scratch/gui-rebuild-v0.md` §4.6 + §10.1 T-G-04
+ * Ticket:    #30 (T-G-04)
  */
 
 export interface Preset {
   id: string;
   name: string;
-  /** v0 stub: 'active' | 'disabled-stub' · 区分可用 vs v1 待实装 */
   status: "active" | "disabled-stub";
-  /** 0..100 · 默认 0 (空环) */
   progress: number;
-  /** 4 picker 当前选择 · id 对应 MOCK_DEVICES 中的 id */
   devices: {
     microphone: string;
     translationOutput: string;
     remoteInput: string;
     monitor: string;
   };
-  /** R3 翻译方向（v0 hardcode 中↔英）· 真实配置属于 T-G-04 */
   r3Direction: "zh→en" | "en→zh";
-  /** R4 字幕格式（v0 hardcode 双语 stacked）· 真实配置属于 T-G-04 */
   r4Caption: "bilingual-stacked";
-  /** 简介（stub）· 真实编辑属于 T-G-04 */
   description: string;
-  /** 上次启动时间戳（mock · stub） */
   lastLaunched: string;
-  /** 上次启动次数（mock · stub） */
   launchCount: number;
 }
 
-interface PresetSlice {
+export interface Preferences {
+  schema_version: number;
+  active_id: string;
   presets: Preset[];
-  /** 当前激活的 preset id（v0 只有 1 个 · 多 preset 切换属于 v0.1） */
-  activeId: string;
-  setActive: (id: string) => void;
 }
 
-const DEFAULT_PRESET: Preset = {
-  id: "daily-meeting",
-  name: "日常会议",
-  status: "active",
-  progress: 100,
-  devices: {
-    microphone: "macbook-mic",
-    translationOutput: "blackhole-2ch",
-    remoteInput: "vb-cable",
-    monitor: "iflybuds-nano",
-  },
-  r3Direction: "zh→en",
-  r4Caption: "bilingual-stacked",
-  description: "v0 默认配置。适合一般商务会议 / 1v1 沟通。",
-  lastLaunched: "3 天前",
-  launchCount: 4,
-};
+interface PresetSlice {
+  /** 已加载标志 · 避免 init 前误用 */
+  loaded: boolean;
+  presets: Preset[];
+  activeId: string;
+  /** 启动 Tauri IPC 加载 · 应用启动时调用一次 */
+  load: () => Promise<void>;
+  setActive: (id: string) => Promise<void>;
+  save: (preset: Preset) => Promise<void>;
+  /** sync version · 不等 Tauri · 立即更新 UI + 后台持久化 */
+  setActiveSync: (id: string) => void;
+  saveSync: (preset: Preset) => void;
+}
 
-const STUB_PRESETS: Preset[] = [
-  {
-    id: "demo-mode",
-    name: "演示模式",
-    status: "disabled-stub",
-    progress: 25,
-    devices: DEFAULT_PRESET.devices,
-    r3Direction: "zh→en",
-    r4Caption: "bilingual-stacked",
-    description: "演示场景（即将推出）。",
-    lastLaunched: "—",
-    launchCount: 0,
-  },
-  {
-    id: "one-on-one",
-    name: "1v1 沟通",
-    status: "disabled-stub",
-    progress: 0,
-    devices: DEFAULT_PRESET.devices,
-    r3Direction: "zh→en",
-    r4Caption: "bilingual-stacked",
-    description: "1v1 沟通场景（即将推出）。",
-    lastLaunched: "—",
-    launchCount: 0,
-  },
-];
+export const usePresetStore = create<PresetSlice>((set, get) => ({
+  loaded: false,
+  presets: [],
+  activeId: "",
 
-export const usePresetStore = create<PresetSlice>((set) => ({
-  presets: [DEFAULT_PRESET, ...STUB_PRESETS],
-  activeId: DEFAULT_PRESET.id,
-  setActive: (id) => set({ activeId: id }),
+  load: async () => {
+    try {
+      const prefs = await getPreferences();
+      set({
+        loaded: true,
+        presets: prefs.presets,
+        activeId: prefs.active_id,
+      });
+    } catch (e) {
+      console.error("[presets] load failed:", e);
+      set({ loaded: true, presets: [], activeId: "" });
+    }
+  },
+
+  setActive: async (id) => {
+    const prev = get().activeId;
+    set({ activeId: id });
+    try {
+      await setActivePreset(id);
+    } catch (e) {
+      console.error("[presets] setActive failed:", e);
+      set({ activeId: prev });
+    }
+  },
+
+  save: async (preset) => {
+    const prev = get().presets.find((p) => p.id === preset.id);
+    set((s) => ({
+      presets: s.presets.map((p) => (p.id === preset.id ? preset : p)),
+    }));
+    try {
+      await savePreset(preset);
+    } catch (e) {
+      console.error("[presets] save failed:", e);
+      if (prev) {
+        set((s) => ({
+          presets: s.presets.map((p) => (p.id === preset.id ? prev : p)),
+        }));
+      }
+    }
+  },
+
+  // sync versions: 不等 Tauri · 立即更新 UI · 后台 save
+  setActiveSync: (id) => {
+    set({ activeId: id });
+    void setActivePreset(id).catch((e) =>
+      console.error("[presets] setActiveSync background failed:", e),
+    );
+  },
+
+  saveSync: (preset) => {
+    set((s) => ({
+      presets: s.presets.map((p) => (p.id === preset.id ? preset : p)),
+    }));
+    void savePreset(preset).catch((e) =>
+      console.error("[presets] saveSync background failed:", e),
+    );
+  },
 }));

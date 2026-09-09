@@ -1,38 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PresetRow from "./ui/PresetRow";
 import PickerRow from "./PickerRow";
 import { usePresetStore, type Preset } from "../store/presets";
+import { useSessionStore } from "../store/session";
+import { startSession, stopSession } from "../lib/ipc";
 
 /**
- * PresetList — 设置 tab v0 主交互（T-G-03）
+ * PresetList — 设置 tab v0 主交互（T-G-04 接入持久化 + 启动 CTA）
  *
- * Layout:
- *   - 顶部 preset 列表（3 行：日常会议 active / 演示模式 stub / 1v1 沟通 stub）
- *   - 选中 preset 展开下方 2-col preset body
- *     - 左：4 picker rows（麦克风输入 / 翻译输出 / 对方声音输入 / 对端监听）+ R3 方向 + R4 字幕
- *     - 右：状态 + 上次启动 + 简介 + 操作（复制 / 删除 stub）
- *   - preset body 底部：[取消] [✓ 保存修改]
- *   - preset list 底部：+ 新建预设（stub）
+ * T-G-03 → T-G-04 增量：
+ *   - mount 时调 `usePresetStore.load()` 拉 preferences.json
+ *   - preset row toggle 调 `setActiveSync`（sync 设 active + 后台持久化）
+ *   - preset body 「✓ 保存修改」 调 `saveSync` 整对象写回
+ *   - 新增「▶ 启动同传」/「■ 停止同传」CTA 调 start_session / stop_session IPC
+ *   - active 状态显示根据 r3/r4 session state 联动（real-time）
  *
- * 决策来源: `.scratch/gui-rebuild-v0.md` §4 (preset-first IA) + §10.1 T-G-03
- * Ticket:    #28 (T-G-03)
+ * 决策来源: `.scratch/gui-rebuild-v0.md` §4 (preset-first IA) + §10.1 T-G-04
+ * Ticket:    #30 (T-G-04)
  */
 export default function PresetList(): React.ReactElement {
   const presets = usePresetStore((s) => s.presets);
   const activeId = usePresetStore((s) => s.activeId);
-  const setActive = usePresetStore((s) => s.setActive);
-  const [expandedId, setExpandedId] = useState<string | null>(activeId);
+  const loaded = usePresetStore((s) => s.loaded);
+  const load = usePresetStore((s) => s.load);
+  const setActiveSync = usePresetStore((s) => s.setActiveSync);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  useEffect(() => {
+    if (loaded && activeId && expandedId === null) {
+      setExpandedId(activeId);
+    }
+  }, [loaded, activeId, expandedId]);
 
   const handleRowClick = (p: Preset): void => {
     if (p.status === "disabled-stub") return;
-    setActive(p.id);
+    setActiveSync(p.id);
     setExpandedId((prev) => (prev === p.id ? null : p.id));
   };
 
   const handleToggle = (p: Preset) => (next: boolean): void => {
     if (p.status === "disabled-stub") return;
-    setActive(next ? p.id : "");
+    setActiveSync(next ? p.id : "");
   };
+
+  if (!loaded) {
+    return (
+      <div className="rt-preset-list" data-component="preset-list">
+        <div
+          style={{
+            padding: "var(--space-4)",
+            color: "var(--fg-muted)",
+            fontSize: "var(--fs-13)",
+          }}
+        >
+          正在加载 preset 配置…
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rt-preset-list" data-component="preset-list">
@@ -74,9 +103,14 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
   const preset = usePresetStore((s) =>
     s.presets.find((p) => p.id === presetId),
   );
+  const saveSync = usePresetStore((s) => s.saveSync);
   const [draft, setDraft] = useState<Preset["devices"] | null>(
     preset?.devices ?? null,
   );
+
+  useEffect(() => {
+    if (preset) setDraft(preset.devices);
+  }, [preset]);
 
   if (!preset || !draft) {
     return <div className="rt-preset-body rt-preset-body-empty">未选中 preset</div>;
@@ -88,8 +122,8 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
     };
 
   const handleSave = (): void => {
-    // TODO: 真实持久化属于 T-G-04
-    console.log("[stub] save preset", presetId, draft);
+    const next: Preset = { ...preset, devices: draft };
+    saveSync(next);
   };
 
   const handleCancel = (): void => {
@@ -99,7 +133,6 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
   return (
     <div className="rt-preset-body" data-component="preset-body">
       <div className="rt-preset-body-grid">
-        {/* left col: 4 pickers + R3 direction + R4 caption */}
         <div className="rt-preset-body-left">
           <PickerRow
             picker="microphone"
@@ -134,19 +167,15 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
               <span className="rt-eyebrow">R4 字幕</span>
               <span className="rt-direction-value">双语 stacked · 英文原文 + 中文</span>
             </div>
-            <p className="rt-direction-note">
-              v0 hardcode 双向 · 不可改
-            </p>
+            <p className="rt-direction-note">v0 hardcode 双向 · 不可改</p>
           </div>
         </div>
 
-        {/* right col: 状态 + 上次启动 + 简介 + 操作 */}
         <div className="rt-preset-body-right">
           <div className="rt-stat">
             <span className="rt-eyebrow rt-stat-label">状态</span>
             <span className="rt-stat-value">
-              <span className="rt-status-dot" data-tone="success" aria-hidden="true" />
-              就绪
+              <EngineStatusIndicator />
             </span>
           </div>
           <div className="rt-stat">
@@ -190,5 +219,92 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
         </button>
       </div>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* EngineStatusIndicator + Start/Stop CTA                              */
+/* ------------------------------------------------------------------ */
+
+function EngineStatusIndicator(): React.ReactElement {
+  const r3 = useSessionStore((s) => s.r3);
+  const r4 = useSessionStore((s) => s.r4);
+  const setSessionState = useSessionStore((s) => s.setState);
+  const isRunning = r3 === "running" || r4 === "running";
+  const hasError = r3 === "error" || r4 === "error";
+  const tone: "success" | "error" | "idle" = hasError
+    ? "error"
+    : isRunning
+      ? "success"
+      : "idle";
+  const label = hasError ? "异常" : isRunning ? "运行中" : "就绪";
+  const [pending, setPending] = useState(false);
+
+  const handleStart = async (): Promise<void> => {
+    if (pending) return;
+    setPending(true);
+    try {
+      const [r3Res, r4Res] = await Promise.all([
+        startSession("R3"),
+        startSession("R4"),
+      ]);
+      setSessionState("R3", r3Res);
+      setSessionState("R4", r4Res);
+    } catch (e) {
+      console.error("[engine] start failed:", e);
+      setSessionState("R3", "error");
+      setSessionState("R4", "error");
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const handleStop = async (): Promise<void> => {
+    if (pending) return;
+    setPending(true);
+    try {
+      const [r3Res, r4Res] = await Promise.all([
+        stopSession("R3"),
+        stopSession("R4"),
+      ]);
+      setSessionState("R3", r3Res);
+      setSessionState("R4", r4Res);
+    } catch (e) {
+      console.error("[engine] stop failed:", e);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <span
+      style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}
+    >
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <span className="rt-status-dot" data-tone={tone} aria-hidden="true" />
+        {label}
+      </span>
+      {!isRunning ? (
+        <button
+          type="button"
+          className="rt-btn rt-btn-dark"
+          style={{ padding: "var(--space-1) var(--space-3)", fontSize: "var(--fs-12)" }}
+          onClick={handleStart}
+          disabled={pending}
+        >
+          {pending ? "启动中…" : "▶ 启动同传"}
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="rt-btn rt-btn-ghost rt-btn-danger"
+          style={{ padding: "var(--space-1) var(--space-3)", fontSize: "var(--fs-12)" }}
+          onClick={handleStop}
+          disabled={pending}
+        >
+          {pending ? "停止中…" : "■ 停止同传"}
+        </button>
+      )}
+    </span>
   );
 }
