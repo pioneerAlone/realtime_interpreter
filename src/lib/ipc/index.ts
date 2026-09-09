@@ -185,3 +185,79 @@ export async function testEngineConnection(): Promise<EngineCredentials> {
     }),
   });
 }
+
+/* ================ caption settings (T-G-07) ================ */
+
+import type { CaptionSettings } from "../../store/caption";
+
+const BROWSER_DEFAULT_CAPTION: CaptionSettings = {
+  position: null,
+  opacity: 82,
+  locked: false,
+  clickThrough: false,
+  shareHidden: false,
+  displayIndex: 0,
+};
+
+export async function getCaptionSettings(): Promise<CaptionSettings> {
+  return invokeOrMock<CaptionSettings>("get_caption_settings", undefined, {
+    mock: () => BROWSER_DEFAULT_CAPTION,
+  });
+}
+
+export async function setCaptionPosition(
+  x: number,
+  y: number,
+): Promise<CaptionSettings> {
+  return invokeOrMock<CaptionSettings>(
+    "set_caption_position",
+    { x, y },
+    { mock: () => ({ ...BROWSER_DEFAULT_CAPTION, position: { x, y } }) },
+  );
+}
+
+export async function setCaptionOpacity(opacity: number): Promise<CaptionSettings> {
+  return invokeOrMock<CaptionSettings>(
+    "set_caption_opacity",
+    { opacity },
+    { mock: () => ({ ...BROWSER_DEFAULT_CAPTION, opacity }) },
+  );
+}
+
+export async function setCaptionLocked(locked: boolean): Promise<CaptionSettings> {
+  return invokeOrMock<CaptionSettings>(
+    "set_caption_locked",
+    { locked },
+    { mock: () => ({ ...BROWSER_DEFAULT_CAPTION, locked }) },
+  );
+}
+
+export async function setCaptionClickThrough(
+  clickThrough: boolean,
+): Promise<CaptionSettings> {
+  return invokeOrMock<CaptionSettings>(
+    "set_caption_click_through",
+    { clickThrough },
+    { mock: () => ({ ...BROWSER_DEFAULT_CAPTION, clickThrough }) },
+  );
+}
+
+export async function setCaptionShareHidden(
+  shareHidden: boolean,
+): Promise<CaptionSettings> {
+  return invokeOrMock<CaptionSettings>(
+    "set_caption_share_hidden",
+    { shareHidden },
+    { mock: () => ({ ...BROWSER_DEFAULT_CAPTION, shareHidden }) },
+  );
+}
+
+export async function setCaptionDisplayIndex(
+  displayIndex: number,
+): Promise<CaptionSettings> {
+  return invokeOrMock<CaptionSettings>(
+    "set_caption_display_index",
+    { displayIndex },
+    { mock: () => ({ ...BROWSER_DEFAULT_CAPTION, displayIndex }) },
+  );
+}

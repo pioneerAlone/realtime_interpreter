@@ -158,6 +158,13 @@ pub fn run() {
             ipc::engine::set_api_key,
             ipc::engine::clear_api_key,
             ipc::engine::test_engine_connection,
+            ipc::caption::get_caption_settings,
+            ipc::caption::set_caption_position,
+            ipc::caption::set_caption_opacity,
+            ipc::caption::set_caption_locked,
+            ipc::caption::set_caption_click_through,
+            ipc::caption::set_caption_share_hidden,
+            ipc::caption::set_caption_display_index,
         ]);
 
     builder

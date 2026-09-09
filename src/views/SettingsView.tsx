@@ -3,6 +3,7 @@ import PageHead from "../components/PageHead";
 import CollapsibleSection from "../components/CollapsibleSection";
 import PresetList from "../components/PresetList";
 import EngineCredentialsSection from "../components/EngineCredentialsSection";
+import CaptionCapsuleControls from "../components/CaptionCapsuleControls";
 
 /**
  * SettingsView — 设置 tab v0（T-G-03）
@@ -64,14 +65,11 @@ export default function SettingsView(): React.ReactElement {
           {/* ============== Section 3 · 悬浮字幕 ============== */}
           <CollapsibleSection
             title="悬浮字幕"
-            status={<span style={{ color: "var(--fg-muted)" }}>6 项能力</span>}
+            status={
+              <span style={{ color: "var(--fg-muted)" }}>6 项能力 · 实时生效</span>
+            }
           >
-            <div className="rt-settings-stub-section-list">
-              <p style={{ color: "var(--fg-muted)", fontSize: "var(--fs-13)" }}>
-                形态 / 锁定 / 透明度 / 点击穿透 / 屏幕共享隐身 / 多显示器
-                详细 UI 由 <span className="rt-mono">T-G-07</span> 实装。
-              </p>
-            </div>
+            <CaptionCapsuleControls />
           </CollapsibleSection>
 
           {/* ============== Section 4 · 全局快捷键 ============== */}

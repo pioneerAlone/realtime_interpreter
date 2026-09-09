@@ -54,6 +54,33 @@ pub struct Preferences {
     /// T-G-06: 引擎凭证状态 · 缺字段时 serde Default 兜底
     #[serde(default)]
     pub engine_credentials: EngineCredentials,
+    /// T-G-07: 字幕胶囊窗设置 · 缺字段时 serde Default 兜底
+    #[serde(default)]
+    pub caption_settings: CaptionSettings,
+}
+
+/// 字幕胶囊窗位置
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
+}
+
+/// 字幕胶囊窗设置（T-G-07）
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct CaptionSettings {
+    /// 拖动后位置 · None = 用 tauri.conf.json default
+    pub position: Option<Position>,
+    /// 透明度 0-100 · 默认 82 (per design freeze §6.1)
+    pub opacity: u8,
+    /// 锁定位置 · v0 mock (v0.1 绑 NSPanel setMovableByWindowBackground)
+    pub locked: bool,
+    /// 点击穿透 · v0 mock (v0.1 绑 setIgnoresMouseEvents)
+    pub click_through: bool,
+    /// 屏幕共享隐身 · v0 mock (v0.1 绑 setSharingNone)
+    pub share_hidden: bool,
+    /// 多显示器选择 · v0 默认 0 (主显示器) · v0.5 增强
+    pub display_index: u8,
 }
 
 /// 引擎凭证状态（T-G-06）
@@ -79,9 +106,14 @@ pub struct EngineCredentials {
 impl Default for Preferences {
     fn default() -> Self {
         Self {
-            schema_version: 2,
+            schema_version: 3,
             active_id: "daily-meeting".to_string(),
             engine_credentials: EngineCredentials::default(),
+            caption_settings: CaptionSettings {
+                position: None,
+                opacity: 82, // design freeze §6.1 dark 0.82
+                ..Default::default()
+            },
             presets: vec![
                 Preset {
                     id: "daily-meeting".to_string(),
