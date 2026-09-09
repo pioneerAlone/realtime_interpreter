@@ -1,15 +1,26 @@
 import React from "react";
 import PageHead from "../components/PageHead";
+import CollapsibleSection from "../components/CollapsibleSection";
+import PresetList from "../components/PresetList";
 
 /**
- * SettingsView — 设置 tab 占位（待 T-G-03 重写 preset-first IA）
+ * SettingsView — 设置 tab v0（T-G-03）
  *
- * 当前任务（T-G-02）：验证 PageHead + 占位 section 折叠。
- * 完整 preset-first IA + 5 sections（设备预设 / 引擎凭证 / 悬浮字幕 / 全局快捷键 / 系统）
- * 由 T-G-03 落地。
+ * Layout：
+ *   ┌────────────────────────────────────┐
+ *   │ PageHead (title + subtitle)         │
+ *   ├────────────────────────────────────┤
+ *   │ [▾ 设备预设]              ● 就绪     │ ← 默认展开
+ *   │   preset-list (3 行 + 展开 body)    │
+ *   │ [▸ 引擎凭证]   ● 已保存 2 分钟前    │ ← 折叠 · 骨架
+ *   │ [▸ 悬浮字幕]             6 项能力     │ ← 折叠 · 骨架
+ *   │ [▸ 全局快捷键]                          │ ← 折叠 · 3 SettingRow stub
+ *   │ [▸ 系统]                                │ ← 折叠 · 3 SettingRow stub
+ *   │ + stub sections list (5 项 disabled)   │
+ *   └────────────────────────────────────┘
  *
- * 决策来源: `.scratch/gui-rebuild-v0.md` §4 设置 tab · preset-first IA
- * Ticket:    #27 (T-G-02) · 完整实装 T-G-03
+ * 决策来源: `.scratch/gui-rebuild-v0.md` §4 (preset-first IA) + §10.1 T-G-03
+ * Ticket:    #28 (T-G-03)
  */
 export default function SettingsView(): React.ReactElement {
   return (
@@ -20,48 +31,134 @@ export default function SettingsView(): React.ReactElement {
       />
 
       <main className="rt-page-body">
-        <div className="rt-callout">
-          <strong>当前是 T-G-02 占位视图</strong>
-          <br />
-          完整 preset-first IA（设备预设 / 引擎凭证 / 悬浮字幕 / 全局快捷键 / 系统）由{" "}
-          <span className="rt-mono">T-G-03</span> 落地。
-        </div>
+        <div className="rt-settings-stack">
+          {/* ============== Section 1 · 设备预设 ============== */}
+          <CollapsibleSection
+            title="设备预设"
+            defaultExpanded
+            status={
+              <>
+                <span className="rt-status-dot" data-tone="success" aria-hidden="true" />
+                3 个 · 1 默认
+              </>
+            }
+          >
+            <PresetList />
+          </CollapsibleSection>
 
-        <section className="rt-section">
-          <div className="rt-section-head">
-            <span className="rt-eyebrow">将实装</span>
-            <span className="rt-section-title">5 个 section（折叠 · preset-first IA）</span>
-          </div>
-          <div className="rt-card-grid">
-            {[
-              { num: 1, name: "设备预设", note: "v0 主交互 · 默认展开" },
-              { num: 2, name: "引擎凭证", note: "API Key + Keychain + 状态机" },
-              { num: 3, name: "悬浮字幕", note: "形态 · 锁定 · 透明度 · 点击穿透 · 屏幕共享隐身 · 多显示器" },
-              { num: 4, name: "全局快捷键", note: "⌘⇧S · ⌘⇧M · ⌘⇧H" },
-              { num: 5, name: "系统", note: "语言 · 版本 · 开源声明" },
-            ].map((s) => (
-              <div key={s.num} className="rt-stat" data-component="settings-stub-section">
-                <span className="rt-eyebrow rt-stat-label">{`section ${s.num}`}</span>
-                <span className="rt-stat-value">{s.name}</span>
-                <span className="rt-stat-muted">{s.note}</span>
+          {/* ============== Section 2 · 引擎凭证 ============== */}
+          <CollapsibleSection
+            title="引擎凭证"
+            status={
+              <>
+                <span className="rt-status-dot" data-tone="success" aria-hidden="true" />
+                已保存 · 待测试
+              </>
+            }
+          >
+            <div className="rt-settings-stub-section-list">
+              <p style={{ color: "var(--fg-muted)", fontSize: "var(--fs-13)" }}>
+                API Key 输入 + Keychain 读写 + 「测试连接」按钮 + RTT 状态机
+                详细 UI 由 <span className="rt-mono">T-G-06</span> 实装。
+              </p>
+            </div>
+          </CollapsibleSection>
+
+          {/* ============== Section 3 · 悬浮字幕 ============== */}
+          <CollapsibleSection
+            title="悬浮字幕"
+            status={<span style={{ color: "var(--fg-muted)" }}>6 项能力</span>}
+          >
+            <div className="rt-settings-stub-section-list">
+              <p style={{ color: "var(--fg-muted)", fontSize: "var(--fs-13)" }}>
+                形态 / 锁定 / 透明度 / 点击穿透 / 屏幕共享隐身 / 多显示器
+                详细 UI 由 <span className="rt-mono">T-G-07</span> 实装。
+              </p>
+            </div>
+          </CollapsibleSection>
+
+          {/* ============== Section 4 · 全局快捷键 ============== */}
+          <CollapsibleSection title="全局快捷键">
+            <div className="rt-settings-stub-section-list">
+              <div className="rt-settings-stub-row">
+                <span className="rt-settings-stub-row-label">启动翻译</span>
+                <span className="rt-settings-stub-row-keys">
+                  <span className="rt-kbd">⌘</span>
+                  <span className="rt-kbd">⇧</span>
+                  <span className="rt-kbd">S</span>
+                </span>
               </div>
-            ))}
-          </div>
-        </section>
+              <div className="rt-settings-stub-row">
+                <span className="rt-settings-stub-row-label">静音麦克风</span>
+                <span className="rt-settings-stub-row-keys">
+                  <span className="rt-kbd">⌘</span>
+                  <span className="rt-kbd">⇧</span>
+                  <span className="rt-kbd">M</span>
+                </span>
+              </div>
+              <div className="rt-settings-stub-row">
+                <span className="rt-settings-stub-row-label">字幕显隐</span>
+                <span className="rt-settings-stub-row-keys">
+                  <span className="rt-kbd">⌘</span>
+                  <span className="rt-kbd">⇧</span>
+                  <span className="rt-kbd">H</span>
+                </span>
+              </div>
+            </div>
+          </CollapsibleSection>
 
-        <section className="rt-section">
-          <div className="rt-section-head">
-            <span className="rt-eyebrow">stub items</span>
-            <span className="rt-section-title">nav 留位 · disabled「即将推出」</span>
-          </div>
-          <p className="rt-section-note">
-            会议记录 · AI 纪要 · 术语词典 · 录制会议音频 · 字幕形态 banner
-            <br />
-            <span className="rt-muted">
-              v0 不实装，nav 留位 disabled，v1 再接入（per Q1 Hybrid 决策）
+          {/* ============== Section 5 · 系统 ============== */}
+          <CollapsibleSection title="系统">
+            <div className="rt-settings-stub-section-list">
+              <div className="rt-settings-stub-row">
+                <span className="rt-settings-stub-row-label">语言</span>
+                <span style={{ color: "var(--fg-muted)" }}>简体中文</span>
+              </div>
+              <div className="rt-settings-stub-row">
+                <span className="rt-settings-stub-row-label">版本</span>
+                <span className="rt-mono" style={{ color: "var(--fg-muted)" }}>
+                  v0
+                </span>
+              </div>
+              <div className="rt-settings-stub-row">
+                <span className="rt-settings-stub-row-label">开源声明</span>
+                <span style={{ color: "var(--fg-muted)" }}>Apache-2.0</span>
+              </div>
+            </div>
+          </CollapsibleSection>
+
+          {/* ============== Stub sections (nav 留位 · disabled) ============== */}
+          <div
+            style={{
+              marginTop: "var(--space-6)",
+              padding: "var(--space-4)",
+              background: "var(--neutral-3)",
+              borderRadius: "var(--radius-3)",
+            }}
+          >
+            <span className="rt-eyebrow" style={{ display: "block", marginBottom: "var(--space-2)" }}>
+              v0 不实装 · v1 接入
             </span>
-          </p>
-        </section>
+            <div className="rt-settings-stub-section-list">
+              {[
+                "会议记录",
+                "AI 纪要",
+                "术语词典",
+                "录制会议音频",
+                "字幕形态 banner",
+              ].map((name) => (
+                <div
+                  key={name}
+                  className="rt-settings-stub-section-item"
+                  style={{ opacity: 0.55 }}
+                >
+                  <span className="rt-settings-stub-row-label">{name}</span>
+                  <span style={{ color: "var(--fg-muted)" }}>即将推出</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );
