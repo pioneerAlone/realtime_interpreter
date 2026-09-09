@@ -154,6 +154,10 @@ pub fn run() {
             ipc::presets::save_preset,
             ipc::presets::delete_preset,
             ipc::presets::set_active_preset,
+            ipc::engine::get_engine_credentials,
+            ipc::engine::set_api_key,
+            ipc::engine::clear_api_key,
+            ipc::engine::test_engine_connection,
         ]);
 
     builder

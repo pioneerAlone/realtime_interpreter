@@ -2,6 +2,7 @@ import React from "react";
 import PageHead from "../components/PageHead";
 import CollapsibleSection from "../components/CollapsibleSection";
 import PresetList from "../components/PresetList";
+import EngineCredentialsSection from "../components/EngineCredentialsSection";
 
 /**
  * SettingsView — 设置 tab v0（T-G-03）
@@ -49,19 +50,15 @@ export default function SettingsView(): React.ReactElement {
           {/* ============== Section 2 · 引擎凭证 ============== */}
           <CollapsibleSection
             title="引擎凭证"
+            defaultExpanded
             status={
               <>
                 <span className="rt-status-dot" data-tone="success" aria-hidden="true" />
-                已保存 · 待测试
+                API Key + RTT 状态
               </>
             }
           >
-            <div className="rt-settings-stub-section-list">
-              <p style={{ color: "var(--fg-muted)", fontSize: "var(--fs-13)" }}>
-                API Key 输入 + Keychain 读写 + 「测试连接」按钮 + RTT 状态机
-                详细 UI 由 <span className="rt-mono">T-G-06</span> 实装。
-              </p>
-            </div>
+            <EngineCredentialsSection />
           </CollapsibleSection>
 
           {/* ============== Section 3 · 悬浮字幕 ============== */}

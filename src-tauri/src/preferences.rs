@@ -1,11 +1,14 @@
-//! preferences.rs — 持久化 preset 配置（T-G-04）
+//! preferences.rs — 持久化 preset 配置（T-G-04） + 引擎凭证（T-G-06）
 //!
 //! v0 hand-rolled JSON file at:
 //!   ~/Library/Application Support/com.pioneeralone.realtime-interpreter/preferences.json
 //! 不用 tauri-plugin-store（per D-G-11 · Open-Less 验证 · 跨窗广播更可靠）
 //!
-//! 决策来源: `.scratch/gui-rebuild-v0.md` §4.6 + §10.1 T-G-04
-//! Ticket:    #30 (T-G-04)
+//! T-G-06 schema v2：新增 `engine_credentials` 字段
+//! v1 → v2 迁移：缺字段用 default 填充（serde Default 兜底）
+//!
+//! 决策来源: `.scratch/gui-rebuild-v0.md` §4.6 + §7 + §10.1
+//! Ticket:    #30 (T-G-04) / #32 (T-G-06)
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -48,13 +51,37 @@ pub struct Preferences {
     pub schema_version: u32,
     pub active_id: String,
     pub presets: Vec<Preset>,
+    /// T-G-06: 引擎凭证状态 · 缺字段时 serde Default 兜底
+    #[serde(default)]
+    pub engine_credentials: EngineCredentials,
+}
+
+/// 引擎凭证状态（T-G-06）
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+pub struct EngineCredentials {
+    pub api_key_set: bool,
+    /// API Key 末 4 位（防 shoulder-surfing · 不存原文）
+    #[serde(default)]
+    pub masked_key: String,
+    #[serde(default)]
+    pub last_test_at: Option<String>,
+    /// "success" | "fail"
+    #[serde(default)]
+    pub last_test_result: Option<String>,
+    #[serde(default)]
+    pub last_rtt_ms: Option<u32>,
+    #[serde(default)]
+    pub last_node: Option<String>,
+    #[serde(default)]
+    pub last_error: Option<String>,
 }
 
 impl Default for Preferences {
     fn default() -> Self {
         Self {
-            schema_version: 1,
+            schema_version: 2,
             active_id: "daily-meeting".to_string(),
+            engine_credentials: EngineCredentials::default(),
             presets: vec![
                 Preset {
                     id: "daily-meeting".to_string(),
@@ -142,9 +169,23 @@ pub fn load(app: &AppHandle) -> AppResult<Preferences> {
     Ok(prefs)
 }
 
+/// 同步保存（用于非 async caller · 比如 Tauri command handler）
+#[allow(dead_code)]
+pub fn save_caller_blocking(prefs: &Preferences) -> AppResult<()> {
+    // 提取路径 + 写文件（不带 app 句柄）· 调用方需自己保证 dir 创建
+    let home = std::env::var("HOME").unwrap_or_default();
+    let path = std::path::PathBuf::from(home)
+        .join("Library/Application Support/com.pioneeralone.realtime-interpreter/preferences.json");
+    save_to_path(&path, prefs)
+}
+
 /// 原子写入：先写 tmp · rename 替换 · 避免半截文件污染
 pub fn save(app: &AppHandle, prefs: &Preferences) -> AppResult<()> {
     let path = preferences_path(app)?;
+    save_to_path(&path, prefs)
+}
+
+fn save_to_path(path: &std::path::Path, prefs: &Preferences) -> AppResult<()> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)
             .map_err(|e| AppError::Ipc(format!("mkdir preferences dir: {e}")))?;
@@ -154,7 +195,7 @@ pub fn save(app: &AppHandle, prefs: &Preferences) -> AppResult<()> {
         .map_err(|e| AppError::Ipc(format!("serialize preferences: {e}")))?;
     fs::write(&tmp, &text)
         .map_err(|e| AppError::Ipc(format!("write preferences tmp: {e}")))?;
-    fs::rename(&tmp, &path)
+    fs::rename(&tmp, path)
         .map_err(|e| AppError::Ipc(format!("rename preferences: {e}")))?;
     Ok(())
 }

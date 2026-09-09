@@ -1428,3 +1428,209 @@
   color: var(--fg);
   font-weight: 500;
 }
+
+/* ============================ engine credentials (T-G-06) ========== */
+
+.rt-engine-creds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-3);
+}
+
+.rt-engine-creds-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.rt-engine-creds-label {
+  font-family: var(--font-text);
+  font-size: var(--fs-13);
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.rt-engine-creds-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.rt-engine-creds-masked {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  letter-spacing: 1.5px;
+  color: var(--fg);
+  padding: var(--space-2) var(--space-3);
+  background: var(--neutral-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+}
+
+.rt-engine-creds-edit-btn {
+  flex: 0 0 auto;
+}
+
+.rt-engine-creds-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.rt-engine-creds-input {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  letter-spacing: 1.5px;
+  color: var(--fg);
+  -webkit-app-region: no-drag;
+}
+
+.rt-engine-creds-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-tint);
+}
+
+.rt-engine-creds-save-btn {
+  flex: 0 0 auto;
+}
+
+.rt-engine-creds-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.rt-engine-creds-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.rt-engine-creds-test-btn {
+  flex: 0 0 auto;
+}
+
+.rt-engine-creds-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.rt-engine-creds-status-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3);
+  border-radius: var(--radius-2);
+  border: 1px solid var(--border);
+}
+
+.rt-engine-creds-status-row[data-tone="success"] {
+  background: var(--success-soft);
+  border-color: var(--success);
+}
+
+.rt-engine-creds-status-row[data-tone="warn"] {
+  background: var(--warn-soft);
+  border-color: var(--warn);
+}
+
+.rt-engine-creds-status-row[data-tone="error"] {
+  background: var(--error-soft);
+  border-color: var(--error);
+}
+
+.rt-engine-creds-status-row[data-tone="idle"] {
+  background: var(--neutral-3);
+  border-color: var(--border);
+}
+
+.rt-engine-creds-status-icon {
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  width: 16px;
+  flex: 0 0 auto;
+}
+
+.rt-engine-creds-status-icon[data-tone="success"] {
+  color: var(--success);
+  text-shadow: 0 0 6px var(--success-soft);
+}
+
+.rt-engine-creds-status-icon[data-tone="warn"] {
+  color: var(--warn);
+  text-shadow: 0 0 6px var(--warn-soft);
+}
+
+.rt-engine-creds-status-icon[data-tone="error"] {
+  color: var(--error);
+  text-shadow: 0 0 6px var(--error-soft);
+}
+
+.rt-engine-creds-status-icon[data-tone="idle"] {
+  color: var(--fg-muted);
+}
+
+.rt-engine-creds-status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rt-engine-creds-status-text strong {
+  font-family: var(--font-text);
+  font-size: var(--fs-13);
+  font-weight: 500;
+}
+
+.rt-engine-creds-status-row[data-tone="success"] .rt-engine-creds-status-text strong {
+  color: var(--success);
+}
+
+.rt-engine-creds-status-row[data-tone="warn"] .rt-engine-creds-status-text strong {
+  color: var(--warn);
+}
+
+.rt-engine-creds-status-row[data-tone="error"] .rt-engine-creds-status-text strong {
+  color: var(--error);
+}
+
+.rt-engine-creds-status-meta {
+  font-family: var(--font-text);
+  font-size: var(--fs-11);
+  color: var(--fg-muted);
+}
+
+.rt-engine-creds-error {
+  font-family: var(--font-text);
+  font-size: var(--fs-12);
+  color: var(--error);
+  padding: var(--space-2) var(--space-3);
+  background: var(--error-soft);
+  border-radius: var(--radius-2);
+}
+
+.rt-engine-creds-status-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-text);
+  font-size: var(--fs-12);
+  color: var(--fg-muted);
+}

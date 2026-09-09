@@ -130,3 +130,58 @@ export async function sessionStatus(channel: Channel): Promise<SessionState> {
     mock: () => "idle",
   });
 }
+
+/* ================ engine credentials (T-G-06) ================ */
+
+import type { EngineCredentials } from "../../store/engine";
+
+const BROWSER_DEFAULT_CREDENTIALS: EngineCredentials = {
+  apiKeySet: true,
+  maskedKey: "3F2A",
+  lastTestAt: "2 小时前",
+  lastTestResult: "success",
+  lastRttMs: 412,
+  lastNode: "火山引擎北京节点",
+  lastError: null,
+};
+
+export async function getEngineCredentials(): Promise<EngineCredentials> {
+  return invokeOrMock<EngineCredentials>("get_engine_credentials", undefined, {
+    mock: () => BROWSER_DEFAULT_CREDENTIALS,
+  });
+}
+
+export async function setApiKey(key: string): Promise<EngineCredentials> {
+  return invokeOrMock<EngineCredentials>("set_api_key", { key }, {
+    mock: () => ({
+      ...BROWSER_DEFAULT_CREDENTIALS,
+      maskedKey: key.slice(-4),
+    }),
+  });
+}
+
+export async function clearApiKey(): Promise<EngineCredentials> {
+  return invokeOrMock<EngineCredentials>("clear_api_key", undefined, {
+    mock: () => ({
+      apiKeySet: false,
+      maskedKey: "",
+      lastTestAt: null,
+      lastTestResult: null,
+      lastRttMs: null,
+      lastNode: null,
+      lastError: null,
+    }),
+  });
+}
+
+export async function testEngineConnection(): Promise<EngineCredentials> {
+  return invokeOrMock<EngineCredentials>("test_engine_connection", undefined, {
+    // mock 模拟 RTT 测量 + 95% 概率成功
+    mock: () => ({
+      ...BROWSER_DEFAULT_CREDENTIALS,
+      lastTestAt: "刚刚",
+      lastRttMs: 180 + Math.floor(Math.random() * 200),
+      lastTestResult: Math.random() < 0.95 ? "success" : "fail",
+    }),
+  });
+}

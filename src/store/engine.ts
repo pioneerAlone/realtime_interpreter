@@ -1,18 +1,29 @@
 import { create } from "zustand";
 import { useSessionStore } from "./session";
-import { startSession, stopSession } from "../lib/ipc";
+import {
+  startSession,
+  stopSession,
+  getEngineCredentials,
+  setApiKey,
+  clearApiKey,
+  testEngineConnection,
+} from "../lib/ipc";
 
 /**
- * engine.ts — 实时翻译 engine 状态（T-G-05）
+ * engine.ts — 实时翻译 engine 状态（T-G-05）+ 引擎凭证（T-G-06）
  *
- * 包含：
+ * T-G-05 范围:
  *   - engine 状态 (idle / starting / running / stopping / error)
  *   - 启动时间戳（用于「已运行 04:38」）
  *   - R3/R4 实时 stats（running 状态显示）
- *   - 引擎凭证 last_test_result（mock · T-G-06 实装）
+ *   - credentials last_test_result（mock · 已被 T-G-06 替换为真实 IPC）
  *
- * 决策来源: `.scratch/gui-rebuild-v0.md` §5 + §10.1 T-G-05
- * Ticket:    #31 (T-G-05)
+ * T-G-06 范围:
+ *   - credentials 状态机：未设置 / 已保存 / 测试中 / 成功 / 失败
+ *   - 完整 IPC 集成：get / set / clear / test
+ *
+ * 决策来源: `.scratch/gui-rebuild-v0.md` §5 + §7 + §10.1
+ * Ticket:    #31 (T-G-05) / #32 (T-G-06)
  */
 
 export type EngineState = "idle" | "starting" | "running" | "stopping" | "error";
@@ -29,9 +40,13 @@ export interface R4Stats {
 
 export interface EngineCredentials {
   apiKeySet: boolean;
+  /** API Key 末 4 位 · 防 shoulder-surfing */
+  maskedKey: string;
   lastTestAt: string | null;
   lastTestResult: "success" | "fail" | null;
   lastRttMs: number | null;
+  lastNode: string | null;
+  lastError: string | null;
 }
 
 interface EngineSlice {
@@ -56,13 +71,22 @@ interface EngineSlice {
   tick: () => void;
   /** dev-only · 模拟凭证状态用于截图 */
   setCredentialsMock: (c: Partial<EngineCredentials>) => void;
+
+  /** T-G-06 凭证 IPC wrappers */
+  loadCredentials: () => Promise<void>;
+  setApiKey: (key: string) => Promise<void>;
+  clearApiKey: () => Promise<void>;
+  testConnection: () => Promise<void>;
 }
 
 const DEFAULT_CREDENTIALS: EngineCredentials = {
   apiKeySet: true,
+  maskedKey: "3F2A",
   lastTestAt: "2 小时前",
   lastTestResult: "success",
   lastRttMs: 412, // > 200ms → 触发黄 warn
+  lastNode: "火山引擎北京节点",
+  lastError: null,
 };
 
 export const useEngineStore = create<EngineSlice>((set, get) => ({
@@ -147,6 +171,49 @@ export const useEngineStore = create<EngineSlice>((set, get) => ({
 
   setCredentialsMock: (c) => {
     set((s) => ({ credentials: { ...s.credentials, ...c } }));
+  },
+
+  loadCredentials: async () => {
+    try {
+      const creds = await getEngineCredentials();
+      set({ credentials: creds });
+    } catch (e) {
+      console.error("[engine] loadCredentials failed:", e);
+    }
+  },
+
+  setApiKey: async (key) => {
+    try {
+      const creds = await setApiKey(key);
+      set({ credentials: creds });
+    } catch (e) {
+      console.error("[engine] setApiKey failed:", e);
+      throw e;
+    }
+  },
+
+  clearApiKey: async () => {
+    try {
+      const creds = await clearApiKey();
+      set({ credentials: creds });
+    } catch (e) {
+      console.error("[engine] clearApiKey failed:", e);
+    }
+  },
+
+  testConnection: async () => {
+    const state = get();
+    if (!state.credentials.apiKeySet) {
+      console.warn("[engine] testConnection: api_key not set");
+      return;
+    }
+    set({ credentials: { ...state.credentials, lastTestResult: null } });
+    try {
+      const creds = await testEngineConnection();
+      set({ credentials: creds });
+    } catch (e) {
+      console.error("[engine] testConnection failed:", e);
+    }
   },
 }));
 
