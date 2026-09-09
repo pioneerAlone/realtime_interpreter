@@ -1,6 +1,16 @@
 import React from "react";
 import { useSubtitlesStore } from "../store/subtitles";
 
+/**
+ * SubtitleView — capsule 窗口占位（待 T-G-07 重写）
+ *
+ * 当前任务（T-G-01）：
+ *   - 保持可渲染（避免旧 styles.css 依赖崩溃）
+ *   - 应用 de-jargon（Q6）
+ *
+ * 决策来源: `.scratch/gui-rebuild-v0.md` §6 (字幕胶囊窗 v0)
+ * Ticket:    #26 (T-G-01) · 完整实装 T-G-07
+ */
 export default function SubtitleView(): React.ReactElement {
   const subtitles = useSubtitlesStore((s) => s.subtitles);
 
@@ -8,24 +18,18 @@ export default function SubtitleView(): React.ReactElement {
     <div
       style={{
         height: "100vh",
-        padding: 16,
+        padding: "var(--space-4)",
         display: "flex",
         flexDirection: "column",
-        gap: 8,
+        gap: "var(--space-2)",
         overflow: "hidden",
-        color: "var(--fg)",
+        background: "var(--surface-capsule)",
+        color: "var(--fg-on-capsule)",
+        fontFamily: "var(--font-text)",
       }}
     >
-      <div
-        style={{
-          fontSize: 11,
-          color: "var(--fg-muted)",
-          textTransform: "uppercase",
-          letterSpacing: "0.06em",
-          fontWeight: 600,
-        }}
-      >
-        realtime_interpreter — subtitles
+      <div className="rt-eyebrow" style={{ color: "rgba(255,255,255,0.6)" }}>
+        实时字幕
       </div>
       <div
         style={{
@@ -37,27 +41,39 @@ export default function SubtitleView(): React.ReactElement {
         }}
       >
         {subtitles.length === 0 ? (
-          <p style={{ color: "var(--fg-muted)", fontSize: 12 }}>
-            No subtitles yet. R4 stream wires up in ticket #04.
+          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "var(--fs-12)" }}>
+            翻译启动后字幕会出现在这里
           </p>
         ) : (
           subtitles.map((s) => (
             <div
               key={s.id}
               style={{
-                padding: "8px 10px",
-                background: "var(--bg-card)",
-                border: "1px solid var(--bg-card-border)",
-                borderRadius: 8,
-                fontSize: 13,
+                padding: "var(--space-2) var(--space-3)",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "var(--radius-2)",
+                fontSize: "var(--fs-13)",
               }}
             >
-              <div style={{ color: "var(--fg-muted)", fontSize: 10, marginBottom: 2 }}>
-                [{s.speaker}] {new Date(s.timestamp_ms).toLocaleTimeString()}
+              <div
+                style={{
+                  color: "rgba(255,255,255,0.55)",
+                  fontSize: 10,
+                  marginBottom: 2,
+                }}
+              >
+                {s.speaker} · {new Date(s.timestamp_ms).toLocaleTimeString()}
               </div>
-              <div style={{ color: "var(--fg)" }}>{s.source_text}</div>
+              <div style={{ color: "var(--fg-on-capsule)" }}>{s.source_text}</div>
               {s.translation_text && (
-                <div style={{ color: "var(--accent)", marginTop: 2 }}>
+                <div
+                  style={{
+                    color: "#FFE7C2",
+                    marginTop: 2,
+                    fontWeight: 500,
+                  }}
+                >
                   {s.translation_text}
                 </div>
               )}
