@@ -34,8 +34,8 @@ import type { Preferences, Preset } from "../../store/presets";
 
 /** 与 Rust Preferences::default() 保持一致 — 浏览器 preview mock 用 */
 const BROWSER_DEFAULT_PREFERENCES: Preferences = {
-  schema_version: 1,
-  active_id: "daily-meeting",
+  schemaVersion: 2,
+  activeId: "daily-meeting",
   presets: [
     {
       id: "daily-meeting",

@@ -35,8 +35,8 @@ export interface Preset {
 }
 
 export interface Preferences {
-  schema_version: number;
-  active_id: string;
+  schemaVersion: number;
+  activeId: string;
   presets: Preset[];
 }
 
@@ -65,7 +65,7 @@ export const usePresetStore = create<PresetSlice>((set, get) => ({
       set({
         loaded: true,
         presets: prefs.presets,
-        activeId: prefs.active_id,
+        activeId: prefs.activeId,
       });
     } catch (e) {
       console.error("[presets] load failed:", e);
