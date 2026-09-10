@@ -8,6 +8,7 @@
 mod error;
 mod ipc;
 mod platform;
+mod preferences;
 mod state;
 
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -21,12 +22,14 @@ use tauri::{
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 use crate::error::{AppError, AppResult};
+use crate::preferences::PreferencesState;
 use crate::state::AppState;
 
 /// Entry point invoked from `main.rs`.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let state = AppState::new();
+    let prefs = PreferencesState::default();
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_os::init())
@@ -35,6 +38,7 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_nspanel::init())
         .manage(state.clone())
+        .manage(prefs.clone())
         .setup(move |app| {
             // Build the tray menu (per ticket #2 Implementation notes).
             let tray_menu = build_tray_menu(app.handle())?;
@@ -146,6 +150,10 @@ pub fn run() {
             ipc::config::get_config,
             ipc::config::set_config,
             ipc::config::get_api_key_status,
+            ipc::presets::get_preferences,
+            ipc::presets::save_preset,
+            ipc::presets::delete_preset,
+            ipc::presets::set_active_preset,
         ]);
 
     builder
