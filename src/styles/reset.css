@@ -1,0 +1,102 @@
+/* realtime_interpreter — base reset (T-G-01)
+ *
+ * 仅 reset，不放 layout / 组件样式（属于 primitives.css）。
+ * 决策来源: `.scratch/gui-rebuild-v0.md` §1 + §9
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100vh;
+  background: var(--surface-1);
+  color: var(--fg);
+  overflow: hidden; /* Tauri 窗口自己控制滚动 */
+}
+
+body {
+  font-family: var(--font-text);
+  font-size: var(--fs-13);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* Tauri native window drag region（macOS titlebar / drag handle） */
+.rt-drag-region {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.rt-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+/* ---- utility (v0 必要少量) ---- */
+
+.rt-mono {
+  font-family: var(--font-mono);
+}
+
+.rt-muted {
+  color: var(--fg-muted);
+}
+
+.rt-subtle {
+  color: var(--fg-subtle);
+}
+
+.rt-eyebrow {
+  font-size: var(--fs-11);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--fg-muted);
+}

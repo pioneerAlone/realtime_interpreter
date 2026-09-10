@@ -8,6 +8,7 @@
 mod error;
 mod ipc;
 mod platform;
+mod preferences;
 mod state;
 
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -21,12 +22,14 @@ use tauri::{
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 use crate::error::{AppError, AppResult};
+use crate::preferences::PreferencesState;
 use crate::state::AppState;
 
 /// Entry point invoked from `main.rs`.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let state = AppState::new();
+    let prefs = PreferencesState::default();
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_os::init())
@@ -35,6 +38,7 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_nspanel::init())
         .manage(state.clone())
+        .manage(prefs.clone())
         .setup(move |app| {
             // Build the tray menu (per ticket #2 Implementation notes).
             let tray_menu = build_tray_menu(app.handle())?;
@@ -146,6 +150,21 @@ pub fn run() {
             ipc::config::get_config,
             ipc::config::set_config,
             ipc::config::get_api_key_status,
+            ipc::presets::get_preferences,
+            ipc::presets::save_preset,
+            ipc::presets::delete_preset,
+            ipc::presets::set_active_preset,
+            ipc::engine::get_engine_credentials,
+            ipc::engine::set_api_key,
+            ipc::engine::clear_api_key,
+            ipc::engine::test_engine_connection,
+            ipc::caption::get_caption_settings,
+            ipc::caption::set_caption_position,
+            ipc::caption::set_caption_opacity,
+            ipc::caption::set_caption_locked,
+            ipc::caption::set_caption_click_through,
+            ipc::caption::set_caption_share_hidden,
+            ipc::caption::set_caption_display_index,
         ]);
 
     builder
@@ -154,91 +173,180 @@ pub fn run() {
 }
 
 fn build_tray_menu(app: &AppHandle<Wry>) -> AppResult<Menu<Wry>> {
-    let start_r3 = MenuItem::with_id(app, "start_r3", "Start R3", true, None::<&str>)
-        .map_err(menu_error)?;
-    let stop_r3 = MenuItem::with_id(app, "stop_r3", "Stop R3", false, None::<&str>)
-        .map_err(menu_error)?;
-    let start_r4 = MenuItem::with_id(app, "start_r4", "Start R4", true, None::<&str>)
-        .map_err(menu_error)?;
-    let stop_r4 = MenuItem::with_id(app, "stop_r4", "Stop R4", false, None::<&str>)
-        .map_err(menu_error)?;
-    let bypass = MenuItem::with_id(
-        app,
-        "toggle_bypass",
-        "原声直出 (Bypass)  ⌃⌥P",
-        true,
-        None::<&str>,
-    )
-    .map_err(menu_error)?;
-    let show_subtitle = MenuItem::with_id(
-        app,
-        "show_subtitle",
-        "Show Subtitle  ⌥",
-        true,
-        None::<&str>,
-    )
-    .map_err(menu_error)?;
-    let hide_subtitle = MenuItem::with_id(
-        app,
-        "hide_subtitle",
-        "Hide Subtitle  ⌃⌥H",
-        true,
-        None::<&str>,
-    )
-    .map_err(menu_error)?;
-    let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)
-        .map_err(menu_error)?;
-    let separator = PredefinedMenuItem::separator(app).map_err(menu_error)?;
+    let separator = || PredefinedMenuItem::separator(app).map_err(menu_error);
 
-    Menu::with_items(
+    // 1. 显示主面板 ⌘1
+    let show_main = MenuItem::with_id(app, "show_main", "显示主面板  ⌘1", true, None::<&str>)
+        .map_err(menu_error)?;
+
+    // 2. 显示/隐藏字幕 ⌘⇧H (toggles based on current state)
+    let toggle_subtitle_text = if app
+        .get_webview_window("subtitle")
+        .and_then(|w| w.is_visible().ok())
+        .unwrap_or(false)
+    {
+        "隐藏字幕  ⌘⇧H"
+    } else {
+        "显示字幕  ⌘⇧H"
+    };
+    let toggle_subtitle = MenuItem::with_id(
         app,
-        &[
-            &start_r3,
-            &stop_r3,
-            &separator,
-            &start_r4,
-            &stop_r4,
-            &separator,
-            &bypass,
-            &separator,
-            &show_subtitle,
-            &hide_subtitle,
-            &separator,
-            &quit,
-        ],
+        "toggle_subtitle",
+        toggle_subtitle_text,
+        true,
+        None::<&str>,
     )
-    .map_err(menu_error)
+    .map_err(menu_error)?;
+
+    // 3. sep
+    let sep1 = separator()?;
+
+    // 4. Preset switcher (从 PreferencesState 动态读)
+    let prefs_state = app.state::<PreferencesState>();
+    let presets_snapshot = {
+        let prefs = prefs_state.0.blocking_read();
+        (
+            prefs.active_id.clone(),
+            prefs.presets.iter().map(|p| (p.id.clone(), p.name.clone(), p.status.clone())).collect::<Vec<_>>(),
+        )
+    };
+    let (active_id, presets_list) = presets_snapshot;
+    let mut preset_items: Vec<MenuItem<Wry>> = Vec::new();
+    for (pid, name, status) in &presets_list {
+        let is_active = pid == &active_id;
+        let label = if is_active {
+            format!("✓ {}", name)
+        } else {
+            name.clone()
+        };
+        let enabled = status != "disabled-stub";
+        let item = MenuItem::with_id(
+            app,
+            format!("switch_preset:{}", pid),
+            &label,
+            enabled,
+            None::<&str>,
+        )
+        .map_err(menu_error)?;
+        preset_items.push(item);
+    }
+
+    // 5. sep
+    let sep2 = separator()?;
+
+    // 6. 启动同传 ⌘⇧S (显示当前 active preset 名称 · 真实启动走 IPC)
+    let active_name = presets_list
+        .iter()
+        .find(|(id, _, _)| id == &active_id)
+        .map(|(_, n, _)| n.clone())
+        .unwrap_or_else(|| "—".to_string());
+    let start_engine = MenuItem::with_id(
+        app,
+        "start_engine",
+        format!("● 启动同传（{}）  ⌘⇧S", active_name),
+        true,
+        None::<&str>,
+    )
+    .map_err(menu_error)?;
+    let toggle_mute = MenuItem::with_id(
+        app,
+        "toggle_mute",
+        "静音麦克风  ⌘⇧M",
+        true,
+        None::<&str>,
+    )
+    .map_err(menu_error)?;
+
+    // 7. sep
+    let sep3 = separator()?;
+
+    // 8. 退出
+    let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>).map_err(menu_error)?;
+
+    // 组装 menu · 按 Vec<&dyn tauri::menu::IsMenuItem<Wry>>
+    let mut items: Vec<&dyn tauri::menu::IsMenuItem<Wry>> =
+        vec![&show_main, &toggle_subtitle];
+    items.push(&sep1);
+    for item in &preset_items {
+        items.push(item);
+    }
+    items.push(&sep2);
+    items.push(&start_engine);
+    items.push(&toggle_mute);
+    items.push(&sep3);
+    items.push(&quit);
+
+    Menu::with_items(app, &items).map_err(menu_error)
+}
+
+/// 切换后刷新 menu（重新构建 + set_menu）
+fn refresh_tray_menu(app: &AppHandle<Wry>) {
+    if let Some(tray) = app.tray_by_id("main-tray") {
+        match build_tray_menu(app) {
+            Ok(new_menu) => {
+                let _ = tray.set_menu(Some(new_menu));
+            }
+            Err(e) => tracing::warn!(error = ?e, "failed to rebuild tray menu"),
+        }
+    }
 }
 
 fn handle_tray_event(app: &AppHandle<Wry>, id: &str) {
     match id {
-        "start_r3" => {
-            let _ = app.emit("tray:start_r3", ());
-        }
-        "stop_r3" => {
-            let _ = app.emit("tray:stop_r3", ());
-        }
-        "start_r4" => {
-            let _ = app.emit("tray:start_r4", ());
-        }
-        "stop_r4" => {
-            let _ = app.emit("tray:stop_r4", ());
-        }
-        "toggle_bypass" => {
-            let _ = app.emit("tray:toggle_bypass", ());
-        }
-        "show_subtitle" => {
-            if let Some(w) = app.get_webview_window("subtitle") {
+        "show_main" => {
+            if let Some(w) = app.get_webview_window("main") {
                 let _ = w.show();
+                let _ = w.set_focus();
             }
         }
-        "hide_subtitle" => {
+        "toggle_subtitle" => {
             if let Some(w) = app.get_webview_window("subtitle") {
-                let _ = w.hide();
+                let is_visible = w.is_visible().unwrap_or(false);
+                if is_visible {
+                    let _ = w.hide();
+                } else {
+                    let _ = w.show();
+                }
             }
+            // 刷新 menu（label 切换 显示/隐藏）
+            refresh_tray_menu(app);
+        }
+        id if id.starts_with("switch_preset:") => {
+            let preset_id = id.trim_start_matches("switch_preset:").to_string();
+            // 同步更新 PreferencesState · 触发 React 端 usePresetStore.setActive 流程
+            let prefs_state = app.state::<PreferencesState>();
+            {
+                let mut prefs = prefs_state.0.blocking_write();
+                if let Some(idx) = prefs.presets.iter().position(|p| p.id == preset_id) {
+                    prefs.active_id = preset_id.clone();
+                    // 同步落盘
+                    if let Err(e) = crate::preferences::save_caller_blocking(&prefs) {
+                        tracing::warn!(error = ?e, "failed to save preset switch");
+                    }
+                    let _ = idx;
+                } else {
+                    tracing::warn!(preset_id = %preset_id, "unknown preset id");
+                    return;
+                }
+            }
+            // emit 到 React · 让 UI 同步
+            let _ = app.emit("tray:switch_preset", preset_id);
+            // 刷新 menu（checkmark 移动）
+            refresh_tray_menu(app);
+        }
+        "start_engine" => {
+            let _ = app.emit("tray:start_engine", ());
+        }
+        "toggle_mute" => {
+            let _ = app.emit("tray:toggle_mute", ());
         }
         "quit" => {
             app.exit(0);
+        }
+        // legacy 兼容（v0 旧 menu IDs）
+        "start_r3" | "stop_r3" | "start_r4" | "stop_r4" | "toggle_bypass" | "show_subtitle" | "hide_subtitle" => {
+            // 旧 menu 项已删除 · 保留兼容忽略
+            tracing::debug!(id = %id, "legacy tray id ignored");
         }
         _ => {}
     }
