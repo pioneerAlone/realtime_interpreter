@@ -13,13 +13,8 @@ pub async fn get_preferences(
     app: AppHandle,
     state: State<'_, PreferencesState>,
 ) -> Result<Preferences, String> {
-    // 内存中没有就尝试从磁盘加载（首次启动 + 进程重启后）
-    {
-        let prefs = state.0.read().await;
-        if !prefs.presets.is_empty() {
-            return Ok(prefs.clone());
-        }
-    }
+    // 始终从磁盘读（保证 latest state on disk wins）
+    // 内存中可能有 in-flight 编辑但 Tauri 进程刚启动时只有 default · 所以从 disk 读最稳
     let loaded = preferences::load(&app).map_err(|e| e.to_string())?;
     {
         let mut prefs = state.0.write().await;
