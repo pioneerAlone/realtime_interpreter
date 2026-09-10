@@ -21,6 +21,7 @@ use crate::error::{AppError, AppResult};
 
 /// 单个 preset 的 v0 schema
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct PresetDevices {
     pub microphone: String,
     pub translation_output: String,
@@ -29,6 +30,7 @@ pub struct PresetDevices {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct Preset {
     pub id: String,
     pub name: String,
@@ -47,6 +49,7 @@ pub struct Preset {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct Preferences {
     pub schema_version: u32,
     pub active_id: String,
@@ -164,9 +167,84 @@ pub fn load(app: &AppHandle) -> AppResult<Preferences> {
     }
     let text = fs::read_to_string(&path)
         .map_err(|e| AppError::Ipc(format!("read preferences.json: {e}")))?;
+    // 检测 v1 旧 snake_case 格式（pre-camelCase fix）· 自动迁移
+    let text = migrate_legacy_snake_case(&text);
     let prefs: Preferences = serde_json::from_str(&text)
         .map_err(|e| AppError::Ipc(format!("parse preferences.json: {e}")))?;
     Ok(prefs)
+}
+
+/// Migration: 旧版本（schema_version 1 · snake_case 字段）→ 新版本（schema_version 2+ · camelCase）
+/// 检测到旧 snake_case keys 时 · 在内存里 rename 后再 deserialize
+/// 写入时 Rust serde 自动用 camelCase（`#[serde(rename_all = "camelCase")]`）· 旧文件被覆盖
+fn migrate_legacy_snake_case(text: &str) -> String {
+    // 检测 v1 旧 schema + snake_case presence
+    let has_legacy = text.contains("\"active_id\"")
+        || text.contains("\"translation_output\"")
+        || text.contains("\"r3_direction\"")
+        || text.contains("\"r4_caption\"")
+        || text.contains("\"last_launched\"")
+        || text.contains("\"launch_count\"")
+        || text.contains("\"remote_input\"")
+        || text.contains("\"schema_version\": 1")
+        || text.contains("\"schema_version\":1");
+    if !has_legacy {
+        return text.to_string();
+    }
+    // 用 serde_json::Value 转换 keys
+    match serde_json::from_str::<serde_json::Value>(text) {
+        Ok(mut v) => {
+            rename_keys_recursive(&mut v);
+            v.to_string()
+        }
+        Err(_) => text.to_string(),
+    }
+}
+
+fn rename_keys_recursive(v: &mut serde_json::Value) {
+    use serde_json::Value;
+    if let Value::Object(map) = v {
+        // 收集要 rename 的 keys
+        let to_rename: Vec<(String, String)> = map
+            .keys()
+            .filter_map(|k| {
+                let new_k = snake_to_camel(k);
+                if &new_k != k {
+                    Some((k.clone(), new_k))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        for (old, new) in to_rename {
+            if let Some(val) = map.remove(&old) {
+                map.insert(new, val);
+            }
+        }
+        for (_, v) in map.iter_mut() {
+            rename_keys_recursive(v);
+        }
+    } else if let Value::Array(arr) = v {
+        for item in arr.iter_mut() {
+            rename_keys_recursive(item);
+        }
+    }
+}
+
+fn snake_to_camel(s: &str) -> String {
+    let mut result = String::new();
+    let mut capitalize_next = false;
+    for c in s.chars() {
+        if c == '_' {
+            capitalize_next = true;
+        } else if capitalize_next {
+            result.push(c.to_ascii_uppercase());
+            capitalize_next = false;
+        } else {
+            result.push(c);
+        }
+    }
+    result
 }
 
 /// 同步保存（用于非 async caller · 比如 Tauri command handler）
