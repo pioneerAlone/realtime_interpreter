@@ -4,9 +4,12 @@
 //! returning a deterministic placeholder. Real bodies land in
 //! tickets #03-#13.
 
+pub mod caption;
 pub mod config;
 pub mod device;
 pub mod diagnostics;
+pub mod engine;
+pub mod presets;
 pub mod session;
 pub mod subtitle;
 pub mod topology;
