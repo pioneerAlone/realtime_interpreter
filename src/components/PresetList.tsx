@@ -107,6 +107,9 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
   const [draft, setDraft] = useState<Preset["devices"] | null>(
     preset?.devices ?? null,
   );
+  const [devicesOpen, setDevicesOpen] = useState(true);
+  const [directionOpen, setDirectionOpen] = useState(true);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
     if (preset) setDraft(preset.devices);
@@ -132,8 +135,13 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
 
   return (
     <div className="rt-preset-body" data-component="preset-body">
-      <div className="rt-preset-body-grid">
-        <div className="rt-preset-body-left">
+      {/* 子 section: 音频设备 (4 picker rows) */}
+      <SubSection
+        title="音频设备"
+        open={devicesOpen}
+        onToggle={() => setDevicesOpen((v) => !v)}
+      >
+        <div className="rt-preset-body-pickers">
           <PickerRow
             picker="microphone"
             value={draft.microphone}
@@ -155,23 +163,37 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
             onChange={handlePickerChange("monitor")}
             mockLevel={0}
           />
-
-          <div className="rt-direction-block">
-            <div className="rt-direction-row">
-              <span className="rt-eyebrow">R3 方向</span>
-              <span className="rt-direction-value">
-                {preset.r3Direction === "zh→en" ? "中文 → 英文" : "英文 → 中文"}
-              </span>
-            </div>
-            <div className="rt-direction-row">
-              <span className="rt-eyebrow">R4 字幕</span>
-              <span className="rt-direction-value">双语 stacked · 英文原文 + 中文</span>
-            </div>
-            <p className="rt-direction-note">v0 hardcode 双向 · 不可改</p>
-          </div>
         </div>
+      </SubSection>
 
-        <div className="rt-preset-body-right">
+      {/* 子 section: 翻译方向 */}
+      <SubSection
+        title="翻译方向"
+        open={directionOpen}
+        onToggle={() => setDirectionOpen((v) => !v)}
+      >
+        <div className="rt-direction-block rt-direction-block-standalone">
+          <div className="rt-direction-row">
+            <span className="rt-eyebrow">R3 方向</span>
+            <span className="rt-direction-value">
+              {preset.r3Direction === "zh→en" ? "中文 → 英文" : "英文 → 中文"}
+            </span>
+          </div>
+          <div className="rt-direction-row">
+            <span className="rt-eyebrow">R4 字幕</span>
+            <span className="rt-direction-value">双语 stacked · 英文原文 + 中文</span>
+          </div>
+          <p className="rt-direction-note">v0 hardcode 双向 · 不可改</p>
+        </div>
+      </SubSection>
+
+      {/* 子 section: 详细信息 (状态 / 上次启动 / 简介 / 操作) */}
+      <SubSection
+        title="详细信息"
+        open={detailsOpen}
+        onToggle={() => setDetailsOpen((v) => !v)}
+      >
+        <div className="rt-preset-body-details">
           <div className="rt-stat">
             <span className="rt-eyebrow rt-stat-label">状态</span>
             <span className="rt-stat-value">
@@ -208,7 +230,7 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
             </div>
           </div>
         </div>
-      </div>
+      </SubSection>
 
       <div className="rt-preset-body-footer">
         <button type="button" className="rt-btn rt-btn-ghost" onClick={handleCancel}>
@@ -218,6 +240,36 @@ function PresetBody({ presetId }: { presetId: string }): React.ReactElement {
           ✓ 保存修改
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* SubSection — preset body 内的折叠子 section                        */
+/* ------------------------------------------------------------------ */
+
+interface SubSectionProps {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+function SubSection({ title, open, onToggle, children }: SubSectionProps): React.ReactElement {
+  return (
+    <div className="rt-preset-subsection" data-open={open}>
+      <button
+        type="button"
+        className="rt-preset-subsection-head"
+        onClick={onToggle}
+        aria-expanded={open}
+      >
+        <span className="rt-preset-subsection-caret" aria-hidden="true">
+          {open ? "▾" : "▸"}
+        </span>
+        <span className="rt-preset-subsection-title">{title}</span>
+      </button>
+      {open && <div className="rt-preset-subsection-body">{children}</div>}
     </div>
   );
 }
